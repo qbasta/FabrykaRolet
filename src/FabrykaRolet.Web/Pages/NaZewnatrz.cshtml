@@ -5,22 +5,56 @@
 }
 
 <section class="section-intro container">
-    <h1>Systemy zewnętrzne</h1>
-    <p>Kliknij w oznaczony element na widoku domu, aby poznać jego opis i zalety.</p>
+    <h1>Konfigurator systemów</h1>
+    <p>Kliknij obszar na modelu domu, aby zobaczyć opis systemu i jego zalety.</p>
+
+    <nav class="section-switch" aria-label="Przełączanie konfiguratora">
+        <a asp-page="/NaZewnatrz" class="section-switch__item is-active" aria-current="page">Zewnętrzne</a>
+        <a asp-page="/Wewnatrz" class="section-switch__item">Wewnętrzne</a>
+    </nav>
 </section>
 
 @if (Model.HasViews)
 {
-    <section class="house-viewer container" id="house-viewer">
-        <div class="house-viewer__stage">
-            <img class="house-viewer__image" alt="" />
-            <svg class="house-viewer__overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
-            <div class="house-viewer__hit-areas"></div>
+    <section class="configurator container" aria-label="Interaktywny konfigurator">
+        <div class="configurator__viewer">
+            <section class="house-viewer" id="house-viewer" aria-label="Widok domu">
+                <div class="house-viewer__stage">
+                    <img class="house-viewer__image" alt="" />
+                    <svg class="house-viewer__overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+                    <div class="house-viewer__hit-areas"></div>
+                </div>
+                <div class="house-viewer__nav">
+                    <button type="button" class="house-viewer__arrow house-viewer__arrow--prev" aria-label="Poprzedni widok" hidden>‹</button>
+                    <div class="house-viewer__views" role="tablist" aria-label="Wybierz ujęcie domu"></div>
+                    <button type="button" class="house-viewer__arrow house-viewer__arrow--next" aria-label="Następny widok" hidden>›</button>
+                </div>
+            </section>
+
+            <section class="system-list" aria-label="Dostępne systemy">
+                <div class="system-list__filters" role="toolbar" aria-label="Filtr systemów">
+                    <button type="button" class="system-filter is-active" data-filter="all" aria-pressed="true">Wszystkie</button>
+                    <button type="button" class="system-filter" data-filter="exterior" aria-pressed="false">Zewnętrzne</button>
+                    <button type="button" class="system-filter" data-filter="interior" aria-pressed="false">Wewnętrzne</button>
+                </div>
+
+                <div class="system-grid" aria-live="polite">
+                    @foreach (var system in Model.Systems)
+                    {
+                        <button type="button" class="system-button" data-system-id="@system.Id" data-system-section="exterior">
+                            @system.Name
+                        </button>
+                    }
+                </div>
+                <p class="system-list__empty" hidden>Brak systemów dla wybranego filtra na tej stronie.</p>
+            </section>
         </div>
-        <div class="house-viewer__nav">
-            <button type="button" class="house-viewer__arrow house-viewer__arrow--prev" aria-label="Poprzedni widok" hidden>‹</button>
-            <button type="button" class="house-viewer__arrow house-viewer__arrow--next" aria-label="Następny widok" hidden>›</button>
-        </div>
+
+        <aside class="configurator__info" aria-live="polite">
+            <h2 id="hv-info-title">Wybierz system</h2>
+            <p id="hv-info-description">Użyj hotspotów na obrazie lub listy systemów poniżej, aby zobaczyć szczegóły produktu.</p>
+            <ul id="hv-info-advantages" class="hv-info__advantages"></ul>
+        </aside>
     </section>
 
     <div id="house-viewer-modal" class="hv-modal" hidden>
@@ -39,15 +73,6 @@ else
 {
     <p class="container">Widoki dla tej sekcji są w przygotowaniu.</p>
 }
-
-<section class="system-grid container" aria-label="Lista systemów zewnętrznych">
-    @foreach (var system in Model.Systems)
-    {
-        <button type="button" class="system-button" data-system-id="@system.Id">
-            @system.Name
-        </button>
-    }
-</section>
 
 @section Scripts {
     <script type="module" src="~/dist/house-viewer.js"></script>
