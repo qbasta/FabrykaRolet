@@ -56,7 +56,7 @@ export class HouseViewer {
     this.prevBtn = root.querySelector(".house-viewer__arrow--prev");
     this.nextBtn = root.querySelector(".house-viewer__arrow--next");
     this.viewsNav = root.querySelector(".house-viewer__views");
-    this.systemButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(".system-button[data-system-id]"));
+    this.systemButtons = this.collectSystemButtons();
 
     this.bindNav();
     this.bindPanelClose();
@@ -80,7 +80,7 @@ export class HouseViewer {
     this.nextBtn?.addEventListener("click", () => this.step(1));
 
     if (this.viewsNav) {
-      this.viewsNav.innerHTML = "";
+      this.viewsNav.replaceChildren();
       this.data.views.forEach((view, index) => {
         const button = document.createElement("button");
         button.type = "button";
@@ -137,6 +137,15 @@ export class HouseViewer {
   private bindGlobalEvents(): void {
     window.addEventListener("resize", () => this.updateConnector());
     this.img.addEventListener("load", () => this.updateConnector());
+  }
+
+  private collectSystemButtons(): HTMLButtonElement[] {
+    const nearbyGrid = this.root.closest(".house-viewer")?.nextElementSibling;
+    if (!(nearbyGrid instanceof HTMLElement) || !nearbyGrid.classList.contains("system-grid")) {
+      return [];
+    }
+
+    return Array.from(nearbyGrid.querySelectorAll<HTMLButtonElement>(".system-button[data-system-id]"));
   }
 
   private findHotspot(systemId: string): { viewIndex: number; hotspot: HotspotData } | null {
@@ -197,7 +206,7 @@ export class HouseViewer {
     }
 
     const applyView = () => {
-      this.img.src = view.image;
+      this.img.src = this.resolveImageUrl(view.image);
       this.img.alt = view.title;
       this.buildHotspots(view);
       this.syncViewButtons();
@@ -230,8 +239,8 @@ export class HouseViewer {
   }
 
   private buildHotspots(view: HouseViewData): void {
-    this.overlay.innerHTML = "";
-    this.hitAreas.innerHTML = "";
+    this.overlay.replaceChildren();
+    this.hitAreas.replaceChildren();
 
     view.hotspots.forEach((hotspot, index) => {
       const bounds = this.getBounds(hotspot);
@@ -333,7 +342,7 @@ export class HouseViewer {
 
     this.panelTitle.textContent = content.name;
     this.panelDescription.textContent = content.description;
-    this.panelAdvantages.innerHTML = "";
+    this.panelAdvantages.replaceChildren();
     content.advantages.forEach((advantage) => {
       const li = document.createElement("li");
       li.textContent = advantage;
@@ -365,6 +374,15 @@ export class HouseViewer {
   private scheduleConnectorRefresh(): void {
     this.connectorRefreshTween?.kill();
     this.connectorRefreshTween = gsap.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
+  }
+
+  private resolveImageUrl(url: string): string {
+    const resolved = new URL(url, window.location.origin);
+    if (resolved.origin !== window.location.origin || !/^https?:$/.test(resolved.protocol)) {
+      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
+    }
+
+    return resolved.pathname + resolved.search + resolved.hash;
   }
 
   private isConnectorHidden(): boolean {

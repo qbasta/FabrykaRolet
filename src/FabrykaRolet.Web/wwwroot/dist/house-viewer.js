@@ -26,7 +26,7 @@ class C {
     r(this, "lastFocused", null);
     r(this, "activePulseTween", null);
     r(this, "connectorRefreshTween", null);
-    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = Array.from(document.querySelectorAll(".system-button[data-system-id]")), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
+    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
   }
   require(e) {
     const t = this.root.querySelector(e);
@@ -36,7 +36,7 @@ class C {
   bindNav() {
     var t, s;
     const e = this.data.views.length > 1;
-    this.prevBtn && (this.prevBtn.hidden = !e), this.nextBtn && (this.nextBtn.hidden = !e), (t = this.prevBtn) == null || t.addEventListener("click", () => this.step(-1)), (s = this.nextBtn) == null || s.addEventListener("click", () => this.step(1)), this.viewsNav && (this.viewsNav.innerHTML = "", this.data.views.forEach((i, n) => {
+    this.prevBtn && (this.prevBtn.hidden = !e), this.nextBtn && (this.nextBtn.hidden = !e), (t = this.prevBtn) == null || t.addEventListener("click", () => this.step(-1)), (s = this.nextBtn) == null || s.addEventListener("click", () => this.step(1)), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((i, n) => {
       var h;
       const o = document.createElement("button");
       o.type = "button", o.className = "house-viewer__view-btn", o.textContent = i.title, o.setAttribute("role", "tab"), o.setAttribute("aria-selected", n === this.currentIndex ? "true" : "false"), o.tabIndex = n === this.currentIndex ? 0 : -1, o.addEventListener("click", () => this.renderView(n)), (h = this.viewsNav) == null || h.appendChild(o);
@@ -60,6 +60,11 @@ class C {
   }
   bindGlobalEvents() {
     window.addEventListener("resize", () => this.updateConnector()), this.img.addEventListener("load", () => this.updateConnector());
+  }
+  collectSystemButtons() {
+    var t;
+    const e = (t = this.root.closest(".house-viewer")) == null ? void 0 : t.nextElementSibling;
+    return !(e instanceof HTMLElement) || !e.classList.contains("system-grid") ? [] : Array.from(e.querySelectorAll(".system-button[data-system-id]"));
   }
   findHotspot(e) {
     for (let t = 0; t < this.data.views.length; t++) {
@@ -104,7 +109,7 @@ class C {
     const i = this.data.views[e];
     s || this.closePanel(!1);
     const n = () => {
-      this.img.src = i.image, this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), a.fromTo(
+      this.img.src = this.resolveImageUrl(i.image), this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), a.fromTo(
         [this.img, this.overlay, this.hitAreas],
         { opacity: 0 },
         { opacity: 1, duration: 0.35, onComplete: t }
@@ -124,7 +129,7 @@ class C {
     });
   }
   buildHotspots(e) {
-    this.overlay.innerHTML = "", this.hitAreas.innerHTML = "", e.hotspots.forEach((t, s) => {
+    this.overlay.replaceChildren(), this.hitAreas.replaceChildren(), e.hotspots.forEach((t, s) => {
       const i = this.getBounds(t), n = this.createPolygon(t), o = this.createHitArea(t, i), h = this.createMarker(t, i);
       this.overlay.appendChild(n), this.hitAreas.append(o, h), a.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), a.fromTo(h, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
     }), this.syncActiveSystemState();
@@ -164,7 +169,7 @@ class C {
     (s = this.markerFor(e)) == null || s.classList.toggle("is-hovered", t), (i = this.polygonFor(e)) == null || i.classList.toggle("is-hovered", t);
   }
   openPanel(e, t, s) {
-    this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.innerHTML = "", e.advantages.forEach((i) => {
+    this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((i) => {
       const n = document.createElement("li");
       n.textContent = i, this.panelAdvantages.appendChild(n);
     }), this.syncActiveSystemState(), this.panel.hidden = !1, this.layout.classList.add("is-panel-open"), a.killTweensOf(this.panel), a.killTweensOf(this.connector), requestAnimationFrame(() => {
@@ -178,6 +183,12 @@ class C {
   scheduleConnectorRefresh() {
     var e;
     (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = a.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
+  }
+  resolveImageUrl(e) {
+    const t = new URL(e, window.location.origin);
+    if (t.origin !== window.location.origin || !/^https?:$/.test(t.protocol))
+      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
+    return t.pathname + t.search + t.hash;
   }
   isConnectorHidden() {
     return this.connector.hasAttribute("hidden");
@@ -230,7 +241,7 @@ class C {
       this.setConnectorHidden(!0);
       return;
     }
-    const h = n.left + n.width / 2 - t.left, l = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, m = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(m, i.height - 34));
+    const h = n.left + n.width / 2 - t.left, l = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
     if (d <= h + 20) {
       this.setConnectorHidden(!0);
       return;
@@ -251,7 +262,7 @@ class C {
     }));
   }
 }
-function v() {
+function m() {
   var s;
   const c = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
   if (!c || !(e != null && e.textContent)) return;
@@ -264,4 +275,4 @@ function v() {
   }
   (s = t.views) != null && s.length && new C(c, t);
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", v) : v();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m) : m();
