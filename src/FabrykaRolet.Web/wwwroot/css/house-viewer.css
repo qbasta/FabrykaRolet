@@ -1,0 +1,280 @@
+.house-viewer {
+  margin-bottom: var(--space-3);
+}
+
+.house-viewer__layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-3);
+  transition: grid-template-columns 0.35s ease;
+}
+
+.house-viewer__layout.is-panel-open {
+  grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+}
+
+.house-viewer__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  isolation: isolate;
+}
+
+.house-viewer__image,
+.house-viewer__overlay,
+.house-viewer__hit-areas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.house-viewer__image {
+  object-fit: contain;
+}
+
+.house-viewer__overlay,
+.house-viewer__connector {
+  pointer-events: none;
+}
+
+.house-viewer__hotspot {
+  fill: var(--color-accent);
+  fill-opacity: 0.015;
+  stroke: transparent;
+  stroke-width: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+.house-viewer__hotspot.is-active,
+.house-viewer__hotspot.is-hovered {
+  fill-opacity: 0.035;
+}
+
+.house-viewer__hit-area {
+  position: absolute;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
+}
+
+.house-viewer__hit-area:focus {
+  outline: none;
+}
+
+.house-viewer__hit-area:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.house-viewer__marker {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  margin: -0.5rem 0 0 -0.5rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-accent);
+  box-shadow:
+    0 0 0 0 rgba(185, 111, 20, 0.35),
+    0 0 0 4px rgba(255, 255, 255, 0.95),
+    0 8px 18px rgba(20, 20, 20, 0.22);
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.house-viewer__marker:hover,
+.house-viewer__marker.is-hovered,
+.house-viewer__marker.is-active {
+  transform: scale(1.1);
+}
+
+.house-viewer__marker.is-active {
+  background: var(--color-ink);
+  box-shadow:
+    0 0 0 6px rgba(185, 111, 20, 0.16),
+    0 0 0 4px rgba(255, 255, 255, 0.95),
+    0 10px 22px rgba(20, 20, 20, 0.28);
+}
+
+.house-viewer__marker:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 4px;
+}
+
+.house-viewer__connector {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  z-index: 1;
+}
+
+.house-viewer__connector[hidden] {
+  display: none;
+}
+
+.house-viewer__connector marker path,
+.house-viewer__connector-path {
+  fill: var(--color-accent);
+  stroke: var(--color-accent);
+}
+
+.house-viewer__connector-path {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 3px 6px rgba(20, 20, 20, 0.12));
+}
+
+.house-viewer__panel {
+  position: relative;
+  min-width: 0;
+  align-self: stretch;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-3);
+}
+
+.house-viewer__panel[hidden] {
+  display: none;
+}
+
+.house-viewer__panel.is-stacked {
+  border-top: 3px solid var(--color-accent);
+}
+
+.house-viewer__panel-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  border: none;
+  background: none;
+  color: var(--color-ink-soft);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.45rem;
+}
+
+.house-viewer__panel-close:hover,
+.house-viewer__panel-close:focus-visible {
+  color: var(--color-accent);
+}
+
+.house-viewer__panel h2 {
+  margin: 0 2rem var(--space-2) 0;
+}
+
+.house-viewer__panel p {
+  margin: 0 0 var(--space-2);
+  color: var(--color-ink-soft);
+}
+
+.house-viewer__advantages {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--color-ink-soft);
+}
+
+.house-viewer__advantages li + li {
+  margin-top: var(--space-1);
+}
+
+.house-viewer__nav {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.house-viewer__arrow {
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.house-viewer__arrow:hover,
+.house-viewer__arrow:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.house-viewer__views {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.house-viewer__view-btn {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-ink-soft);
+  padding: 0.45rem 0.8rem;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.house-viewer__view-btn.is-active,
+.house-viewer__view-btn:hover,
+.house-viewer__view-btn:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.system-button.is-active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 900px) {
+  .house-viewer__layout,
+  .house-viewer__layout.is-panel-open {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .house-viewer__panel {
+    order: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .house-viewer__stage {
+    aspect-ratio: 4 / 3;
+  }
+
+  .house-viewer__arrow {
+    width: 40px;
+    height: 40px;
+  }
+
+  .house-viewer__marker {
+    width: 0.95rem;
+    height: 0.95rem;
+    margin: -0.475rem 0 0 -0.475rem;
+  }
+}
