@@ -2,12 +2,6 @@ import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const ALLOWED_IMAGE_PATHS = {
-  "/images/house/exterior-front.png": "/images/house/exterior-front.png",
-  "/images/house/exterior-taras.png": "/images/house/exterior-taras.png",
-  "/images/house/exterior-tyl.png": "/images/house/exterior-tyl.png",
-  "/images/house/exterior-garaz.png": "/images/house/exterior-garaz.png",
-} as const;
 
 type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotBounds = {
@@ -92,9 +86,7 @@ export class HouseViewer {
         button.type = "button";
         button.className = "house-viewer__view-btn";
         button.textContent = view.title;
-        button.setAttribute("role", "tab");
-        button.setAttribute("aria-selected", index === this.currentIndex ? "true" : "false");
-        button.tabIndex = index === this.currentIndex ? 0 : -1;
+        button.setAttribute("aria-pressed", index === this.currentIndex ? "true" : "false");
         button.addEventListener("click", () => this.renderView(index));
         this.viewsNav?.appendChild(button);
       });
@@ -146,12 +138,17 @@ export class HouseViewer {
   }
 
   private collectSystemButtons(): HTMLButtonElement[] {
-    const nearbyGrid = this.root.closest(".house-viewer")?.nextElementSibling;
-    if (!(nearbyGrid instanceof HTMLElement) || !nearbyGrid.classList.contains("system-grid")) {
+    const selector = this.root.dataset.systemButtons;
+    if (!selector) {
       return [];
     }
 
-    return Array.from(nearbyGrid.querySelectorAll<HTMLButtonElement>(".system-button[data-system-id]"));
+    const container = document.querySelector<HTMLElement>(selector);
+    if (!container) {
+      return [];
+    }
+
+    return Array.from(container.querySelectorAll<HTMLButtonElement>(".system-button[data-system-id]"));
   }
 
   private findHotspot(systemId: string): { viewIndex: number; hotspot: HotspotData } | null {
@@ -239,8 +236,7 @@ export class HouseViewer {
     buttons.forEach((button, index) => {
       const active = index === this.currentIndex;
       button.classList.toggle("is-active", active);
-      button.setAttribute("aria-selected", active ? "true" : "false");
-      button.tabIndex = active ? 0 : -1;
+      button.setAttribute("aria-pressed", active ? "true" : "false");
     });
   }
 
@@ -383,12 +379,12 @@ export class HouseViewer {
   }
 
   private resolveImageUrl(url: string): string {
-    const safeUrl = ALLOWED_IMAGE_PATHS[url as keyof typeof ALLOWED_IMAGE_PATHS];
-    if (!safeUrl) {
+    const match = /^\/images\/house\/[a-z0-9-]+\.(png|jpe?g|webp)$/i.exec(url);
+    if (!match) {
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
     }
 
-    return safeUrl;
+    return match[0];
   }
 
   private isConnectorHidden(): boolean {

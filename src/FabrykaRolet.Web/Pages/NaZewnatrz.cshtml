@@ -11,7 +11,7 @@
 
 @if (Model.HasViews)
 {
-    <section class="house-viewer container" id="house-viewer">
+    <section class="house-viewer container" id="house-viewer" data-system-buttons="#house-viewer-systems">
         <div class="house-viewer__layout">
             <div class="house-viewer__stage">
                 <img class="house-viewer__image" alt="" />
@@ -38,7 +38,7 @@
 
         <div class="house-viewer__nav">
             <button type="button" class="house-viewer__arrow house-viewer__arrow--prev" aria-label="Poprzedni widok" hidden>‹</button>
-            <div class="house-viewer__views" role="tablist" aria-label="Wybierz widok domu"></div>
+            <div class="house-viewer__views" aria-label="Wybierz widok domu"></div>
             <button type="button" class="house-viewer__arrow house-viewer__arrow--next" aria-label="Następny widok" hidden>›</button>
         </div>
     </section>
@@ -50,7 +50,7 @@ else
     <p class="container">Widoki dla tej sekcji są w przygotowaniu.</p>
 }
 
-<section class="system-grid container" aria-label="Lista systemów zewnętrznych">
+<section id="house-viewer-systems" class="system-grid container" aria-label="Lista systemów zewnętrznych">
     @foreach (var system in Model.Systems)
     {
         <button type="button" class="system-button" data-system-id="@system.Id">
