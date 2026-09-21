@@ -2,7 +2,7 @@ var L = Object.defineProperty;
 var E = (l, e, t) => e in l ? L(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
 var r = (l, e, t) => E(l, typeof e != "symbol" ? e + "" : e, t);
 import { g as h } from "./index-9nJrthwM.js";
-const T = "http://www.w3.org/2000/svg", P = 0.32, x = 0.2, w = 0.18, B = 420, O = "(min-width: 901px)", H = (l, e, t) => Math.min(Math.max(l, e), t);
+const T = "http://www.w3.org/2000/svg", x = 0.32, P = 0.2, w = 0.18, B = 420, O = "(min-width: 901px)", H = (l, e, t) => Math.min(Math.max(l, e), t);
 class R {
   constructor(e, t) {
     r(this, "layout");
@@ -47,7 +47,8 @@ class R {
   indexHotspots() {
     this.data.views.forEach((e, t) => {
       e.hotspots.forEach((i) => {
-        this.hotspotIndex.set(i.systemId, { viewIndex: t, hotspot: i });
+        const s = this.hotspotIndex.get(i.systemId) ?? [];
+        s.push({ viewIndex: t, hotspot: i }), this.hotspotIndex.set(i.systemId, s);
       });
     });
   }
@@ -126,7 +127,8 @@ class R {
     return t ? Array.from(t.querySelectorAll(".system-button[data-system-id]")) : [];
   }
   findHotspot(e) {
-    return this.hotspotIndex.get(e) ?? null;
+    const t = this.hotspotIndex.get(e);
+    return t != null && t.length ? t.find((i) => i.viewIndex === this.currentIndex) ?? t[0] : null;
   }
   findSystemSummary(e) {
     return this.data.systems.find((t) => t.systemId === e);
@@ -197,11 +199,14 @@ class R {
     });
   }
   syncVisibleSystems(e) {
-    const t = new Set(e.hotspots.map((s) => s.systemId)), i = e.hotspots.map((s) => s.name);
-    this.systemButtons.forEach((s) => {
+    const t = new Set(e.hotspots.map((s) => s.systemId));
+    if (this.systemButtons.forEach((s) => {
       const n = t.has(s.dataset.systemId ?? "");
       s.classList.toggle("is-visible-in-view", n), n ? s.setAttribute("data-visible-in-view", "true") : s.removeAttribute("data-visible-in-view");
-    }), this.availability && (this.availability.textContent = i.length > 0 ? `Widoczne na tym widoku: ${i.join(", ")}` : "Widoczne na tym widoku: brak aktywnych systemów.");
+    }), !this.availability)
+      return;
+    const i = t.size;
+    this.availability.textContent = i > 0 ? `Widoczne na tym widoku: ${i}` : "Widoczne na tym widoku: 0";
   }
   buildHotspots(e) {
     this.overlay.replaceChildren(), this.hitAreas.replaceChildren(), e.hotspots.forEach((t, i) => {
@@ -260,14 +265,14 @@ class R {
         autoAlpha: 1,
         x: 0,
         y: 0,
-        duration: P,
+        duration: x,
         ease: "power2.out",
         overwrite: !0,
         onComplete: () => {
           this.panelTween = null;
         }
       }
-    ), this.shouldMoveFocusToPanel(t) && this.panel.focus({ preventScroll: !0 }), this.scheduleConnectorRefresh();
+    ), this.panel.focus({ preventScroll: !0 }), this.scheduleConnectorRefresh();
   }
   resolveImageUrl(e) {
     const t = this.allowedImagePaths.get(e);
@@ -280,9 +285,6 @@ class R {
     if (!t)
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
     return t[0];
-  }
-  shouldMoveFocusToPanel(e) {
-    return e.matches(":focus-visible");
   }
   killOpenCloseTweens() {
     var e, t;
@@ -391,7 +393,7 @@ class R {
         autoAlpha: 0,
         x: this.isDesktopViewport() ? 20 : 0,
         y: this.isDesktopViewport() ? 0 : 10,
-        duration: x,
+        duration: P,
         ease: "power1.out",
         overwrite: !0,
         onComplete: () => {
