@@ -564,10 +564,11 @@ export class HouseViewer {
     gsap.killTweensOf(this.panel);
     gsap.killTweensOf(this.connector);
     gsap.to(this.stage, { scale: 1, duration: 0.42, ease: PANEL_ANIMATION_EASE });
-    gsap.to(this.panel, { autoAlpha: 0, x: this.isDesktopViewport() ? 20 : 0, y: this.isDesktopViewport() ? 0 : 8, duration: 0.24, ease: "power1.in" });
-    gsap.to(this.connector, {
+    gsap.to(this.panel, {
       autoAlpha: 0,
-      duration: 0.2,
+      x: this.isDesktopViewport() ? 20 : 0,
+      y: this.isDesktopViewport() ? 0 : 8,
+      duration: 0.24,
       ease: "power1.in",
       onComplete: () => {
         this.panel.hidden = true;
@@ -579,6 +580,11 @@ export class HouseViewer {
           this.lastFocused?.focus();
         }
       },
+    });
+    gsap.to(this.connector, {
+      autoAlpha: 0,
+      duration: 0.2,
+      ease: "power1.in",
     });
   }
 }

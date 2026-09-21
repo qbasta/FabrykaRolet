@@ -289,14 +289,20 @@ class E {
   }
   closePanel(e = !0) {
     var t;
-    this.panel.hidden || (this.activeSystemId = null, this.syncActiveSystemState(), (t = this.connectorRefreshTween) == null || t.kill(), this.connectorRefreshTween = null, o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), o.to(this.stage, { scale: 1, duration: 0.42, ease: v }), o.to(this.panel, { autoAlpha: 0, x: this.isDesktopViewport() ? 20 : 0, y: this.isDesktopViewport() ? 0 : 8, duration: 0.24, ease: "power1.in" }), o.to(this.connector, {
+    this.panel.hidden || (this.activeSystemId = null, this.syncActiveSystemState(), (t = this.connectorRefreshTween) == null || t.kill(), this.connectorRefreshTween = null, o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), o.to(this.stage, { scale: 1, duration: 0.42, ease: v }), o.to(this.panel, {
       autoAlpha: 0,
-      duration: 0.2,
+      x: this.isDesktopViewport() ? 20 : 0,
+      y: this.isDesktopViewport() ? 0 : 8,
+      duration: 0.24,
       ease: "power1.in",
       onComplete: () => {
         var s;
         this.panel.hidden = !0, this.setConnectorHidden(!0), this.layout.classList.remove("is-panel-open"), o.set(this.panel, { clearProps: "opacity,visibility,transform" }), o.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((s = this.lastFocused) == null || s.focus());
       }
+    }), o.to(this.connector, {
+      autoAlpha: 0,
+      duration: 0.2,
+      ease: "power1.in"
     }));
   }
 }
