@@ -172,7 +172,7 @@ class R {
         {
           opacity: 1,
           duration: w,
-          ease: "power1.out",
+          ease: "power1.in",
           onComplete: () => {
             this.viewTween = null, t == null || t();
           }
@@ -186,7 +186,7 @@ class R {
     this.viewTween = h.to(s, {
       opacity: 0,
       duration: w,
-      ease: "power1.out",
+      ease: "power1.in",
       onComplete: n
     });
   }
