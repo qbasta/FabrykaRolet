@@ -5,58 +5,64 @@
 }
 
 <section class="section-intro container">
-    <h1>Konfigurator systemów</h1>
-    <p>Kliknij obszar na modelu domu, aby zobaczyć opis systemu i jego zalety.</p>
-
-    <nav class="section-switch" aria-label="Przełączanie konfiguratora">
-        <a asp-page="/NaZewnatrz" class="section-switch__item is-active" aria-current="page">Zewnętrzne</a>
-        <a asp-page="/Wewnatrz" class="section-switch__item">Wewnętrzne</a>
-    </nav>
+    <h1>Systemy zewnętrzne</h1>
+    <p>Kliknij w oznaczony element na widoku domu, aby poznać jego opis i zalety.</p>
 </section>
 
 @if (Model.HasViews)
 {
-    <section class="configurator container" aria-label="Interaktywny konfigurator">
-        <div class="configurator__viewer">
-            <section class="house-viewer" id="house-viewer" aria-label="Widok domu">
+    <section class="house-viewer container" id="house-viewer" data-system-buttons="#house-viewer-systems">
+        <div class="house-viewer__layout">
+            <div class="house-viewer__stage-shell">
                 <div class="house-viewer__stage">
                     <img class="house-viewer__image" alt="" />
                     <svg class="house-viewer__overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
                     <div class="house-viewer__hit-areas"></div>
                 </div>
-                <div class="house-viewer__nav">
-                    <button type="button" class="house-viewer__arrow house-viewer__arrow--prev" aria-label="Poprzedni widok" hidden>‹</button>
-                    <div class="house-viewer__views" role="tablist" aria-label="Wybierz ujęcie domu"></div>
-                    <button type="button" class="house-viewer__arrow house-viewer__arrow--next" aria-label="Następny widok" hidden>›</button>
-                </div>
-            </section>
 
-            <section class="system-list" aria-label="Dostępne systemy">
-                <div class="system-grid" aria-live="polite">
-                    @foreach (var system in Model.Systems)
-                    {
-                        <button type="button" class="system-button" data-system-id="@system.Id">
-                            @system.Name
-                        </button>
-                    }
-                </div>
-            </section>
+                <svg class="house-viewer__connector" aria-hidden="true" hidden>
+                    <defs>
+                        <marker class="house-viewer__connector-arrow" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
+                            <path d="M0,0 L0,7 L7,3.5 z"></path>
+                        </marker>
+                    </defs>
+                    <path class="house-viewer__connector-path"></path>
+                </svg>
+            </div>
+
+            <aside id="house-viewer-panel" class="house-viewer__panel" aria-labelledby="house-viewer-panel-title" hidden>
+                <button type="button" class="house-viewer__panel-close" data-close aria-label="Zamknij okno">&times;</button>
+                <h2 id="house-viewer-panel-title"></h2>
+                <p id="house-viewer-panel-description"></p>
+                <ul id="house-viewer-panel-advantages" class="house-viewer__advantages"></ul>
+            </aside>
+        </div>
+
+        <div class="house-viewer__nav">
+            <button type="button" class="house-viewer__arrow house-viewer__arrow--prev" aria-label="Poprzedni widok" hidden>‹</button>
+            <nav class="house-viewer__views" aria-label="Wybierz widok domu"></nav>
+            <button type="button" class="house-viewer__arrow house-viewer__arrow--next" aria-label="Następny widok" hidden>›</button>
         </div>
     </section>
-
-    <div id="hv-callout" class="hv-callout" hidden>
-        <div class="hv-callout__arrow" aria-hidden="true"></div>
-        <button type="button" class="hv-callout__close" data-close aria-label="Zamknij">&times;</button>
-        <h2 id="hv-callout-title"></h2>
-        <p id="hv-callout-description"></p>
-        <ul id="hv-callout-advantages" class="hv-callout__advantages"></ul>
-    </div>
 
     <script id="house-viewer-data" type="application/json">@Html.Raw(Model.ViewerDataJson)</script>
 }
 else
 {
     <p class="container">Widoki dla tej sekcji są w przygotowaniu.</p>
+}
+
+<section id="house-viewer-systems" class="system-grid container" aria-label="Lista systemów zewnętrznych">
+    @foreach (var system in Model.Systems)
+    {
+        <button type="button" class="system-button" data-system-id="@system.Id">
+            @system.Name
+        </button>
+    }
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/house-viewer.css" />
 }
 
 @section Scripts {
