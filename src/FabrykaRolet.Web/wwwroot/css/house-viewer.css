@@ -1,19 +1,31 @@
 .house-viewer {
+  --house-viewer-panel-width: min(max(20rem, 25.5%), 22.5rem);
+  --house-viewer-stage-lock-height: auto;
   margin-bottom: var(--space-3);
 }
 
 .house-viewer__layout {
-  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) 0;
+  align-items: start;
   gap: clamp(0.9rem, 2vw, 1.5rem);
-  transition: grid-template-columns 0.5s ease;
+  transition: grid-template-columns 0.48s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.house-viewer__stage-shell {
+  position: relative;
+  min-width: 0;
+  min-height: var(--house-viewer-stage-lock-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: min-height 0.48s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .house-viewer__stage {
   position: relative;
   width: 100%;
+  max-width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: clamp(0.9rem, 2vw, 1.25rem);
   overflow: hidden;
@@ -22,6 +34,7 @@
   isolation: isolate;
   transform-origin: center center;
   will-change: transform;
+  transition: box-shadow 0.3s ease;
 }
 
 .house-viewer__image,
@@ -44,7 +57,7 @@
 
 .house-viewer__hotspot {
   fill: var(--color-accent);
-  fill-opacity: 0.012;
+  fill-opacity: 0.008;
   stroke: transparent;
   stroke-width: 0.3;
   vector-effect: non-scaling-stroke;
@@ -52,7 +65,7 @@
 
 .house-viewer__hotspot.is-active,
 .house-viewer__hotspot.is-hovered {
-  fill-opacity: 0.035;
+  fill-opacity: 0.026;
 }
 
 .house-viewer__hit-area {
@@ -122,26 +135,24 @@
 }
 
 .house-viewer__connector marker path {
-  fill: var(--color-accent);
-  stroke: var(--color-accent);
-  fill: color-mix(in srgb, var(--color-accent) 80%, #ffffff 20%);
-  stroke: color-mix(in srgb, var(--color-accent) 74%, #ffffff 26%);
+  fill: color-mix(in srgb, var(--color-accent) 58%, #ffffff 42%);
+  stroke: color-mix(in srgb, var(--color-accent) 54%, #ffffff 46%);
 }
 
 .house-viewer__connector-path {
-  stroke: var(--color-accent);
-  stroke: color-mix(in srgb, var(--color-accent) 74%, #ffffff 26%);
+  stroke: color-mix(in srgb, var(--color-accent) 60%, #ffffff 40%);
   fill: none;
-  stroke-width: 1.6;
+  stroke-width: 1.35;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.84;
-  filter: drop-shadow(0 2px 4px rgba(20, 20, 20, 0.1));
+  opacity: 0.78;
+  filter: drop-shadow(0 2px 4px rgba(20, 20, 20, 0.08));
 }
 
 .house-viewer__panel {
   position: relative;
   min-width: 0;
+  width: min(100%, var(--house-viewer-panel-width));
   align-self: stretch;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.96)),
@@ -151,6 +162,8 @@
   border-radius: clamp(0.9rem, 2vw, 1.2rem);
   box-shadow: 0 16px 34px rgba(20, 20, 20, 0.14);
   padding: clamp(1rem, 2.2vw, 1.4rem);
+  justify-self: end;
+  pointer-events: auto;
 }
 
 .house-viewer__panel[hidden] {
@@ -277,12 +290,14 @@
 }
 
 @media (min-width: 901px) {
-  .house-viewer__layout {
-    grid-template-columns: minmax(0, 1fr);
+  .house-viewer__layout.is-panel-open {
+    grid-template-columns:
+      minmax(0, calc(100% - var(--house-viewer-panel-width)))
+      var(--house-viewer-panel-width);
   }
 
-  .house-viewer__layout.is-panel-open {
-    grid-template-columns: minmax(0, 3fr) minmax(20rem, 1fr);
+  .house-viewer__layout.is-panel-open .house-viewer__stage {
+    box-shadow: 0 18px 42px rgba(20, 20, 20, 0.16);
   }
 }
 
@@ -292,8 +307,18 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .house-viewer__stage-shell {
+    min-height: auto;
+  }
+
   .house-viewer__panel {
     order: 2;
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .house-viewer__connector {
+    display: none;
   }
 }
 

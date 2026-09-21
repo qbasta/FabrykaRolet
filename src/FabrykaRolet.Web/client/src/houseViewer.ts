@@ -2,8 +2,10 @@ import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const PANEL_ANIMATION_DURATION = 0.46;
-const PANEL_ANIMATION_EASE = "power2.out";
+const PANEL_ANIMATION_DURATION = 0.48;
+const PANEL_ANIMATION_EASE = "expo.out";
+const PANEL_FADE_OUT_DURATION = 0.18;
+const DESKTOP_MEDIA_QUERY = "(min-width: 901px)";
 
 type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotBounds = {
@@ -17,6 +19,7 @@ type HotspotBounds = {
 
 export class HouseViewer {
   private readonly layout: HTMLElement;
+  private readonly stageShell: HTMLElement;
   private readonly stage: HTMLElement;
   private readonly img: HTMLImageElement;
   private readonly overlay: SVGSVGElement;
@@ -41,6 +44,7 @@ export class HouseViewer {
   private lastFocused: HTMLElement | null = null;
   private activePulseTween: gsap.core.Tween | null = null;
   private connectorRefreshTween: gsap.core.Tween | null = null;
+  private panelHideTween: gsap.core.Tween | null = null;
   private readonly listenerController = new AbortController();
   private disconnectObserver: MutationObserver | null = null;
 
@@ -49,6 +53,7 @@ export class HouseViewer {
     private readonly data: HouseViewerData
   ) {
     this.layout = this.require(".house-viewer__layout");
+    this.stageShell = this.require(".house-viewer__stage-shell");
     this.stage = this.require(".house-viewer__stage");
     this.img = this.require(".house-viewer__image");
     this.overlay = this.require(".house-viewer__overlay");
@@ -148,7 +153,14 @@ export class HouseViewer {
 
   private bindGlobalEvents(): void {
     const listenerOptions = { signal: this.listenerController.signal };
-    window.addEventListener("resize", () => this.scheduleConnectorRefresh(), listenerOptions);
+    window.addEventListener("resize", () => {
+      if (this.isDesktopViewport() && !this.panel.hidden) {
+        this.lockStageHeight();
+      } else {
+        this.clearStageHeightLock();
+      }
+      this.scheduleConnectorRefresh();
+    }, listenerOptions);
     this.img.addEventListener("load", () => this.updateConnector(), listenerOptions);
     this.observeDisconnect();
   }
@@ -170,6 +182,7 @@ export class HouseViewer {
     this.disconnectObserver = null;
     this.connectorRefreshTween?.kill();
     this.activePulseTween?.kill();
+    this.panelHideTween?.kill();
   }
 
   private collectSystemButtons(): HTMLButtonElement[] {
@@ -240,7 +253,7 @@ export class HouseViewer {
     const view = this.data.views[index];
 
     if (!isFirstRender) {
-      this.closePanel(false);
+      this.closePanel(false, false);
     }
 
     const applyView = () => {
@@ -377,6 +390,8 @@ export class HouseViewer {
   }
 
   private openPanel(content: PanelContent, trigger: HTMLElement, systemId: string | null): void {
+    this.panelHideTween?.kill();
+    this.panelHideTween = null;
     this.lastFocused = trigger;
     this.activeSystemId = systemId;
 
@@ -391,6 +406,8 @@ export class HouseViewer {
 
     this.syncActiveSystemState();
     this.panel.hidden = false;
+    this.panel.setAttribute("aria-hidden", "false");
+    this.lockStageHeight();
     this.layout.classList.add("is-panel-open");
 
     gsap.killTweensOf(this.stage);
@@ -399,17 +416,17 @@ export class HouseViewer {
     requestAnimationFrame(() => {
       this.updateConnector();
       gsap.to(this.stage, {
-        scale: this.isDesktopViewport() ? 0.992 : 1,
+        scale: this.isDesktopViewport() ? 0.984 : 1,
         duration: PANEL_ANIMATION_DURATION,
         ease: PANEL_ANIMATION_EASE,
       });
       gsap.fromTo(
         this.panel,
-        { autoAlpha: 0, x: this.isDesktopViewport() ? 28 : 0, y: this.isDesktopViewport() ? 0 : 14 },
+        { autoAlpha: 0, x: this.isDesktopViewport() ? 36 : 0, y: this.isDesktopViewport() ? 0 : 18 },
         { autoAlpha: 1, x: 0, y: 0, duration: PANEL_ANIMATION_DURATION, ease: PANEL_ANIMATION_EASE }
       );
       if (!this.isConnectorHidden()) {
-        gsap.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "expo.out" });
+        gsap.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" });
       }
       this.scheduleConnectorRefresh();
     });
@@ -519,28 +536,41 @@ export class HouseViewer {
     }
     this.panel.classList.remove("is-stacked");
 
+    const stageLeft = stageRect.left - layoutRect.left;
+    const stageTop = stageRect.top - layoutRect.top;
+    const stageRight = stageRect.right - layoutRect.left;
+    const stageBottom = stageRect.bottom - layoutRect.top;
     const startX = markerRect.left + markerRect.width / 2 - layoutRect.left;
     const startY = markerRect.top + markerRect.height / 2 - layoutRect.top;
     const endX = panelRect.left - layoutRect.left + 12;
     const markerAlignedY = markerRect.top + markerRect.height / 2 - panelRect.top;
     const endY = panelRect.top - layoutRect.top + Math.max(34, Math.min(markerAlignedY, panelRect.height - 34));
-    const stageRight = stageRect.right - layoutRect.left - 12;
-    const laneTop = 22;
-    const laneBottom = layoutRect.height - 22;
-    const laneY = startY < layoutRect.height * 0.52 ? laneTop : laneBottom;
+    const gapWidth = Math.max(10, panelRect.left - stageRect.right);
+    const laneX = stageRight + Math.min(16, Math.max(8, gapWidth * 0.45));
+    const topLaneY = stageTop + 14;
+    const bottomLaneY = stageBottom - 14;
+    const isRightSideMarker = startX >= stageLeft + stageRect.width * 0.68;
+    const useTopLane = startY <= stageTop + stageRect.height * 0.5;
 
-    if (endX <= startX + 16 || stageRight <= startX + 8) {
+    if (endX <= laneX + 6) {
       this.setConnectorHidden(true);
       return;
     }
 
-    const prePanelX = Math.max(stageRight + 8, endX - 12);
-    const path = [
-      `M ${startX} ${startY}`,
-      `Q ${stageRight} ${startY} ${stageRight} ${laneY}`,
-      `L ${prePanelX} ${laneY}`,
-      `Q ${endX} ${laneY} ${endX} ${endY}`,
-    ].join(" ");
+    const path = isRightSideMarker
+      ? [
+          `M ${startX} ${startY}`,
+          `Q ${Math.min(stageRight - 8, startX + 12)} ${startY} ${laneX} ${startY}`,
+          `L ${laneX} ${endY}`,
+          `Q ${laneX} ${endY} ${endX} ${endY}`,
+        ].join(" ")
+      : [
+          `M ${startX} ${startY}`,
+          `Q ${Math.min(stageRight - 24, startX + 8)} ${useTopLane ? Math.max(stageTop + 10, startY - 18) : Math.min(stageBottom - 10, startY + 18)} ${Math.min(stageRight - 18, startX + 28)} ${useTopLane ? topLaneY : bottomLaneY}`,
+          `L ${laneX} ${useTopLane ? topLaneY : bottomLaneY}`,
+          `L ${laneX} ${endY}`,
+          `Q ${laneX} ${endY} ${endX} ${endY}`,
+        ].join(" ");
 
     this.connector.setAttribute("viewBox", `0 0 ${layoutRect.width} ${layoutRect.height}`);
     this.connectorPath.setAttribute("d", path);
@@ -549,12 +579,30 @@ export class HouseViewer {
   }
 
   private isDesktopViewport(): boolean {
-    return window.matchMedia("(min-width: 901px)").matches;
+    return window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
   }
 
-  private closePanel(restoreFocus = true): void {
+  private lockStageHeight(): void {
+    if (!this.isDesktopViewport()) {
+      this.clearStageHeightLock();
+      return;
+    }
+
+    const height = this.stage.getBoundingClientRect().height;
+    if (height > 0) {
+      this.root.style.setProperty("--house-viewer-stage-lock-height", `${height}px`);
+    }
+  }
+
+  private clearStageHeightLock(): void {
+    this.root.style.removeProperty("--house-viewer-stage-lock-height");
+  }
+
+  private closePanel(restoreFocus = true, animate = true): void {
     if (this.panel.hidden) return;
 
+    this.panelHideTween?.kill();
+    this.panelHideTween = null;
     this.activeSystemId = null;
     this.syncActiveSystemState();
     this.connectorRefreshTween?.kill();
@@ -563,28 +611,43 @@ export class HouseViewer {
     gsap.killTweensOf(this.stage);
     gsap.killTweensOf(this.panel);
     gsap.killTweensOf(this.connector);
-    gsap.to(this.stage, { scale: 1, duration: 0.42, ease: PANEL_ANIMATION_EASE });
-    gsap.to(this.panel, {
-      autoAlpha: 0,
-      x: this.isDesktopViewport() ? 20 : 0,
-      y: this.isDesktopViewport() ? 0 : 8,
-      duration: 0.24,
-      ease: "power1.in",
-      onComplete: () => {
-        this.panel.hidden = true;
-        this.setConnectorHidden(true);
-        this.layout.classList.remove("is-panel-open");
-        gsap.set(this.panel, { clearProps: "opacity,visibility,transform" });
-        gsap.set(this.connector, { clearProps: "opacity,visibility,transform" });
-        if (restoreFocus) {
-          this.lastFocused?.focus();
-        }
-      },
-    });
+
+    if (!animate) {
+      this.finishClosePanel(restoreFocus);
+      return;
+    }
+
     gsap.to(this.connector, {
       autoAlpha: 0,
-      duration: 0.2,
+      duration: 0.16,
       ease: "power1.in",
     });
+    gsap.to(this.panel, {
+      autoAlpha: 0,
+      x: this.isDesktopViewport() ? 22 : 0,
+      y: this.isDesktopViewport() ? 0 : 12,
+      duration: PANEL_FADE_OUT_DURATION,
+      ease: "power1.in",
+      onComplete: () => {
+        this.layout.classList.remove("is-panel-open");
+        gsap.to(this.stage, { scale: 1, duration: PANEL_ANIMATION_DURATION, ease: PANEL_ANIMATION_EASE });
+        this.panelHideTween = gsap.delayedCall(PANEL_ANIMATION_DURATION, () => this.finishClosePanel(restoreFocus));
+      },
+    });
+  }
+
+  private finishClosePanel(restoreFocus: boolean): void {
+    this.panelHideTween = null;
+    this.layout.classList.remove("is-panel-open");
+    this.panel.hidden = true;
+    this.panel.setAttribute("aria-hidden", "true");
+    this.setConnectorHidden(true);
+    this.clearStageHeightLock();
+    gsap.set(this.stage, { clearProps: "transform" });
+    gsap.set(this.panel, { clearProps: "opacity,visibility,transform" });
+    gsap.set(this.connector, { clearProps: "opacity,visibility,transform" });
+    if (restoreFocus) {
+      this.lastFocused?.focus();
+    }
   }
 }
