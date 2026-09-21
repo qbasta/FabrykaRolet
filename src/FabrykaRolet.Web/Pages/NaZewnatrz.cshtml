@@ -19,14 +19,12 @@
                 <div class="house-viewer__hit-areas"></div>
             </div>
 
-            <div id="house-viewer-modal" class="hv-modal" hidden>
-                <div class="hv-modal__panel" role="dialog" aria-modal="true" aria-labelledby="hv-modal-title" tabindex="-1">
-                    <button type="button" class="hv-modal__close" data-close aria-label="Zamknij okno">&times;</button>
-                    <h2 id="hv-modal-title"></h2>
-                    <p id="hv-modal-description"></p>
-                    <ul id="hv-modal-advantages" class="hv-modal__advantages"></ul>
-                </div>
-            </div>
+            <aside id="house-viewer-panel" class="house-viewer__panel" hidden>
+                <button type="button" class="house-viewer__panel-close" data-close aria-label="Zamknij okno">&times;</button>
+                <h2 id="house-viewer-panel-title"></h2>
+                <p id="house-viewer-panel-description"></p>
+                <ul id="house-viewer-panel-advantages" class="house-viewer__advantages"></ul>
+            </aside>
         </div>
 
         <div class="house-viewer__nav">
