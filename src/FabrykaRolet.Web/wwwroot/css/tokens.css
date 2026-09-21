@@ -1,0 +1,41 @@
+/*
+  Design tokens – Fabryka Rolet
+  Neutralne odcienie wyciągnięte z plików logo (#3C3C3C / #787878).
+  Akcent niebieski wg wyboru klienta. Wszystko jako CSS custom properties,
+  żeby zmiana koloru/fontu była edycją w jednym miejscu.
+*/
+
+:root {
+  --color-ink: #3C3C3C;
+  --color-ink-soft: #787878;
+  --color-ink-faint: #B7B7B7;
+  --color-bg: #FFFFFF;
+  --color-surface: #F5F6F8;
+  --color-border: #E2E4E8;
+
+  --color-accent: #1D5FBF;
+  --color-accent-dark: #164A96;
+  --color-accent-soft: #E5EEFC;
+
+  --font-body: "Jost", "Segoe UI", system-ui, sans-serif;
+  --font-heading: "Jost", "Segoe UI", system-ui, sans-serif;
+
+  --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
+  --step-3: clamp(2.25rem, 1.85rem + 1.75vw, 3.25rem);
+
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+
+  --radius-sm: 6px;
+  --radius-md: 14px;
+
+  --shadow-sm: 0 1px 3px rgba(20, 20, 20, 0.08);
+  --shadow-md: 0 12px 32px rgba(20, 20, 20, 0.14);
+
+  --container-max: 1180px;
+}

@@ -1,14 +1,25 @@
 @page
-@model FabrykaRolet.Web.Pages.IndexModel
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Fabryka Rolet</title>
-</head>
-<body>
-    <h1>Fabryka Rolet – Krok 1</h1>
-    <p>Jeśli widzisz tę stronę, ASP.NET Core Razor Pages działa poprawnie u Ciebie lokalnie.</p>
-</body>
-</html>
+@{
+    ViewData["Title"] = "Strona główna";
+}
+
+<section class="hero container">
+    <h1>Systemy zewnętrzne i wewnętrzne w jednym miejscu</h1>
+    <p class="hero__lead">
+        Poznaj rolety, żaluzje, plisy i pozostałe systemy okienne Fabryki Rolet – kliknij
+        w interesujący Cię element na modelu domu, aby zobaczyć, jak działa i jakie ma zalety.
+    </p>
+</section>
+
+<section class="section-cards container">
+    <a class="section-card" href="/na-zewnatrz">
+        <h2>Na zewnątrz</h2>
+        <p>Rolety, żaluzje fasadowe, markizy, screeny i inne systemy montowane na elewacji.</p>
+        <span class="section-card__cta">Zobacz systemy zewnętrzne →</span>
+    </a>
+    <a class="section-card" href="/wewnatrz">
+        <h2>Wewnątrz</h2>
+        <p>Żaluzje, plisy i rolety wewnętrzne dobierane do konkretnego okna i wnętrza.</p>
+        <span class="section-card__cta">Zobacz systemy wewnętrzne →</span>
+    </a>
+</section>
