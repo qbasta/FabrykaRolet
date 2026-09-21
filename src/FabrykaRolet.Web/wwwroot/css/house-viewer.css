@@ -70,6 +70,11 @@
   outline: none;
 }
 
+.house-viewer__hit-area:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .house-viewer__marker {
   position: absolute;
   width: 1rem;

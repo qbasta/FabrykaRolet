@@ -1,13 +1,8 @@
 var f = Object.defineProperty;
-var C = (l, e, t) => e in l ? f(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
-var r = (l, e, t) => C(l, typeof e != "symbol" ? e + "" : e, t);
+var b = (c, e, t) => e in c ? f(c, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : c[e] = t;
+var r = (c, e, t) => b(c, typeof e != "symbol" ? e + "" : e, t);
 import { g as a } from "./index-9nJrthwM.js";
-const S = "http://www.w3.org/2000/svg", b = {
-  "/images/house/exterior-front.png": "/images/house/exterior-front.png",
-  "/images/house/exterior-taras.png": "/images/house/exterior-taras.png",
-  "/images/house/exterior-tyl.png": "/images/house/exterior-tyl.png",
-  "/images/house/exterior-garaz.png": "/images/house/exterior-garaz.png"
-};
+const C = "http://www.w3.org/2000/svg";
 class A {
   constructor(e, t) {
     r(this, "layout");
@@ -16,6 +11,7 @@ class A {
     r(this, "overlay");
     r(this, "hitAreas");
     r(this, "connector");
+    r(this, "connectorArrow");
     r(this, "connectorPath");
     r(this, "panel");
     r(this, "panelClose");
@@ -26,6 +22,8 @@ class A {
     r(this, "nextBtn");
     r(this, "viewsNav");
     r(this, "systemButtons");
+    r(this, "allowedImagePaths");
+    r(this, "connectorArrowId");
     r(this, "currentIndex", 0);
     r(this, "activeSystemId", null);
     r(this, "lastFocused", null);
@@ -33,7 +31,7 @@ class A {
     r(this, "connectorRefreshTween", null);
     r(this, "listenerController", new AbortController());
     r(this, "disconnectObserver", null);
-    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
+    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorArrow = this.require(".house-viewer__connector-arrow"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.allowedImagePaths = new Map(t.views.map((s) => [s.image, this.normalizeImageUrl(s.image)])), this.connectorArrowId = `${this.root.id || "house-viewer"}-connector-arrow`, this.connectorArrow.id = this.connectorArrowId, this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
   }
   require(e) {
     const t = this.root.querySelector(e);
@@ -43,10 +41,10 @@ class A {
   bindNav() {
     var s, i;
     const e = { signal: this.listenerController.signal }, t = this.data.views.length > 1;
-    this.prevBtn && (this.prevBtn.hidden = !t), this.nextBtn && (this.nextBtn.hidden = !t), (s = this.prevBtn) == null || s.addEventListener("click", () => this.step(-1), e), (i = this.nextBtn) == null || i.addEventListener("click", () => this.step(1), e), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((n, h) => {
-      var c;
+    this.prevBtn && (this.prevBtn.hidden = !t), this.nextBtn && (this.nextBtn.hidden = !t), (s = this.prevBtn) == null || s.addEventListener("click", () => this.step(-1), e), (i = this.nextBtn) == null || i.addEventListener("click", () => this.step(1), e), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((n, l) => {
+      var h;
       const o = document.createElement("button");
-      o.type = "button", o.className = "house-viewer__view-btn", o.textContent = n.title, o.setAttribute("aria-pressed", h === this.currentIndex ? "true" : "false"), o.addEventListener("click", () => this.renderView(h), e), (c = this.viewsNav) == null || c.appendChild(o);
+      o.type = "button", o.className = "house-viewer__view-btn", o.textContent = n.title, o.setAttribute("aria-pressed", l === this.currentIndex ? "true" : "false"), o.addEventListener("click", () => this.renderView(l), e), (h = this.viewsNav) == null || h.appendChild(o);
     })), this.root.addEventListener("keydown", (n) => {
       n.key === "ArrowLeft" && (n.preventDefault(), this.step(-1)), n.key === "ArrowRight" && (n.preventDefault(), this.step(1));
     }, e);
@@ -69,7 +67,7 @@ class A {
   }
   bindGlobalEvents() {
     const e = { signal: this.listenerController.signal };
-    window.addEventListener("resize", () => this.updateConnector(), e), this.img.addEventListener("load", () => this.updateConnector(), e), this.observeDisconnect();
+    window.addEventListener("resize", () => this.scheduleConnectorRefresh(), e), this.img.addEventListener("load", () => this.updateConnector(), e), this.observeDisconnect();
   }
   observeDisconnect() {
     document.body && (this.disconnectObserver = new MutationObserver(() => {
@@ -151,37 +149,37 @@ class A {
   }
   buildHotspots(e) {
     this.overlay.replaceChildren(), this.hitAreas.replaceChildren(), e.hotspots.forEach((t, s) => {
-      const i = this.getBounds(t), n = this.createPolygon(t), h = this.createHitArea(t, i), o = this.createMarker(t, i);
-      this.overlay.appendChild(n), this.hitAreas.append(h, o), a.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), a.fromTo(o, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
+      const i = this.getBounds(t), n = this.createPolygon(t), l = this.createHitArea(t, i), o = this.createMarker(t, i);
+      this.overlay.appendChild(n), this.hitAreas.append(l, o), a.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), a.fromTo(o, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
     }), this.syncActiveSystemState();
   }
   createPolygon(e) {
-    const t = document.createElementNS(S, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
+    const t = document.createElementNS(C, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
     return t.setAttribute("points", s), t.setAttribute("class", "house-viewer__hotspot"), t.dataset.systemId = e.systemId, t;
   }
   createHitArea(e, t) {
-    const s = document.createElement("button");
-    s.type = "button", s.className = "house-viewer__hit-area", s.dataset.systemId = e.systemId, s.style.left = `${t.left}%`, s.style.top = `${t.top}%`, s.style.width = `${t.width}%`, s.style.height = `${t.height}%`, s.tabIndex = -1, s.setAttribute("aria-hidden", "true");
-    const i = () => this.setHoveredState(e.systemId, !0), n = () => this.setHoveredState(e.systemId, !1);
-    return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("click", () => {
-      const h = this.markerFor(e.systemId);
-      this.openPanel(e, h ?? s, e.systemId);
-    }), s;
+    const s = { signal: this.listenerController.signal }, i = document.createElement("button");
+    i.type = "button", i.className = "house-viewer__hit-area", i.dataset.systemId = e.systemId, i.style.left = `${t.left}%`, i.style.top = `${t.top}%`, i.style.width = `${t.width}%`, i.style.height = `${t.height}%`, i.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
+    const n = () => this.setHoveredState(e.systemId, !0), l = () => this.setHoveredState(e.systemId, !1);
+    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", l, s), i.addEventListener("focus", n, s), i.addEventListener("blur", l, s), i.addEventListener("click", () => {
+      const o = this.markerFor(e.systemId);
+      this.openPanel(e, o ?? i, e.systemId);
+    }, s), i;
   }
   createMarker(e, t) {
-    const s = document.createElement("button");
-    s.type = "button", s.className = "house-viewer__marker", s.dataset.systemId = e.systemId, s.style.left = `${t.centerX}%`, s.style.top = `${t.centerY}%`, s.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
-    const i = () => this.setHoveredState(e.systemId, !0), n = () => this.setHoveredState(e.systemId, !1);
-    return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("focus", i), s.addEventListener("blur", n), s.addEventListener("click", () => this.openPanel(e, s, e.systemId)), s;
+    const s = { signal: this.listenerController.signal }, i = document.createElement("button");
+    i.type = "button", i.className = "house-viewer__marker", i.dataset.systemId = e.systemId, i.style.left = `${t.centerX}%`, i.style.top = `${t.centerY}%`, i.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
+    const n = () => this.setHoveredState(e.systemId, !0), l = () => this.setHoveredState(e.systemId, !1);
+    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", l, s), i.addEventListener("focus", n, s), i.addEventListener("blur", l, s), i.addEventListener("click", () => this.openPanel(e, i, e.systemId), s), i;
   }
   getBounds(e) {
-    const t = e.polygon.map(([c]) => c), s = e.polygon.map(([, c]) => c), i = Math.min(...t), n = Math.min(...s), h = Math.max(...t) - i, o = Math.max(...s) - n;
+    const t = e.polygon.map(([h]) => h), s = e.polygon.map(([, h]) => h), i = Math.min(...t), n = Math.min(...s), l = Math.max(...t) - i, o = Math.max(...s) - n;
     return {
       left: i,
       top: n,
-      width: h,
+      width: l,
       height: o,
-      centerX: i + h / 2,
+      centerX: i + l / 2,
       centerY: n + o / 2
     };
   }
@@ -206,10 +204,16 @@ class A {
     (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = a.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
   }
   resolveImageUrl(e) {
-    const t = b[e];
+    const t = this.allowedImagePaths.get(e);
     if (!t)
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
     return t;
+  }
+  normalizeImageUrl(e) {
+    const t = /^\/images\/[a-z0-9/_-]+\.(png|jpe?g|webp)$/i.exec(e);
+    if (!t)
+      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
+    return t[0];
   }
   isConnectorHidden() {
     return this.connector.hasAttribute("hidden");
@@ -263,13 +267,13 @@ class A {
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const o = n.left + n.width / 2 - t.left, c = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
+    const o = n.left + n.width / 2 - t.left, h = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
     if (d <= o + 20) {
       this.setConnectorHidden(!0);
       return;
     }
-    const p = d - o, y = o + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), g = `M ${o} ${c} C ${y} ${c}, ${w} ${u}, ${d} ${u}`;
-    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", g), this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)"), this.setConnectorHidden(!1);
+    const p = d - o, y = o + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), g = `M ${o} ${h} C ${y} ${h}, ${w} ${u}, ${d} ${u}`;
+    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", g), this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`), this.setConnectorHidden(!1);
   }
   closePanel(e = !0) {
     var t;
@@ -286,8 +290,8 @@ class A {
 }
 function m() {
   var s;
-  const l = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
-  if (!l || !(e != null && e.textContent) || l.dataset.houseViewerInitialized === "true") return;
+  const c = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
+  if (!c || !(e != null && e.textContent) || c.dataset.houseViewerInitialized === "true") return;
   let t;
   try {
     t = JSON.parse(e.textContent);
@@ -297,7 +301,7 @@ function m() {
   }
   if ((s = t.views) != null && s.length)
     try {
-      new A(l, t), l.dataset.houseViewerInitialized = "true";
+      new A(c, t), c.dataset.houseViewerInitialized = "true";
     } catch (i) {
       console.error("HouseViewer: inicjalizacja nie powiodła się.", i);
     }

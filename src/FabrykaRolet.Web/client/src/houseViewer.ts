@@ -2,12 +2,6 @@ import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const ALLOWED_IMAGE_PATHS = {
-  "/images/house/exterior-front.png": "/images/house/exterior-front.png",
-  "/images/house/exterior-taras.png": "/images/house/exterior-taras.png",
-  "/images/house/exterior-tyl.png": "/images/house/exterior-tyl.png",
-  "/images/house/exterior-garaz.png": "/images/house/exterior-garaz.png",
-} as const;
 
 type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotBounds = {
@@ -26,6 +20,7 @@ export class HouseViewer {
   private readonly overlay: SVGSVGElement;
   private readonly hitAreas: HTMLElement;
   private readonly connector: SVGSVGElement;
+  private readonly connectorArrow: SVGMarkerElement;
   private readonly connectorPath: SVGPathElement;
   private readonly panel: HTMLElement;
   private readonly panelClose: HTMLButtonElement;
@@ -36,6 +31,8 @@ export class HouseViewer {
   private readonly nextBtn: HTMLButtonElement | null;
   private readonly viewsNav: HTMLElement | null;
   private readonly systemButtons: HTMLButtonElement[];
+  private readonly allowedImagePaths: Map<string, string>;
+  private readonly connectorArrowId: string;
 
   private currentIndex = 0;
   private activeSystemId: string | null = null;
@@ -55,6 +52,7 @@ export class HouseViewer {
     this.overlay = this.require(".house-viewer__overlay");
     this.hitAreas = this.require(".house-viewer__hit-areas");
     this.connector = this.require(".house-viewer__connector");
+    this.connectorArrow = this.require(".house-viewer__connector-arrow");
     this.connectorPath = this.require(".house-viewer__connector-path");
     this.panel = this.require("#house-viewer-panel");
     this.panelClose = this.require(".house-viewer__panel-close");
@@ -65,6 +63,9 @@ export class HouseViewer {
     this.nextBtn = root.querySelector(".house-viewer__arrow--next");
     this.viewsNav = root.querySelector(".house-viewer__views");
     this.systemButtons = this.collectSystemButtons();
+    this.allowedImagePaths = new Map(data.views.map((view) => [view.image, this.normalizeImageUrl(view.image)]));
+    this.connectorArrowId = `${this.root.id || "house-viewer"}-connector-arrow`;
+    this.connectorArrow.id = this.connectorArrowId;
 
     this.bindNav();
     this.bindPanelClose();
@@ -145,7 +146,7 @@ export class HouseViewer {
 
   private bindGlobalEvents(): void {
     const listenerOptions = { signal: this.listenerController.signal };
-    window.addEventListener("resize", () => this.updateConnector(), listenerOptions);
+    window.addEventListener("resize", () => this.scheduleConnectorRefresh(), listenerOptions);
     this.img.addEventListener("load", () => this.updateConnector(), listenerOptions);
     this.observeDisconnect();
   }
@@ -302,6 +303,7 @@ export class HouseViewer {
   }
 
   private createHitArea(hotspot: HotspotData, bounds: HotspotBounds): HTMLButtonElement {
+    const listenerOptions = { signal: this.listenerController.signal };
     const button = document.createElement("button");
     button.type = "button";
     button.className = "house-viewer__hit-area";
@@ -310,23 +312,25 @@ export class HouseViewer {
     button.style.top = `${bounds.top}%`;
     button.style.width = `${bounds.width}%`;
     button.style.height = `${bounds.height}%`;
-    button.tabIndex = -1;
-    button.setAttribute("aria-hidden", "true");
+    button.setAttribute("aria-label", `${hotspot.name} – pokaż szczegóły`);
 
     const highlight = () => this.setHoveredState(hotspot.systemId, true);
     const unhighlight = () => this.setHoveredState(hotspot.systemId, false);
 
-    button.addEventListener("mouseenter", highlight);
-    button.addEventListener("mouseleave", unhighlight);
+    button.addEventListener("mouseenter", highlight, listenerOptions);
+    button.addEventListener("mouseleave", unhighlight, listenerOptions);
+    button.addEventListener("focus", highlight, listenerOptions);
+    button.addEventListener("blur", unhighlight, listenerOptions);
     button.addEventListener("click", () => {
       const marker = this.markerFor(hotspot.systemId);
       this.openPanel(hotspot, marker ?? button, hotspot.systemId);
-    });
+    }, listenerOptions);
 
     return button;
   }
 
   private createMarker(hotspot: HotspotData, bounds: HotspotBounds): HTMLButtonElement {
+    const listenerOptions = { signal: this.listenerController.signal };
     const button = document.createElement("button");
     button.type = "button";
     button.className = "house-viewer__marker";
@@ -338,11 +342,11 @@ export class HouseViewer {
     const highlight = () => this.setHoveredState(hotspot.systemId, true);
     const unhighlight = () => this.setHoveredState(hotspot.systemId, false);
 
-    button.addEventListener("mouseenter", highlight);
-    button.addEventListener("mouseleave", unhighlight);
-    button.addEventListener("focus", highlight);
-    button.addEventListener("blur", unhighlight);
-    button.addEventListener("click", () => this.openPanel(hotspot, button, hotspot.systemId));
+    button.addEventListener("mouseenter", highlight, listenerOptions);
+    button.addEventListener("mouseleave", unhighlight, listenerOptions);
+    button.addEventListener("focus", highlight, listenerOptions);
+    button.addEventListener("blur", unhighlight, listenerOptions);
+    button.addEventListener("click", () => this.openPanel(hotspot, button, hotspot.systemId), listenerOptions);
 
     return button;
   }
@@ -411,12 +415,21 @@ export class HouseViewer {
   }
 
   private resolveImageUrl(url: string): string {
-    const safeUrl = ALLOWED_IMAGE_PATHS[url as keyof typeof ALLOWED_IMAGE_PATHS];
+    const safeUrl = this.allowedImagePaths.get(url);
     if (!safeUrl) {
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
     }
 
     return safeUrl;
+  }
+
+  private normalizeImageUrl(url: string): string {
+    const match = /^\/images\/[a-z0-9/_-]+\.(png|jpe?g|webp)$/i.exec(url);
+    if (!match) {
+      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
+    }
+
+    return match[0];
   }
 
   private isConnectorHidden(): boolean {
@@ -515,7 +528,7 @@ export class HouseViewer {
 
     this.connector.setAttribute("viewBox", `0 0 ${layoutRect.width} ${layoutRect.height}`);
     this.connectorPath.setAttribute("d", path);
-    this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)");
+    this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`);
     this.setConnectorHidden(false);
   }
 
