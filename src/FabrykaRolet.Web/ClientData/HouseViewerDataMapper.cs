@@ -19,7 +19,11 @@ public static class HouseViewerDataMapper
                 view.Hotspots.Select(hotspot => ToHotspotDto(hotspot, systemsById)).ToList()))
             .ToList();
 
-        return new HouseViewerDataDto(views);
+        var systems = data.Systems
+            .Select(s => new SystemSummaryDto(s.Id, s.Name, s.ShortDescription, s.Advantages))
+            .ToList();
+
+        return new HouseViewerDataDto(views, systems);
     }
 
     private static HotspotDto ToHotspotDto(Hotspot hotspot, IReadOnlyDictionary<string, WindowSystem> systemsById)

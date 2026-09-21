@@ -15,6 +15,14 @@ export interface HouseViewData {
   hotspots: HotspotData[];
 }
 
+export interface SystemSummary {
+  systemId: string;
+  name: string;
+  description: string;
+  advantages: string[];
+}
+
 export interface HouseViewerData {
   views: HouseViewData[];
+  systems: SystemSummary[];
 }

@@ -1,7 +1,9 @@
 import gsap from "gsap";
-import type { HotspotData, HouseViewData, HouseViewerData } from "./types";
+import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+
+type ModalContent = { name: string; description: string; advantages: string[] };
 
 export class HouseViewer {
   private readonly img: HTMLImageElement;
@@ -34,7 +36,8 @@ export class HouseViewer {
 
     this.bindNav();
     this.bindModalClose();
-    this.renderView(0, false);
+    this.bindSystemButtons();
+    this.renderView(0);
   }
 
   private require<T extends Element>(selector: string): T {
@@ -67,13 +70,76 @@ export class HouseViewer {
     });
   }
 
+  /**
+   * Przyciski listy systemów żyją POZA kontenerem widgetu (osobna sekcja na stronie),
+   * więc szukamy ich w całym dokumencie, nie tylko wewnątrz `root`.
+   */
+  private bindSystemButtons(): void {
+    document.querySelectorAll<HTMLButtonElement>("[data-system-id]").forEach((button) => {
+      button.addEventListener("click", () => this.activateSystem(button.dataset.systemId!, button));
+    });
+  }
+
+  private findHotspot(systemId: string): { viewIndex: number; hotspot: HotspotData } | null {
+    for (let viewIndex = 0; viewIndex < this.data.views.length; viewIndex++) {
+      const hotspot = this.data.views[viewIndex].hotspots.find((h) => h.systemId === systemId);
+      if (hotspot) return { viewIndex, hotspot };
+    }
+    return null;
+  }
+
+  private findSystemSummary(systemId: string): SystemSummary | undefined {
+    return this.data.systems.find((s) => s.systemId === systemId);
+  }
+
+  /**
+   * Kliknięcie przycisku systemu z listy pod domem: jeśli system ma hotspot na
+   * (innym) widoku - przełącza tam i po animacji otwiera opis, podświetlając hotspot.
+   * Jeśli nie ma jeszcze żadnego hotspotu (widok dla niego nie istnieje) - po prostu
+   * otwiera opis w tym samym oknie, bez zmiany widoku.
+   */
+  private activateSystem(systemId: string, trigger: HTMLElement): void {
+    const found = this.findHotspot(systemId);
+
+    if (!found) {
+      const summary = this.findSystemSummary(systemId);
+      if (summary) this.openModal(summary, trigger);
+      return;
+    }
+
+    const { viewIndex, hotspot } = found;
+    if (viewIndex === this.currentIndex) {
+      this.openModal(hotspot, trigger);
+      this.pulseHotspot(hotspot.systemId);
+    } else {
+      this.renderView(viewIndex, () => {
+        this.openModal(hotspot, trigger);
+        this.pulseHotspot(hotspot.systemId);
+      });
+    }
+  }
+
+  private pulseHotspot(systemId: string): void {
+    const view = this.data.views[this.currentIndex];
+    const index = view.hotspots.findIndex((h) => h.systemId === systemId);
+    if (index === -1) return;
+    const polygon = this.overlay.querySelectorAll("polygon")[index];
+    if (!polygon) return;
+    gsap.fromTo(
+      polygon,
+      { scale: 1, transformOrigin: "50% 50%" },
+      { scale: 1.05, duration: 0.25, yoyo: true, repeat: 3, ease: "power1.inOut" }
+    );
+  }
+
   private step(delta: number): void {
     const count = this.data.views.length;
     const next = (this.currentIndex + delta + count) % count;
-    this.renderView(next, true);
+    this.renderView(next);
   }
 
-  private renderView(index: number, animateCrossfade: boolean): void {
+  private renderView(index: number, onDone?: () => void): void {
+    const isFirstRender = !this.img.src;
     this.currentIndex = index;
     const view = this.data.views[index];
 
@@ -81,17 +147,13 @@ export class HouseViewer {
       this.img.src = view.image;
       this.img.alt = view.title;
       this.buildHotspots(view);
-      gsap.fromTo([this.img, this.overlay], { opacity: 0 }, { opacity: 1, duration: 0.35 });
+      gsap.fromTo([this.img, this.overlay], { opacity: 0 }, { opacity: 1, duration: 0.35, onComplete: onDone });
     };
 
-    if (animateCrossfade) {
-      gsap.to([this.img, this.overlay], {
-        opacity: 0,
-        duration: 0.2,
-        onComplete: applyView,
-      });
-    } else {
+    if (isFirstRender) {
       applyView();
+    } else {
+      gsap.to([this.img, this.overlay], { opacity: 0, duration: 0.2, onComplete: applyView });
     }
   }
 
@@ -151,13 +213,13 @@ export class HouseViewer {
     return button;
   }
 
-  private openModal(hotspot: HotspotData, trigger: HTMLButtonElement): void {
+  private openModal(content: ModalContent, trigger: HTMLElement): void {
     this.lastFocused = trigger;
 
-    this.modalTitle.textContent = hotspot.name;
-    this.modalDescription.textContent = hotspot.description;
+    this.modalTitle.textContent = content.name;
+    this.modalDescription.textContent = content.description;
     this.modalAdvantages.innerHTML = "";
-    hotspot.advantages.forEach((advantage) => {
+    content.advantages.forEach((advantage) => {
       const li = document.createElement("li");
       li.textContent = advantage;
       this.modalAdvantages.appendChild(li);

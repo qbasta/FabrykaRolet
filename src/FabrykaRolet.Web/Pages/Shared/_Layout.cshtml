@@ -21,7 +21,8 @@
     <header class="site-header">
         <div class="container site-header__inner">
             <a href="/" class="site-logo" aria-label="Fabryka Rolet – strona główna">
-                <img src="~/images/logo/fr-logo.png" alt="Fabryka Rolet" />
+                <img src="~/images/logo/fr-icon.png" alt="" class="site-logo__mark" />
+                <span class="site-logo__text">Fabryka Rolet</span>
             </a>
             <nav class="site-nav" aria-label="Nawigacja główna">
                 <a asp-page="/Index">Strona główna</a>
@@ -44,5 +45,6 @@
     </footer>
 
     @await RenderSectionAsync("Scripts", required: false)
+    <script type="module" src="~/dist/site.js"></script>
 </body>
 </html>

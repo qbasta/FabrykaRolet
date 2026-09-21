@@ -40,13 +40,12 @@ else
     <p class="container">Widoki dla tej sekcji są w przygotowaniu.</p>
 }
 
-<section class="system-grid container">
+<section class="system-grid container" aria-label="Lista systemów zewnętrznych">
     @foreach (var system in Model.Systems)
     {
-        <article class="system-card">
-            <h2>@system.Name</h2>
-            <p>@system.ShortDescription</p>
-        </article>
+        <button type="button" class="system-button" data-system-id="@system.Id">
+            @system.Name
+        </button>
     }
 </section>
 

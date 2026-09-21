@@ -6,10 +6,12 @@ export default defineConfig({
     outDir: resolve(__dirname, "../wwwroot/dist"),
     emptyOutDir: false,
     lib: {
-      entry: resolve(__dirname, "src/main.ts"),
-      name: "FabrykaRoletHouseViewer",
+      entry: {
+        "house-viewer": resolve(__dirname, "src/main.ts"),
+        "site": resolve(__dirname, "src/site.ts"),
+      },
       formats: ["es"],
-      fileName: () => "house-viewer.js",
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
   },
 });

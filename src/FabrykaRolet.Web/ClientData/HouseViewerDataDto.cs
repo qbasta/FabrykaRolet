@@ -3,7 +3,9 @@ namespace FabrykaRolet.Web.ClientData;
 // DTO-ki wyłącznie pod serializację JSON do konsumpcji przez widget TypeScript
 // (house-viewer.ts). Celowo osobne od encji domenowych.
 
-public sealed record HouseViewerDataDto(IReadOnlyList<HouseViewDto> Views);
+public sealed record HouseViewerDataDto(
+    IReadOnlyList<HouseViewDto> Views,
+    IReadOnlyList<SystemSummaryDto> Systems);
 
 public sealed record HouseViewDto(
     string Id,
@@ -19,3 +21,10 @@ public sealed record HotspotDto(
     string Description,
     IReadOnlyList<string> Advantages,
     IReadOnlyList<double[]> Polygon);
+
+/// <summary>Pełna lista systemów sekcji - także tych bez hotspotu na żadnym widoku (jeszcze).</summary>
+public sealed record SystemSummaryDto(
+    string SystemId,
+    string Name,
+    string Description,
+    IReadOnlyList<string> Advantages);
