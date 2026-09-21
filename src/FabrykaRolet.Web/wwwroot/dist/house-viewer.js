@@ -2,7 +2,7 @@ var $ = Object.defineProperty;
 var H = (h, e, t) => e in h ? $(h, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : h[e] = t;
 var r = (h, e, t) => H(h, typeof e != "symbol" ? e + "" : e, t);
 import { g as o } from "./index-9nJrthwM.js";
-const P = "http://www.w3.org/2000/svg", w = 0.48, k = "expo.out", T = 0.18, x = "(min-width: 901px)";
+const P = "http://www.w3.org/2000/svg", v = 0.48, k = "expo.out", T = 0.18, x = "(min-width: 901px)";
 class B {
   constructor(e, t) {
     r(this, "layout");
@@ -200,12 +200,12 @@ class B {
     }), this.syncActiveSystemState(), this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.lockStageHeight(), this.layout.classList.add("is-panel-open"), o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), requestAnimationFrame(() => {
       this.updateConnector(), o.to(this.stage, {
         scale: this.isDesktopViewport() ? 0.984 : 1,
-        duration: w,
+        duration: v,
         ease: k
       }), o.fromTo(
         this.panel,
         { autoAlpha: 0, x: this.isDesktopViewport() ? 36 : 0, y: this.isDesktopViewport() ? 0 : 18 },
-        { autoAlpha: 1, x: 0, y: 0, duration: w, ease: k }
+        { autoAlpha: 1, x: 0, y: 0, duration: v, ease: k }
       ), this.isConnectorHidden() || o.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }), this.scheduleConnectorRefresh();
     }), this.panelClose.focus();
   }
@@ -277,19 +277,19 @@ class B {
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const c = s.left - t.left, g = s.top - t.top, v = s.right - t.left, A = s.bottom - t.top, p = n.left + n.width / 2 - t.left, d = n.top + n.height / 2 - t.top, y = i.left - t.left + 12, _ = n.top + n.height / 2 - i.top, m = i.top - t.top + Math.max(34, Math.min(_, i.height - 34)), I = Math.max(10, i.left - s.right), u = v + Math.min(16, Math.max(8, I * 0.45)), C = g + 14, S = A - 14, E = p >= c + s.width * 0.68, f = d <= g + s.height * 0.5;
+    const c = s.left - t.left, g = s.top - t.top, w = s.right - t.left, A = s.bottom - t.top, p = n.left + n.width / 2 - t.left, d = n.top + n.height / 2 - t.top, y = i.left - t.left + 12, _ = n.top + n.height / 2 - i.top, m = i.top - t.top + Math.max(34, Math.min(_, i.height - 34)), I = Math.max(10, i.left - s.right), u = w + Math.min(16, Math.max(8, I * 0.45)), C = g + 14, S = A - 14, E = p >= c + s.width * 0.68, f = d <= g + s.height * 0.5;
     if (y <= u + 6) {
       this.setConnectorHidden(!0);
       return;
     }
     const L = E ? [
       `M ${p} ${d}`,
-      `Q ${Math.min(v - 8, p + 12)} ${d} ${u} ${d}`,
+      `Q ${Math.min(w - 8, p + 12)} ${d} ${u} ${d}`,
       `L ${u} ${m}`,
       `Q ${u} ${m} ${y} ${m}`
     ].join(" ") : [
       `M ${p} ${d}`,
-      `Q ${Math.min(v - 24, p + 8)} ${f ? Math.max(g + 10, d - 18) : Math.min(A - 10, d + 18)} ${Math.min(v - 18, p + 28)} ${f ? C : S}`,
+      `Q ${Math.min(w - 24, p + 8)} ${f ? Math.max(g + 10, d - 18) : Math.min(A - 10, d + 18)} ${Math.min(w - 18, p + 28)} ${f ? C : S}`,
       `L ${u} ${f ? C : S}`,
       `L ${u} ${m}`,
       `Q ${u} ${m} ${y} ${m}`
@@ -328,7 +328,7 @@ class B {
         duration: T,
         ease: "power1.in",
         onComplete: () => {
-          this.layout.classList.remove("is-panel-open"), o.to(this.stage, { scale: 1, duration: w, ease: k }), this.panelHideTween = o.delayedCall(w, () => this.finishClosePanel(e));
+          o.to(this.stage, { scale: 1, duration: v, ease: k }), this.panelHideTween = o.delayedCall(v, () => this.finishClosePanel(e));
         }
       });
     }

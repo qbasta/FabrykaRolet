@@ -632,7 +632,6 @@ export class HouseViewer {
       duration: PANEL_FADE_OUT_DURATION,
       ease: "power1.in",
       onComplete: () => {
-        this.layout.classList.remove("is-panel-open");
         gsap.to(this.stage, { scale: 1, duration: PANEL_ANIMATION_DURATION, ease: PANEL_ANIMATION_EASE });
         this.panelHideTween = gsap.delayedCall(PANEL_ANIMATION_DURATION, () => this.finishClosePanel(restoreFocus));
       },
