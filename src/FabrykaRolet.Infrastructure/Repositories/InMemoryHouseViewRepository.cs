@@ -5,8 +5,7 @@ namespace FabrykaRolet.Infrastructure.Repositories;
 
 /// <summary>
 /// Widoki i hotspoty. Współrzędne (w procentach) zweryfikowane wizualnie przez nałożenie
-/// na rzeczywiste rendery - patrz konwersacja z 2026-09-21. Widok "tyl" celowo ma tylko
-/// jeden hotspot - to jedyny system faktycznie widoczny na tym renderze.
+/// na rzeczywiste rendery - patrz konwersacja z 2026-09-21.
 ///
 /// Sekcja Interior celowo zwraca pustą listę - widoki wnętrz jeszcze nie istnieją.
 /// </summary>
@@ -68,6 +67,17 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                         new(30, 40), new(78, 40), new(78, 63), new(30, 63),
                     },
                 },
+                new()
+                {
+                    // Prawe skrzydło przeszklenia tarasowego (obok żaluzji fasadowych),
+                    // gdzie montowany jest screen fasadowy - węższy, wyraźnie oddzielny
+                    // panel od głównego przeszklenia z żaluzjami.
+                    WindowSystemId = "screeny-fasadowe",
+                    Polygon = new List<HotspotPoint>
+                    {
+                        new(78, 41), new(87, 41), new(87, 63), new(78, 63),
+                    },
+                },
             },
         },
         new()
@@ -86,6 +96,16 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                     Polygon = new List<HotspotPoint>
                     {
                         new(59, 46), new(65, 46), new(65, 64), new(59, 64),
+                    },
+                },
+                new()
+                {
+                    // Przeszklenie tarasowe po prawej stronie elewacji tylnej,
+                    // gdzie widoczna jest zwijana moskitiera przy drzwiach balkonowych.
+                    WindowSystemId = "moskitiery-zewnetrzne",
+                    Polygon = new List<HotspotPoint>
+                    {
+                        new(67, 47), new(73, 47), new(73, 68), new(67, 68),
                     },
                 },
             },
