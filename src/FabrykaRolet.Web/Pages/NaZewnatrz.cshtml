@@ -32,39 +32,24 @@
             </section>
 
             <section class="system-list" aria-label="Dostępne systemy">
-                <div class="system-list__filters" role="toolbar" aria-label="Filtr systemów">
-                    <button type="button" class="system-filter is-active" data-filter="all" aria-pressed="true">Wszystkie</button>
-                    <button type="button" class="system-filter" data-filter="exterior" aria-pressed="false">Zewnętrzne</button>
-                    <button type="button" class="system-filter" data-filter="interior" aria-pressed="false">Wewnętrzne</button>
-                </div>
-
                 <div class="system-grid" aria-live="polite">
                     @foreach (var system in Model.Systems)
                     {
-                        <button type="button" class="system-button" data-system-id="@system.Id" data-system-section="exterior">
+                        <button type="button" class="system-button" data-system-id="@system.Id">
                             @system.Name
                         </button>
                     }
                 </div>
-                <p class="system-list__empty" hidden>Brak systemów dla wybranego filtra na tej stronie.</p>
             </section>
         </div>
-
-        <aside class="configurator__info" aria-live="polite">
-            <h2 id="hv-info-title">Wybierz system</h2>
-            <p id="hv-info-description">Użyj hotspotów na obrazie lub listy systemów poniżej, aby zobaczyć szczegóły produktu.</p>
-            <ul id="hv-info-advantages" class="hv-info__advantages"></ul>
-        </aside>
     </section>
 
-    <div id="house-viewer-modal" class="hv-modal" hidden>
-        <div class="hv-modal__backdrop" data-close></div>
-        <div class="hv-modal__panel" role="dialog" aria-modal="true" aria-labelledby="hv-modal-title" tabindex="-1">
-            <button type="button" class="hv-modal__close" data-close aria-label="Zamknij okno">&times;</button>
-            <h2 id="hv-modal-title"></h2>
-            <p id="hv-modal-description"></p>
-            <ul id="hv-modal-advantages" class="hv-modal__advantages"></ul>
-        </div>
+    <div id="hv-callout" class="hv-callout" hidden>
+        <div class="hv-callout__arrow" aria-hidden="true"></div>
+        <button type="button" class="hv-callout__close" data-close aria-label="Zamknij">&times;</button>
+        <h2 id="hv-callout-title"></h2>
+        <p id="hv-callout-description"></p>
+        <ul id="hv-callout-advantages" class="hv-callout__advantages"></ul>
     </div>
 
     <script id="house-viewer-data" type="application/json">@Html.Raw(Model.ViewerDataJson)</script>
