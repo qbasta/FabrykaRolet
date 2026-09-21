@@ -342,7 +342,7 @@ export class HouseViewer {
         {
           opacity: 1,
           duration: VIEW_FADE_DURATION,
-          ease: "power1.out",
+          ease: "power1.in",
           onComplete: () => {
             this.viewTween = null;
             onDone?.();
@@ -366,7 +366,7 @@ export class HouseViewer {
     this.viewTween = gsap.to(previousNodes, {
       opacity: 0,
       duration: VIEW_FADE_DURATION,
-      ease: "power1.out",
+      ease: "power1.in",
       onComplete: applyView,
     });
   }
