@@ -44,7 +44,7 @@ export class HouseViewer {
   private lastFocused: HTMLElement | null = null;
   private activePulseTween: gsap.core.Tween | null = null;
   private connectorRefreshTween: gsap.core.Tween | null = null;
-  private panelHideTween: gsap.core.Tween | null = null;
+  private stageCloseTween: gsap.core.Tween | null = null;
   private isClosingPanel = false;
   private readonly listenerController = new AbortController();
   private disconnectObserver: MutationObserver | null = null;
@@ -183,7 +183,7 @@ export class HouseViewer {
     this.disconnectObserver = null;
     this.connectorRefreshTween?.kill();
     this.activePulseTween?.kill();
-    this.panelHideTween?.kill();
+    this.stageCloseTween?.kill();
   }
 
   private collectSystemButtons(): HTMLButtonElement[] {
@@ -391,8 +391,8 @@ export class HouseViewer {
   }
 
   private openPanel(content: PanelContent, trigger: HTMLElement, systemId: string | null): void {
-    this.panelHideTween?.kill();
-    this.panelHideTween = null;
+    this.stageCloseTween?.kill();
+    this.stageCloseTween = null;
     this.isClosingPanel = false;
     this.lastFocused = trigger;
     this.activeSystemId = systemId;
@@ -603,8 +603,8 @@ export class HouseViewer {
   private closePanel(restoreFocus = true, animate = true): void {
     if (this.panel.hidden || this.isClosingPanel) return;
 
-    this.panelHideTween?.kill();
-    this.panelHideTween = null;
+    this.stageCloseTween?.kill();
+    this.stageCloseTween = null;
     this.activeSystemId = null;
     this.syncActiveSystemState();
     this.connectorRefreshTween?.kill();
@@ -632,14 +632,18 @@ export class HouseViewer {
       duration: PANEL_FADE_OUT_DURATION,
       ease: "power1.in",
       onComplete: () => {
-        gsap.to(this.stage, { scale: 1, duration: PANEL_ANIMATION_DURATION, ease: PANEL_ANIMATION_EASE });
-        this.panelHideTween = gsap.delayedCall(PANEL_ANIMATION_DURATION, () => this.finishClosePanel(restoreFocus));
+        this.stageCloseTween = gsap.to(this.stage, {
+          scale: 1,
+          duration: PANEL_ANIMATION_DURATION,
+          ease: PANEL_ANIMATION_EASE,
+          onComplete: () => this.finishClosePanel(restoreFocus),
+        });
       },
     });
   }
 
   private finishClosePanel(restoreFocus: boolean): void {
-    this.panelHideTween = null;
+    this.stageCloseTween = null;
     this.isClosingPanel = false;
     this.layout.classList.remove("is-panel-open");
     this.panel.hidden = true;

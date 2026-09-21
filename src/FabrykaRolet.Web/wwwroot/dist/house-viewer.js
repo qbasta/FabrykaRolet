@@ -1,8 +1,8 @@
 var $ = Object.defineProperty;
-var H = (h, e, t) => e in h ? $(h, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : h[e] = t;
-var r = (h, e, t) => H(h, typeof e != "symbol" ? e + "" : e, t);
+var P = (h, e, t) => e in h ? $(h, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : h[e] = t;
+var r = (h, e, t) => P(h, typeof e != "symbol" ? e + "" : e, t);
 import { g as o } from "./index-9nJrthwM.js";
-const P = "http://www.w3.org/2000/svg", v = 0.48, k = "expo.out", T = 0.18, x = "(min-width: 901px)";
+const T = "http://www.w3.org/2000/svg", f = 0.48, C = "expo.out", H = 0.18, x = "(min-width: 901px)";
 class B {
   constructor(e, t) {
     r(this, "layout");
@@ -30,7 +30,7 @@ class B {
     r(this, "lastFocused", null);
     r(this, "activePulseTween", null);
     r(this, "connectorRefreshTween", null);
-    r(this, "panelHideTween", null);
+    r(this, "stageCloseTween", null);
     r(this, "isClosingPanel", !1);
     r(this, "listenerController", new AbortController());
     r(this, "disconnectObserver", null);
@@ -81,7 +81,7 @@ class B {
   }
   destroy() {
     var e, t, s, i;
-    this.listenerController.abort(), (e = this.disconnectObserver) == null || e.disconnect(), this.disconnectObserver = null, (t = this.connectorRefreshTween) == null || t.kill(), (s = this.activePulseTween) == null || s.kill(), (i = this.panelHideTween) == null || i.kill();
+    this.listenerController.abort(), (e = this.disconnectObserver) == null || e.disconnect(), this.disconnectObserver = null, (t = this.connectorRefreshTween) == null || t.kill(), (s = this.activePulseTween) == null || s.kill(), (i = this.stageCloseTween) == null || i.kill();
   }
   collectSystemButtons() {
     const e = this.root.dataset.systemButtons;
@@ -159,7 +159,7 @@ class B {
     }), this.syncActiveSystemState();
   }
   createPolygon(e) {
-    const t = document.createElementNS(P, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
+    const t = document.createElementNS(T, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
     return t.setAttribute("points", s), t.setAttribute("class", "house-viewer__hotspot"), t.dataset.systemId = e.systemId, t;
   }
   createHitArea(e, t) {
@@ -194,18 +194,18 @@ class B {
   }
   openPanel(e, t, s) {
     var i;
-    (i = this.panelHideTween) == null || i.kill(), this.panelHideTween = null, this.isClosingPanel = !1, this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((n) => {
+    (i = this.stageCloseTween) == null || i.kill(), this.stageCloseTween = null, this.isClosingPanel = !1, this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((n) => {
       const a = document.createElement("li");
       a.textContent = n, this.panelAdvantages.appendChild(a);
     }), this.syncActiveSystemState(), this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.lockStageHeight(), this.layout.classList.add("is-panel-open"), o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), requestAnimationFrame(() => {
       this.updateConnector(), o.to(this.stage, {
         scale: this.isDesktopViewport() ? 0.984 : 1,
-        duration: v,
-        ease: k
+        duration: f,
+        ease: C
       }), o.fromTo(
         this.panel,
         { autoAlpha: 0, x: this.isDesktopViewport() ? 36 : 0, y: this.isDesktopViewport() ? 0 : 18 },
-        { autoAlpha: 1, x: 0, y: 0, duration: v, ease: k }
+        { autoAlpha: 1, x: 0, y: 0, duration: f, ease: C }
       ), this.isConnectorHidden() || o.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }), this.scheduleConnectorRefresh();
     }), this.panelClose.focus();
   }
@@ -277,22 +277,22 @@ class B {
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const c = s.left - t.left, g = s.top - t.top, w = s.right - t.left, A = s.bottom - t.top, p = n.left + n.width / 2 - t.left, d = n.top + n.height / 2 - t.top, y = i.left - t.left + 12, _ = n.top + n.height / 2 - i.top, m = i.top - t.top + Math.max(34, Math.min(_, i.height - 34)), I = Math.max(10, i.left - s.right), u = w + Math.min(16, Math.max(8, I * 0.45)), C = g + 14, S = A - 14, E = p >= c + s.width * 0.68, f = d <= g + s.height * 0.5;
-    if (y <= u + 6) {
+    const c = s.left - t.left, w = s.top - t.top, g = s.right - t.left, k = s.bottom - t.top, p = n.left + n.width / 2 - t.left, d = n.top + n.height / 2 - t.top, v = i.left - t.left + 12, _ = n.top + n.height / 2 - i.top, m = i.top - t.top + Math.max(34, Math.min(_, i.height - 34)), I = Math.max(10, i.left - s.right), u = g + Math.min(16, Math.max(8, I * 0.45)), A = w + 14, S = k - 14, E = p >= c + s.width * 0.68, y = d <= w + s.height * 0.5;
+    if (v <= u + 6) {
       this.setConnectorHidden(!0);
       return;
     }
     const L = E ? [
       `M ${p} ${d}`,
-      `Q ${Math.min(w - 8, p + 12)} ${d} ${u} ${d}`,
+      `Q ${Math.min(g - 8, p + 12)} ${d} ${u} ${d}`,
       `L ${u} ${m}`,
-      `Q ${u} ${m} ${y} ${m}`
+      `Q ${u} ${m} ${v} ${m}`
     ].join(" ") : [
       `M ${p} ${d}`,
-      `Q ${Math.min(w - 24, p + 8)} ${f ? Math.max(g + 10, d - 18) : Math.min(A - 10, d + 18)} ${Math.min(w - 18, p + 28)} ${f ? C : S}`,
-      `L ${u} ${f ? C : S}`,
+      `Q ${Math.min(g - 24, p + 8)} ${y ? Math.max(w + 10, d - 18) : Math.min(k - 10, d + 18)} ${Math.min(g - 18, p + 28)} ${y ? A : S}`,
+      `L ${u} ${y ? A : S}`,
       `L ${u} ${m}`,
-      `Q ${u} ${m} ${y} ${m}`
+      `Q ${u} ${m} ${v} ${m}`
     ].join(" ");
     this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", L), this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`), this.setConnectorHidden(!1);
   }
@@ -313,7 +313,7 @@ class B {
   closePanel(e = !0, t = !0) {
     var s, i;
     if (!(this.panel.hidden || this.isClosingPanel)) {
-      if ((s = this.panelHideTween) == null || s.kill(), this.panelHideTween = null, this.activeSystemId = null, this.syncActiveSystemState(), (i = this.connectorRefreshTween) == null || i.kill(), this.connectorRefreshTween = null, o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), !t) {
+      if ((s = this.stageCloseTween) == null || s.kill(), this.stageCloseTween = null, this.activeSystemId = null, this.syncActiveSystemState(), (i = this.connectorRefreshTween) == null || i.kill(), this.connectorRefreshTween = null, o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), !t) {
         this.finishClosePanel(e);
         return;
       }
@@ -325,17 +325,22 @@ class B {
         autoAlpha: 0,
         x: this.isDesktopViewport() ? 22 : 0,
         y: this.isDesktopViewport() ? 0 : 12,
-        duration: T,
+        duration: H,
         ease: "power1.in",
         onComplete: () => {
-          o.to(this.stage, { scale: 1, duration: v, ease: k }), this.panelHideTween = o.delayedCall(v, () => this.finishClosePanel(e));
+          this.stageCloseTween = o.to(this.stage, {
+            scale: 1,
+            duration: f,
+            ease: C,
+            onComplete: () => this.finishClosePanel(e)
+          });
         }
       });
     }
   }
   finishClosePanel(e) {
     var t;
-    this.panelHideTween = null, this.isClosingPanel = !1, this.layout.classList.remove("is-panel-open"), this.panel.hidden = !0, this.panel.setAttribute("aria-hidden", "true"), this.setConnectorHidden(!0), this.clearStageHeightLock(), o.set(this.stage, { clearProps: "transform" }), o.set(this.panel, { clearProps: "opacity,visibility,transform" }), o.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((t = this.lastFocused) == null || t.focus());
+    this.stageCloseTween = null, this.isClosingPanel = !1, this.layout.classList.remove("is-panel-open"), this.panel.hidden = !0, this.panel.setAttribute("aria-hidden", "true"), this.setConnectorHidden(!0), this.clearStageHeightLock(), o.set(this.stage, { clearProps: "transform" }), o.set(this.panel, { clearProps: "opacity,visibility,transform" }), o.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((t = this.lastFocused) == null || t.focus());
   }
 }
 function b() {
