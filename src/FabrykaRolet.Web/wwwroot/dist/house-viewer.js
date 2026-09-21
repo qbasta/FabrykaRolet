@@ -1,9 +1,9 @@
-var f = Object.defineProperty;
-var b = (c, e, t) => e in c ? f(c, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : c[e] = t;
-var r = (c, e, t) => b(c, typeof e != "symbol" ? e + "" : e, t);
-import { g as a } from "./index-9nJrthwM.js";
-const C = "http://www.w3.org/2000/svg";
-class A {
+var S = Object.defineProperty;
+var I = (h, e, t) => e in h ? S(h, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : h[e] = t;
+var r = (h, e, t) => I(h, typeof e != "symbol" ? e + "" : e, t);
+import { g as o } from "./index-9nJrthwM.js";
+const _ = "http://www.w3.org/2000/svg", w = 0.46, v = "power2.out";
+class E {
   constructor(e, t) {
     r(this, "layout");
     r(this, "stage");
@@ -41,10 +41,10 @@ class A {
   bindNav() {
     var s, i;
     const e = { signal: this.listenerController.signal }, t = this.data.views.length > 1;
-    this.prevBtn && (this.prevBtn.hidden = !t), this.nextBtn && (this.nextBtn.hidden = !t), (s = this.prevBtn) == null || s.addEventListener("click", () => this.step(-1), e), (i = this.nextBtn) == null || i.addEventListener("click", () => this.step(1), e), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((n, l) => {
-      var h;
-      const o = document.createElement("button");
-      o.type = "button", o.className = "house-viewer__view-btn", o.textContent = n.title, o.setAttribute("aria-pressed", l === this.currentIndex ? "true" : "false"), o.addEventListener("click", () => this.renderView(l), e), (h = this.viewsNav) == null || h.appendChild(o);
+    this.prevBtn && (this.prevBtn.hidden = !t), this.nextBtn && (this.nextBtn.hidden = !t), (s = this.prevBtn) == null || s.addEventListener("click", () => this.step(-1), e), (i = this.nextBtn) == null || i.addEventListener("click", () => this.step(1), e), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((n, a) => {
+      var c;
+      const l = document.createElement("button");
+      l.type = "button", l.className = "house-viewer__view-btn", l.textContent = n.title, l.setAttribute("aria-pressed", a === this.currentIndex ? "true" : "false"), l.addEventListener("click", () => this.renderView(a), e), (c = this.viewsNav) == null || c.appendChild(l);
     })), this.root.addEventListener("keydown", (n) => {
       n.key === "ArrowLeft" && (n.preventDefault(), this.step(-1)), n.key === "ArrowRight" && (n.preventDefault(), this.step(1));
     }, e);
@@ -128,7 +128,7 @@ class A {
     const i = this.data.views[e];
     s || this.closePanel(!1);
     const n = () => {
-      this.img.src = this.resolveImageUrl(i.image), this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), a.fromTo(
+      this.img.src = this.resolveImageUrl(i.image), this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), o.fromTo(
         [this.img, this.overlay, this.hitAreas],
         { opacity: 0 },
         { opacity: 1, duration: 0.35, onComplete: t }
@@ -138,7 +138,7 @@ class A {
       n();
       return;
     }
-    a.to([this.img, this.overlay, this.hitAreas], { opacity: 0, duration: 0.2, onComplete: n });
+    o.to([this.img, this.overlay, this.hitAreas], { opacity: 0, duration: 0.2, onComplete: n });
   }
   syncViewButtons() {
     if (!this.viewsNav) return;
@@ -149,38 +149,38 @@ class A {
   }
   buildHotspots(e) {
     this.overlay.replaceChildren(), this.hitAreas.replaceChildren(), e.hotspots.forEach((t, s) => {
-      const i = this.getBounds(t), n = this.createPolygon(t), l = this.createHitArea(t, i), o = this.createMarker(t, i);
-      this.overlay.appendChild(n), this.hitAreas.append(l, o), a.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), a.fromTo(o, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
+      const i = this.getBounds(t), n = this.createPolygon(t), a = this.createHitArea(t, i), l = this.createMarker(t, i);
+      this.overlay.appendChild(n), this.hitAreas.append(a, l), o.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), o.fromTo(l, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
     }), this.syncActiveSystemState();
   }
   createPolygon(e) {
-    const t = document.createElementNS(C, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
+    const t = document.createElementNS(_, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
     return t.setAttribute("points", s), t.setAttribute("class", "house-viewer__hotspot"), t.dataset.systemId = e.systemId, t;
   }
   createHitArea(e, t) {
     const s = { signal: this.listenerController.signal }, i = document.createElement("button");
     i.type = "button", i.className = "house-viewer__hit-area", i.dataset.systemId = e.systemId, i.style.left = `${t.left}%`, i.style.top = `${t.top}%`, i.style.width = `${t.width}%`, i.style.height = `${t.height}%`, i.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
-    const n = () => this.setHoveredState(e.systemId, !0), l = () => this.setHoveredState(e.systemId, !1);
-    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", l, s), i.addEventListener("focus", n, s), i.addEventListener("blur", l, s), i.addEventListener("click", () => {
-      const o = this.markerFor(e.systemId);
-      this.openPanel(e, o ?? i, e.systemId);
+    const n = () => this.setHoveredState(e.systemId, !0), a = () => this.setHoveredState(e.systemId, !1);
+    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", a, s), i.addEventListener("focus", n, s), i.addEventListener("blur", a, s), i.addEventListener("click", () => {
+      const l = this.markerFor(e.systemId);
+      this.openPanel(e, l ?? i, e.systemId);
     }, s), i;
   }
   createMarker(e, t) {
     const s = { signal: this.listenerController.signal }, i = document.createElement("button");
     i.type = "button", i.className = "house-viewer__marker", i.dataset.systemId = e.systemId, i.style.left = `${t.centerX}%`, i.style.top = `${t.centerY}%`, i.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
-    const n = () => this.setHoveredState(e.systemId, !0), l = () => this.setHoveredState(e.systemId, !1);
-    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", l, s), i.addEventListener("focus", n, s), i.addEventListener("blur", l, s), i.addEventListener("click", () => this.openPanel(e, i, e.systemId), s), i;
+    const n = () => this.setHoveredState(e.systemId, !0), a = () => this.setHoveredState(e.systemId, !1);
+    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", a, s), i.addEventListener("focus", n, s), i.addEventListener("blur", a, s), i.addEventListener("click", () => this.openPanel(e, i, e.systemId), s), i;
   }
   getBounds(e) {
-    const t = e.polygon.map(([h]) => h), s = e.polygon.map(([, h]) => h), i = Math.min(...t), n = Math.min(...s), l = Math.max(...t) - i, o = Math.max(...s) - n;
+    const t = e.polygon.map(([c]) => c), s = e.polygon.map(([, c]) => c), i = Math.min(...t), n = Math.min(...s), a = Math.max(...t) - i, l = Math.max(...s) - n;
     return {
       left: i,
       top: n,
-      width: l,
-      height: o,
-      centerX: i + l / 2,
-      centerY: n + o / 2
+      width: a,
+      height: l,
+      centerX: i + a / 2,
+      centerY: n + l / 2
     };
   }
   setHoveredState(e, t) {
@@ -191,17 +191,21 @@ class A {
     this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((i) => {
       const n = document.createElement("li");
       n.textContent = i, this.panelAdvantages.appendChild(n);
-    }), this.syncActiveSystemState(), this.panel.hidden = !1, this.layout.classList.add("is-panel-open"), a.killTweensOf(this.panel), a.killTweensOf(this.connector), requestAnimationFrame(() => {
-      this.updateConnector(), a.fromTo(
+    }), this.syncActiveSystemState(), this.panel.hidden = !1, this.layout.classList.add("is-panel-open"), o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), requestAnimationFrame(() => {
+      this.updateConnector(), o.to(this.stage, {
+        scale: this.isDesktopViewport() ? 0.992 : 1,
+        duration: w,
+        ease: v
+      }), o.fromTo(
         this.panel,
-        { autoAlpha: 0, x: 28 },
-        { autoAlpha: 1, x: 0, duration: 0.32, ease: "power2.out" }
-      ), this.isConnectorHidden() || a.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22, ease: "power1.out" }), this.scheduleConnectorRefresh();
+        { autoAlpha: 0, x: this.isDesktopViewport() ? 28 : 0, y: this.isDesktopViewport() ? 0 : 14 },
+        { autoAlpha: 1, x: 0, y: 0, duration: w, ease: v }
+      ), this.isConnectorHidden() || o.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "expo.out" }), this.scheduleConnectorRefresh();
     }), this.panelClose.focus();
   }
   scheduleConnectorRefresh() {
     var e;
-    (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = a.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
+    (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = o.to({}, { duration: 0.5, ease: "power2.out", onUpdate: () => this.updateConnector() });
   }
   resolveImageUrl(e) {
     const t = this.allowedImagePaths.get(e);
@@ -243,7 +247,7 @@ class A {
       this.setConnectorHidden(!0);
       return;
     }
-    this.activePulseTween = a.to(e, {
+    this.activePulseTween = o.to(e, {
       scale: 1.18,
       duration: 0.85,
       ease: "sine.inOut",
@@ -261,37 +265,45 @@ class A {
       this.panel.classList.remove("is-stacked"), this.setConnectorHidden(!0);
       return;
     }
-    const t = this.layout.getBoundingClientRect(), s = this.stage.getBoundingClientRect(), i = this.panel.getBoundingClientRect(), n = e.getBoundingClientRect();
-    if (i.top >= s.bottom - 4) {
+    const t = this.layout.getBoundingClientRect(), s = this.stage.getBoundingClientRect(), i = this.panel.getBoundingClientRect(), n = e.getBoundingClientRect(), a = this.isDesktopViewport();
+    if (i.top >= s.bottom - 4 || !a) {
       this.panel.classList.add("is-stacked"), this.setConnectorHidden(!0);
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const o = n.left + n.width / 2 - t.left, h = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
-    if (d <= o + 20) {
+    const c = n.left + n.width / 2 - t.left, p = n.top + n.height / 2 - t.top, d = i.left - t.left + 12, g = n.top + n.height / 2 - i.top, f = i.top - t.top + Math.max(34, Math.min(g, i.height - 34)), u = s.right - t.left - 12, A = 22, k = t.height - 22, m = p < t.height * 0.52 ? A : k;
+    if (d <= c + 16 || u <= c + 8) {
       this.setConnectorHidden(!0);
       return;
     }
-    const p = d - o, y = o + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), g = `M ${o} ${h} C ${y} ${h}, ${w} ${u}, ${d} ${u}`;
-    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", g), this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`), this.setConnectorHidden(!1);
+    const b = Math.max(u + 8, d - 12), C = [
+      `M ${c} ${p}`,
+      `Q ${u} ${p} ${u} ${m}`,
+      `L ${b} ${m}`,
+      `Q ${d} ${m} ${d} ${f}`
+    ].join(" ");
+    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", C), this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`), this.setConnectorHidden(!1);
+  }
+  isDesktopViewport() {
+    return window.matchMedia("(min-width: 901px)").matches;
   }
   closePanel(e = !0) {
     var t;
-    this.panel.hidden || (this.activeSystemId = null, this.syncActiveSystemState(), (t = this.connectorRefreshTween) == null || t.kill(), this.connectorRefreshTween = null, a.killTweensOf(this.panel), a.killTweensOf(this.connector), a.to(this.panel, { autoAlpha: 0, x: 20, duration: 0.18, ease: "power1.in" }), a.to(this.connector, {
+    this.panel.hidden || (this.activeSystemId = null, this.syncActiveSystemState(), (t = this.connectorRefreshTween) == null || t.kill(), this.connectorRefreshTween = null, o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), o.to(this.stage, { scale: 1, duration: 0.42, ease: v }), o.to(this.panel, { autoAlpha: 0, x: this.isDesktopViewport() ? 20 : 0, y: this.isDesktopViewport() ? 0 : 8, duration: 0.24, ease: "power1.in" }), o.to(this.connector, {
       autoAlpha: 0,
-      duration: 0.18,
+      duration: 0.2,
       ease: "power1.in",
       onComplete: () => {
         var s;
-        this.panel.hidden = !0, this.setConnectorHidden(!0), this.layout.classList.remove("is-panel-open"), a.set(this.panel, { clearProps: "opacity,visibility,transform" }), a.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((s = this.lastFocused) == null || s.focus());
+        this.panel.hidden = !0, this.setConnectorHidden(!0), this.layout.classList.remove("is-panel-open"), o.set(this.panel, { clearProps: "opacity,visibility,transform" }), o.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((s = this.lastFocused) == null || s.focus());
       }
     }));
   }
 }
-function m() {
+function y() {
   var s;
-  const c = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
-  if (!c || !(e != null && e.textContent) || c.dataset.houseViewerInitialized === "true") return;
+  const h = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
+  if (!h || !(e != null && e.textContent) || h.dataset.houseViewerInitialized === "true") return;
   let t;
   try {
     t = JSON.parse(e.textContent);
@@ -301,9 +313,9 @@ function m() {
   }
   if ((s = t.views) != null && s.length)
     try {
-      new A(c, t), c.dataset.houseViewerInitialized = "true";
+      new E(h, t), h.dataset.houseViewerInitialized = "true";
     } catch (i) {
       console.error("HouseViewer: inicjalizacja nie powiodła się.", i);
     }
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m) : m();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", y) : y();

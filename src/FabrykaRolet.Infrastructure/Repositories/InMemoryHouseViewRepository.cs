@@ -73,7 +73,7 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                     WindowSystemId = "screeny-fasadowe",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(78, 40), new(93, 40), new(93, 68), new(78, 68),
+                        new(85, 39), new(90, 39), new(90, 67), new(85, 67),
                     },
                 },
             },
@@ -101,7 +101,7 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                     WindowSystemId = "moskitiery-zewnetrzne",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(71, 45), new(77, 45), new(77, 70), new(71, 70),
+                        new(78, 47), new(88, 47), new(88, 71), new(78, 71),
                     },
                 },
             },
@@ -129,7 +129,7 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                     WindowSystemId = "rolety-zewnetrzne",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(61, 40), new(68, 40), new(68, 56), new(61, 56),
+                        new(63, 43), new(71, 43), new(71, 69), new(63, 69),
                     },
                 },
             },
