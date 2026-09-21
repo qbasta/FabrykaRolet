@@ -4,9 +4,9 @@ using FabrykaRolet.Domain.Repositories;
 namespace FabrykaRolet.Infrastructure.Repositories;
 
 /// <summary>
-/// Widoki i hotspoty - dane startowe dla konfiguratora. Współrzędne hotspotów
-/// (w procentach) są przygotowane pod obecne materiały robocze i można je łatwo
-/// skorygować po podmianie renderów domu.
+/// Widoki i hotspoty. Współrzędne (w procentach) zweryfikowane wizualnie przez nałożenie
+/// na rzeczywiste rendery - patrz konwersacja z 2026-09-21. Widok "tyl" celowo ma tylko
+/// jeden hotspot - to jedyny system faktycznie widoczny na tym renderze.
 ///
 /// Sekcja Interior celowo zwraca pustą listę - widoki wnętrz jeszcze nie istnieją.
 /// </summary>
@@ -20,41 +20,24 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             Section = HouseSection.Exterior,
             Title = "Front",
             ImagePath = "/images/house/exterior-front.png",
-            ImageWidth = 1600,
-            ImageHeight = 1000,
+            ImageWidth = 1376,
+            ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
-                new()
-                {
-                    WindowSystemId = "rolety-zewnetrzne",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(53.0, 34.0),
-                        new(63.0, 34.0),
-                        new(63.0, 55.0),
-                        new(53.0, 55.0),
-                    },
-                },
                 new()
                 {
                     WindowSystemId = "rolety-antywlamaniowe",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(39.5, 33.0),
-                        new(48.5, 33.0),
-                        new(48.5, 53.0),
-                        new(39.5, 53.0),
+                        new(57, 44), new(65, 44), new(65, 67), new(57, 67),
                     },
                 },
                 new()
                 {
-                    WindowSystemId = "zaluzje-fasadowe",
+                    WindowSystemId = "bramy-garazowe",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(65.5, 46.0),
-                        new(79.5, 46.0),
-                        new(79.5, 77.0),
-                        new(65.5, 77.0),
+                        new(10, 47), new(32, 47), new(32, 68), new(10, 68),
                     },
                 },
             },
@@ -65,8 +48,8 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             Section = HouseSection.Exterior,
             Title = "Taras / prawy przód",
             ImagePath = "/images/house/exterior-taras.png",
-            ImageWidth = 1600,
-            ImageHeight = 1000,
+            ImageWidth = 1408,
+            ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
                 new()
@@ -74,10 +57,15 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                     WindowSystemId = "markizy",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(44.0, 41.0),
-                        new(76.0, 41.0),
-                        new(82.0, 49.0),
-                        new(48.0, 49.0),
+                        new(30, 27), new(77, 27), new(77, 38), new(30, 38),
+                    },
+                },
+                new()
+                {
+                    WindowSystemId = "zaluzje-fasadowe",
+                    Polygon = new List<HotspotPoint>
+                    {
+                        new(30, 40), new(78, 40), new(78, 63), new(30, 63),
                     },
                 },
                 new()
@@ -85,21 +73,7 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                     WindowSystemId = "screeny-fasadowe",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(53.0, 51.0),
-                        new(66.0, 51.0),
-                        new(66.0, 80.0),
-                        new(53.0, 80.0),
-                    },
-                },
-                new()
-                {
-                    WindowSystemId = "moskitiery-zewnetrzne",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(69.0, 52.0),
-                        new(81.5, 52.0),
-                        new(81.5, 79.5),
-                        new(69.0, 79.5),
+                        new(78, 40), new(93, 40), new(93, 68), new(78, 68),
                     },
                 },
             },
@@ -110,30 +84,24 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             Section = HouseSection.Exterior,
             Title = "Tył",
             ImagePath = "/images/house/exterior-tyl.png",
-            ImageWidth = 1600,
-            ImageHeight = 1000,
+            ImageWidth = 1408,
+            ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
-                new()
-                {
-                    WindowSystemId = "screeny-fasadowe",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(30.0, 45.0),
-                        new(42.0, 45.0),
-                        new(42.0, 73.0),
-                        new(30.0, 73.0),
-                    },
-                },
                 new()
                 {
                     WindowSystemId = "rolety-zewnetrzne",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(47.0, 36.0),
-                        new(59.0, 36.0),
-                        new(59.0, 58.0),
-                        new(47.0, 58.0),
+                        new(59, 46), new(65, 46), new(65, 64), new(59, 64),
+                    },
+                },
+                new()
+                {
+                    WindowSystemId = "moskitiery-zewnetrzne",
+                    Polygon = new List<HotspotPoint>
+                    {
+                        new(71, 45), new(77, 45), new(77, 70), new(71, 70),
                     },
                 },
             },
@@ -144,8 +112,8 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             Section = HouseSection.Exterior,
             Title = "Garaż / lewy przód",
             ImagePath = "/images/house/exterior-garaz.png",
-            ImageWidth = 1600,
-            ImageHeight = 1000,
+            ImageWidth = 1408,
+            ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
                 new()
@@ -153,21 +121,15 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
                     WindowSystemId = "bramy-garazowe",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(24.0, 48.0),
-                        new(52.0, 48.0),
-                        new(52.0, 81.0),
-                        new(24.0, 81.0),
+                        new(30, 35), new(56, 35), new(56, 70), new(30, 70),
                     },
                 },
                 new()
                 {
-                    WindowSystemId = "rolety-antywlamaniowe",
+                    WindowSystemId = "rolety-zewnetrzne",
                     Polygon = new List<HotspotPoint>
                     {
-                        new(57.0, 37.0),
-                        new(69.0, 37.0),
-                        new(69.0, 58.0),
-                        new(57.0, 58.0),
+                        new(61, 40), new(68, 40), new(68, 56), new(61, 56),
                     },
                 },
             },
