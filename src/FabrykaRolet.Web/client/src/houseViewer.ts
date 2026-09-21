@@ -353,7 +353,7 @@ export class HouseViewer {
         { autoAlpha: 0, x: 28 },
         { autoAlpha: 1, x: 0, duration: 0.32, ease: "power2.out" }
       );
-      if (!this.connector.hidden) {
+      if (!this.isConnectorHidden()) {
         gsap.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22, ease: "power1.out" });
       }
       this.scheduleConnectorRefresh();
@@ -365,6 +365,19 @@ export class HouseViewer {
   private scheduleConnectorRefresh(): void {
     this.connectorRefreshTween?.kill();
     this.connectorRefreshTween = gsap.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
+  }
+
+  private isConnectorHidden(): boolean {
+    return this.connector.hasAttribute("hidden");
+  }
+
+  private setConnectorHidden(hidden: boolean): void {
+    if (hidden) {
+      this.connector.setAttribute("hidden", "");
+      return;
+    }
+
+    this.connector.removeAttribute("hidden");
   }
 
   private syncActiveSystemState(): void {
@@ -385,13 +398,13 @@ export class HouseViewer {
     this.activePulseTween = null;
 
     if (!this.activeSystemId) {
-      this.connector.hidden = true;
+      this.setConnectorHidden(true);
       return;
     }
 
     const marker = this.markerFor(this.activeSystemId);
     if (!marker) {
-      this.connector.hidden = true;
+      this.setConnectorHidden(true);
       return;
     }
 
@@ -406,13 +419,13 @@ export class HouseViewer {
 
   private updateConnector(): void {
     if (this.panel.hidden || !this.activeSystemId) {
-      this.connector.hidden = true;
+      this.setConnectorHidden(true);
       return;
     }
 
     const marker = this.markerFor(this.activeSystemId);
     if (!marker) {
-      this.connector.hidden = true;
+      this.setConnectorHidden(true);
       return;
     }
 
@@ -423,7 +436,7 @@ export class HouseViewer {
 
     const panelBelowStage = panelRect.top >= stageRect.bottom - 4;
     if (panelBelowStage) {
-      this.connector.hidden = true;
+      this.setConnectorHidden(true);
       return;
     }
 
@@ -434,7 +447,7 @@ export class HouseViewer {
     const endY = panelRect.top - layoutRect.top + Math.max(34, Math.min(markerAlignedY, panelRect.height - 34));
 
     if (endX <= startX + 20) {
-      this.connector.hidden = true;
+      this.setConnectorHidden(true);
       return;
     }
 
@@ -446,7 +459,7 @@ export class HouseViewer {
     this.connector.setAttribute("viewBox", `0 0 ${layoutRect.width} ${layoutRect.height}`);
     this.connectorPath.setAttribute("d", path);
     this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)");
-    this.connector.hidden = false;
+    this.setConnectorHidden(false);
   }
 
   private closePanel(restoreFocus = true): void {
@@ -459,14 +472,14 @@ export class HouseViewer {
 
     gsap.killTweensOf(this.panel);
     gsap.killTweensOf(this.connector);
-    gsap.to([this.panel, this.connector], {
+    gsap.to(this.panel, { autoAlpha: 0, x: 20, duration: 0.18, ease: "power1.in" });
+    gsap.to(this.connector, {
       autoAlpha: 0,
-      x: (target) => (target === this.panel ? 20 : 0),
       duration: 0.18,
       ease: "power1.in",
       onComplete: () => {
         this.panel.hidden = true;
-        this.connector.hidden = true;
+        this.setConnectorHidden(true);
         this.layout.classList.remove("is-panel-open");
         gsap.set(this.panel, { clearProps: "opacity,visibility,transform" });
         gsap.set(this.connector, { clearProps: "opacity,visibility,transform" });

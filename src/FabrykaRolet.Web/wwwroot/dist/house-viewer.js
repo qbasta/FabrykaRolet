@@ -1,196 +1,267 @@
-var w = Object.defineProperty;
-var y = (l, t, e) => t in l ? w(l, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : l[t] = e;
-var a = (l, t, e) => y(l, typeof t != "symbol" ? t + "" : t, e);
-import { g as d } from "./index-9nJrthwM.js";
-const g = "http://www.w3.org/2000/svg";
-class f {
-  constructor(t, e) {
-    a(this, "img");
-    a(this, "overlay");
-    a(this, "hitAreas");
-    a(this, "prevBtn");
-    a(this, "nextBtn");
-    a(this, "viewsNav");
-    a(this, "callout");
-    a(this, "calloutArrow");
-    a(this, "calloutTitle");
-    a(this, "calloutDescription");
-    a(this, "calloutAdvantages");
-    a(this, "currentIndex", 0);
-    a(this, "lastFocused", null);
-    a(this, "repositionHandler", null);
-    this.root = t, this.data = e, this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.prevBtn = t.querySelector(".house-viewer__arrow--prev"), this.nextBtn = t.querySelector(".house-viewer__arrow--next"), this.viewsNav = t.querySelector(".house-viewer__views"), this.callout = this.requireGlobal("#hv-callout"), this.calloutArrow = this.requireGlobal(".hv-callout__arrow"), this.calloutTitle = this.requireGlobal("#hv-callout-title"), this.calloutDescription = this.requireGlobal("#hv-callout-description"), this.calloutAdvantages = this.requireGlobal("#hv-callout-advantages"), this.bindNav(), this.bindCalloutClose(), this.bindSystemButtons(), this.renderView(0);
+var g = Object.defineProperty;
+var S = (c, e, t) => e in c ? g(c, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : c[e] = t;
+var r = (c, e, t) => S(c, typeof e != "symbol" ? e + "" : e, t);
+import { g as a } from "./index-9nJrthwM.js";
+const A = "http://www.w3.org/2000/svg";
+class C {
+  constructor(e, t) {
+    r(this, "layout");
+    r(this, "stage");
+    r(this, "img");
+    r(this, "overlay");
+    r(this, "hitAreas");
+    r(this, "connector");
+    r(this, "connectorPath");
+    r(this, "panel");
+    r(this, "panelClose");
+    r(this, "panelTitle");
+    r(this, "panelDescription");
+    r(this, "panelAdvantages");
+    r(this, "prevBtn");
+    r(this, "nextBtn");
+    r(this, "viewsNav");
+    r(this, "systemButtons");
+    r(this, "currentIndex", 0);
+    r(this, "activeSystemId", null);
+    r(this, "lastFocused", null);
+    r(this, "activePulseTween", null);
+    r(this, "connectorRefreshTween", null);
+    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = Array.from(document.querySelectorAll(".system-button[data-system-id]")), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
   }
-  require(t) {
-    const e = this.root.querySelector(t);
-    if (!e) throw new Error(`HouseViewer: brak elementu "${t}" w kontenerze.`);
-    return e;
-  }
-  requireGlobal(t) {
-    const e = document.querySelector(t);
-    if (!e) throw new Error(`HouseViewer: brak elementu globalnego "${t}".`);
-    return e;
+  require(e) {
+    const t = this.root.querySelector(e);
+    if (!t) throw new Error(`HouseViewer: brak elementu "${e}" w kontenerze.`);
+    return t;
   }
   bindNav() {
-    var e, i;
-    const t = this.data.views.length > 1;
-    this.prevBtn && (this.prevBtn.hidden = !t), this.nextBtn && (this.nextBtn.hidden = !t), (e = this.prevBtn) == null || e.addEventListener("click", () => this.step(-1)), (i = this.nextBtn) == null || i.addEventListener("click", () => this.step(1)), this.viewsNav && (this.viewsNav.innerHTML = "", this.data.views.forEach((s, o) => {
-      var u;
-      const r = document.createElement("button");
-      r.type = "button", r.className = "house-viewer__view-btn", r.textContent = s.title, r.setAttribute("role", "tab"), r.setAttribute("aria-selected", o === this.currentIndex ? "true" : "false"), r.tabIndex = o === this.currentIndex ? 0 : -1, r.addEventListener("click", () => this.renderView(o)), (u = this.viewsNav) == null || u.appendChild(r);
-    })), this.root.addEventListener("keydown", (s) => {
-      s.key === "ArrowLeft" && (s.preventDefault(), this.step(-1)), s.key === "ArrowRight" && (s.preventDefault(), this.step(1));
+    var t, s;
+    const e = this.data.views.length > 1;
+    this.prevBtn && (this.prevBtn.hidden = !e), this.nextBtn && (this.nextBtn.hidden = !e), (t = this.prevBtn) == null || t.addEventListener("click", () => this.step(-1)), (s = this.nextBtn) == null || s.addEventListener("click", () => this.step(1)), this.viewsNav && (this.viewsNav.innerHTML = "", this.data.views.forEach((i, n) => {
+      var h;
+      const o = document.createElement("button");
+      o.type = "button", o.className = "house-viewer__view-btn", o.textContent = i.title, o.setAttribute("role", "tab"), o.setAttribute("aria-selected", n === this.currentIndex ? "true" : "false"), o.tabIndex = n === this.currentIndex ? 0 : -1, o.addEventListener("click", () => this.renderView(n)), (h = this.viewsNav) == null || h.appendChild(o);
+    })), this.root.addEventListener("keydown", (i) => {
+      i.key === "ArrowLeft" && (i.preventDefault(), this.step(-1)), i.key === "ArrowRight" && (i.preventDefault(), this.step(1));
     });
   }
-  bindCalloutClose() {
-    this.callout.querySelectorAll("[data-close]").forEach(
-      (t) => t.addEventListener("click", () => this.closeCallout())
-    ), document.addEventListener("keydown", (t) => {
-      t.key === "Escape" && !this.callout.hidden && this.closeCallout();
-    }), document.addEventListener("click", (t) => {
-      if (this.callout.hidden) return;
-      const e = t.target;
-      this.callout.contains(e) || e.closest("[data-system-id], .house-viewer__hit-area") || this.closeCallout();
+  bindPanelClose() {
+    this.panelClose.addEventListener("click", () => this.closePanel()), document.addEventListener("keydown", (e) => {
+      e.key === "Escape" && !this.panel.hidden && this.closePanel();
+    }), document.addEventListener("click", (e) => {
+      if (this.panel.hidden) return;
+      const t = e.target;
+      t && (this.panel.contains(t) || t.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button") || this.closePanel());
     });
   }
   bindSystemButtons() {
-    document.querySelectorAll("[data-system-id]").forEach((t) => {
-      t.addEventListener("click", () => this.activateSystem(t.dataset.systemId, t));
+    this.systemButtons.forEach((e) => {
+      e.addEventListener("click", () => this.activateSystem(e.dataset.systemId, e));
     });
   }
-  findHotspot(t) {
-    for (let e = 0; e < this.data.views.length; e++) {
-      const i = this.data.views[e].hotspots.find((s) => s.systemId === t);
-      if (i) return { viewIndex: e, hotspot: i };
+  bindGlobalEvents() {
+    window.addEventListener("resize", () => this.updateConnector()), this.img.addEventListener("load", () => this.updateConnector());
+  }
+  findHotspot(e) {
+    for (let t = 0; t < this.data.views.length; t++) {
+      const s = this.data.views[t].hotspots.find((i) => i.systemId === e);
+      if (s) return { viewIndex: t, hotspot: s };
     }
     return null;
   }
-  findSystemSummary(t) {
-    return this.data.systems.find((e) => e.systemId === t);
+  findSystemSummary(e) {
+    return this.data.systems.find((t) => t.systemId === e);
   }
-  /**
-   * Klik na przycisku systemu z listy: jeśli system ma hotspot na innym widoku,
-   * przełącza tam, po animacji otwiera dymek przy hotspocie i go pulsuje. Jeśli
-   * hotspot nie istnieje (widok jeszcze nie gotowy), dymek otwiera się przy samym
-   * przycisku z listy - zawsze przy czymś klikalnym, nigdy "znikąd".
-   */
-  activateSystem(t, e) {
-    const i = this.findHotspot(t);
-    if (!i) {
-      const r = this.findSystemSummary(t);
-      r && this.openCallout(r, e);
+  activateSystem(e, t) {
+    const s = this.findHotspot(e);
+    if (!s) {
+      const n = this.findSystemSummary(e);
+      n && this.openPanel(n, t, null);
       return;
     }
-    const { viewIndex: s, hotspot: o } = i;
-    if (s === this.currentIndex) {
-      const r = this.hitAreaFor(o.systemId);
-      this.openCallout(o, r ?? e), this.pulseHotspot(o.systemId);
-    } else
-      this.renderView(s, () => {
-        const r = this.hitAreaFor(o.systemId);
-        this.openCallout(o, r ?? e), this.pulseHotspot(o.systemId);
-      });
-  }
-  hitAreaFor(t) {
-    return this.hitAreas.querySelector(`[data-system-id="${CSS.escape(t)}"]`);
-  }
-  pulseHotspot(t) {
-    const i = this.data.views[this.currentIndex].hotspots.findIndex((o) => o.systemId === t);
-    if (i === -1) return;
-    const s = this.overlay.querySelectorAll("polygon")[i];
-    s && d.fromTo(
-      s,
-      { scale: 1, transformOrigin: "50% 50%" },
-      { scale: 1.05, duration: 0.25, yoyo: !0, repeat: 3, ease: "power1.inOut" }
-    );
-  }
-  step(t) {
-    const e = this.data.views.length, i = (this.currentIndex + t + e) % e;
-    this.renderView(i);
-  }
-  renderView(t, e) {
-    const i = !this.img.src;
-    this.currentIndex = t;
-    const s = this.data.views[t];
-    i || this.closeCallout();
-    const o = () => {
-      this.img.src = s.image, this.img.alt = s.title, this.buildHotspots(s), this.syncViewButtons(), d.fromTo([this.img, this.overlay], { opacity: 0 }, { opacity: 1, duration: 0.35, onComplete: e });
+    const i = () => {
+      const n = this.markerFor(e);
+      this.openPanel(s.hotspot, n ?? t, e);
     };
-    i ? o() : d.to([this.img, this.overlay], { opacity: 0, duration: 0.2, onComplete: o });
+    if (s.viewIndex === this.currentIndex) {
+      i();
+      return;
+    }
+    this.renderView(s.viewIndex, i);
+  }
+  markerFor(e) {
+    return this.hitAreas.querySelector(`.house-viewer__marker[data-system-id="${CSS.escape(e)}"]`);
+  }
+  polygonFor(e) {
+    return this.overlay.querySelector(`polygon[data-system-id="${CSS.escape(e)}"]`);
+  }
+  step(e) {
+    const t = this.data.views.length, s = (this.currentIndex + e + t) % t;
+    this.renderView(s);
+  }
+  renderView(e, t) {
+    const s = !this.img.src;
+    this.currentIndex = e;
+    const i = this.data.views[e];
+    s || this.closePanel(!1);
+    const n = () => {
+      this.img.src = i.image, this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), a.fromTo(
+        [this.img, this.overlay, this.hitAreas],
+        { opacity: 0 },
+        { opacity: 1, duration: 0.35, onComplete: t }
+      );
+    };
+    if (s) {
+      n();
+      return;
+    }
+    a.to([this.img, this.overlay, this.hitAreas], { opacity: 0, duration: 0.2, onComplete: n });
   }
   syncViewButtons() {
     if (!this.viewsNav) return;
-    Array.from(this.viewsNav.querySelectorAll(".house-viewer__view-btn")).forEach((e, i) => {
-      const s = i === this.currentIndex;
-      e.classList.toggle("is-active", s), e.setAttribute("aria-selected", s ? "true" : "false"), e.tabIndex = s ? 0 : -1;
+    Array.from(this.viewsNav.querySelectorAll(".house-viewer__view-btn")).forEach((t, s) => {
+      const i = s === this.currentIndex;
+      t.classList.toggle("is-active", i), t.setAttribute("aria-selected", i ? "true" : "false"), t.tabIndex = i ? 0 : -1;
     });
   }
-  buildHotspots(t) {
-    this.overlay.innerHTML = "", this.hitAreas.innerHTML = "", t.hotspots.forEach((e, i) => {
-      const s = this.createPolygon(e);
-      this.overlay.appendChild(s);
-      const o = this.createHitArea(e, s);
-      this.hitAreas.appendChild(o), d.fromTo(s, { opacity: 0 }, { opacity: 1, duration: 0.35, delay: 0.15 + i * 0.08 });
-    });
+  buildHotspots(e) {
+    this.overlay.innerHTML = "", this.hitAreas.innerHTML = "", e.hotspots.forEach((t, s) => {
+      const i = this.getBounds(t), n = this.createPolygon(t), o = this.createHitArea(t, i), h = this.createMarker(t, i);
+      this.overlay.appendChild(n), this.hitAreas.append(o, h), a.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), a.fromTo(h, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
+    }), this.syncActiveSystemState();
   }
-  createPolygon(t) {
-    const e = document.createElementNS(g, "polygon"), i = t.polygon.map(([s, o]) => `${s},${o}`).join(" ");
-    return e.setAttribute("points", i), e.setAttribute("class", "house-viewer__hotspot"), e;
+  createPolygon(e) {
+    const t = document.createElementNS(A, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
+    return t.setAttribute("points", s), t.setAttribute("class", "house-viewer__hotspot"), t.dataset.systemId = e.systemId, t;
   }
-  createHitArea(t, e) {
-    const i = t.polygon.map(([v]) => v), s = t.polygon.map(([, v]) => v), o = Math.min(...i), r = Math.min(...s), u = Math.max(...i) - o, p = Math.max(...s) - r, n = document.createElement("button");
-    n.type = "button", n.className = "house-viewer__hit-area", n.dataset.systemId = t.systemId, n.style.left = `${o}%`, n.style.top = `${r}%`, n.style.width = `${u}%`, n.style.height = `${p}%`, n.setAttribute("aria-label", `${t.name} – pokaż szczegóły`);
-    const h = () => e.classList.add("is-active"), c = () => e.classList.remove("is-active");
-    return n.addEventListener("mouseenter", h), n.addEventListener("mouseleave", c), n.addEventListener("focus", h), n.addEventListener("blur", c), n.addEventListener("click", () => this.openCallout(t, n)), n;
+  createHitArea(e, t) {
+    const s = document.createElement("button");
+    s.type = "button", s.className = "house-viewer__hit-area", s.dataset.systemId = e.systemId, s.style.left = `${t.left}%`, s.style.top = `${t.top}%`, s.style.width = `${t.width}%`, s.style.height = `${t.height}%`, s.tabIndex = -1, s.setAttribute("aria-hidden", "true");
+    const i = () => this.setHoveredState(e.systemId, !0), n = () => this.setHoveredState(e.systemId, !1);
+    return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("click", () => {
+      const o = this.markerFor(e.systemId);
+      this.openPanel(e, o ?? s, e.systemId);
+    }), s;
   }
-  openCallout(t, e) {
-    var i;
-    this.lastFocused = e, this.calloutTitle.textContent = t.name, this.calloutDescription.textContent = t.description, this.calloutAdvantages.innerHTML = "", t.advantages.forEach((s) => {
-      const o = document.createElement("li");
-      o.textContent = s, this.calloutAdvantages.appendChild(o);
-    }), this.positionCallout(e), d.fromTo(this.callout, { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.2, ease: "power2.out" }), (i = this.callout.querySelector(".hv-callout__close")) == null || i.focus(), this.repositionHandler || (this.repositionHandler = () => this.closeCallout(), window.addEventListener("scroll", this.repositionHandler, { passive: !0, once: !0 }), window.addEventListener("resize", this.repositionHandler, { once: !0 }));
+  createMarker(e, t) {
+    const s = document.createElement("button");
+    s.type = "button", s.className = "house-viewer__marker", s.dataset.systemId = e.systemId, s.style.left = `${t.centerX}%`, s.style.top = `${t.centerY}%`, s.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
+    const i = () => this.setHoveredState(e.systemId, !0), n = () => this.setHoveredState(e.systemId, !1);
+    return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("focus", i), s.addEventListener("blur", n), s.addEventListener("click", () => this.openPanel(e, s, e.systemId)), s;
   }
-  /**
-   * Pozycjonuje dymek obok `target` (hotspot na obrazie LUB przycisk z listy) i ustawia
-   * strzałkę tak, żeby wskazywała dokładnie na ten element. Liczone w px względem
-   * viewportu (position: fixed), więc działa identycznie niezależnie od tego, gdzie
-   * na stronie leży `target`.
-   */
-  positionCallout(t) {
-    const i = t.getBoundingClientRect();
-    this.callout.style.visibility = "hidden", this.callout.hidden = !1;
-    const s = this.callout.getBoundingClientRect(), o = window.innerWidth, r = window.innerHeight, u = o - i.right, p = i.left;
-    let n, h;
-    u >= s.width + 14 ? (n = i.right + 14, h = "left") : p >= s.width + 14 ? (n = i.left - 14 - s.width, h = "right") : (n = Math.max(14, Math.min(i.left, o - s.width - 14)), h = "none");
-    let c = h === "none" ? i.bottom + 14 : i.top + i.height / 2 - s.height / 2;
-    if (c = Math.max(14, Math.min(c, r - s.height - 14)), n = Math.max(14, Math.min(n, o - s.width - 14)), this.callout.style.left = `${n}px`, this.callout.style.top = `${c}px`, this.callout.style.visibility = "visible", this.calloutArrow.classList.remove("hv-callout__arrow--left", "hv-callout__arrow--right", "hv-callout__arrow--none"), this.calloutArrow.classList.add(`hv-callout__arrow--${h}`), h !== "none") {
-      const v = i.top + i.height / 2 - c;
-      this.calloutArrow.style.top = `${Math.max(14, Math.min(v, s.height - 14))}px`;
+  getBounds(e) {
+    const t = e.polygon.map(([l]) => l), s = e.polygon.map(([, l]) => l), i = Math.min(...t), n = Math.min(...s), o = Math.max(...t) - i, h = Math.max(...s) - n;
+    return {
+      left: i,
+      top: n,
+      width: o,
+      height: h,
+      centerX: i + o / 2,
+      centerY: n + h / 2
+    };
+  }
+  setHoveredState(e, t) {
+    var s, i;
+    (s = this.markerFor(e)) == null || s.classList.toggle("is-hovered", t), (i = this.polygonFor(e)) == null || i.classList.toggle("is-hovered", t);
+  }
+  openPanel(e, t, s) {
+    this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.innerHTML = "", e.advantages.forEach((i) => {
+      const n = document.createElement("li");
+      n.textContent = i, this.panelAdvantages.appendChild(n);
+    }), this.syncActiveSystemState(), this.panel.hidden = !1, this.layout.classList.add("is-panel-open"), a.killTweensOf(this.panel), a.killTweensOf(this.connector), requestAnimationFrame(() => {
+      this.updateConnector(), a.fromTo(
+        this.panel,
+        { autoAlpha: 0, x: 28 },
+        { autoAlpha: 1, x: 0, duration: 0.32, ease: "power2.out" }
+      ), this.isConnectorHidden() || a.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22, ease: "power1.out" }), this.scheduleConnectorRefresh();
+    }), this.panelClose.focus();
+  }
+  scheduleConnectorRefresh() {
+    var e;
+    (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = a.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
+  }
+  isConnectorHidden() {
+    return this.connector.hasAttribute("hidden");
+  }
+  setConnectorHidden(e) {
+    if (e) {
+      this.connector.setAttribute("hidden", "");
+      return;
     }
+    this.connector.removeAttribute("hidden");
   }
-  closeCallout() {
-    this.callout.hidden || (d.to(this.callout, {
-      opacity: 0,
-      scale: 0.96,
-      duration: 0.15,
+  syncActiveSystemState() {
+    var t;
+    if (this.systemButtons.forEach((s) => {
+      const i = s.dataset.systemId === this.activeSystemId;
+      s.setAttribute("aria-pressed", i ? "true" : "false");
+    }), this.overlay.querySelectorAll(".house-viewer__hotspot").forEach((s) => {
+      s.classList.toggle("is-active", s.dataset.systemId === this.activeSystemId);
+    }), this.hitAreas.querySelectorAll(".house-viewer__marker").forEach((s) => {
+      s.classList.toggle("is-active", s.dataset.systemId === this.activeSystemId);
+    }), (t = this.activePulseTween) == null || t.kill(), this.activePulseTween = null, !this.activeSystemId) {
+      this.setConnectorHidden(!0);
+      return;
+    }
+    const e = this.markerFor(this.activeSystemId);
+    if (!e) {
+      this.setConnectorHidden(!0);
+      return;
+    }
+    this.activePulseTween = a.to(e, {
+      scale: 1.18,
+      duration: 0.85,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: !0
+    });
+  }
+  updateConnector() {
+    if (this.panel.hidden || !this.activeSystemId) {
+      this.setConnectorHidden(!0);
+      return;
+    }
+    const e = this.markerFor(this.activeSystemId);
+    if (!e) {
+      this.setConnectorHidden(!0);
+      return;
+    }
+    const t = this.layout.getBoundingClientRect(), s = this.stage.getBoundingClientRect(), i = this.panel.getBoundingClientRect(), n = e.getBoundingClientRect();
+    if (i.top >= s.bottom - 4) {
+      this.setConnectorHidden(!0);
+      return;
+    }
+    const h = n.left + n.width / 2 - t.left, l = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, m = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(m, i.height - 34));
+    if (d <= h + 20) {
+      this.setConnectorHidden(!0);
+      return;
+    }
+    const p = d - h, y = h + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), f = `M ${h} ${l} C ${y} ${l}, ${w} ${u}, ${d} ${u}`;
+    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", f), this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)"), this.setConnectorHidden(!1);
+  }
+  closePanel(e = !0) {
+    var t;
+    this.panel.hidden || (this.activeSystemId = null, this.syncActiveSystemState(), (t = this.connectorRefreshTween) == null || t.kill(), this.connectorRefreshTween = null, a.killTweensOf(this.panel), a.killTweensOf(this.connector), a.to(this.panel, { autoAlpha: 0, x: 20, duration: 0.18, ease: "power1.in" }), a.to(this.connector, {
+      autoAlpha: 0,
+      duration: 0.18,
+      ease: "power1.in",
       onComplete: () => {
-        var t;
-        this.callout.hidden = !0, (t = this.lastFocused) == null || t.focus();
+        var s;
+        this.panel.hidden = !0, this.setConnectorHidden(!0), this.layout.classList.remove("is-panel-open"), a.set(this.panel, { clearProps: "opacity,visibility,transform" }), a.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((s = this.lastFocused) == null || s.focus());
       }
-    }), this.repositionHandler && (window.removeEventListener("scroll", this.repositionHandler), window.removeEventListener("resize", this.repositionHandler), this.repositionHandler = null));
+    }));
   }
 }
-function m() {
-  var i;
-  const l = document.getElementById("house-viewer"), t = document.getElementById("house-viewer-data");
-  if (!l || !(t != null && t.textContent)) return;
-  let e;
+function v() {
+  var s;
+  const c = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
+  if (!c || !(e != null && e.textContent)) return;
+  let t;
   try {
-    e = JSON.parse(t.textContent);
+    t = JSON.parse(e.textContent);
   } catch {
     console.error("HouseViewer: nie udało się sparsować danych widoku.");
     return;
   }
-  (i = e.views) != null && i.length && new f(l, e);
+  (s = t.views) != null && s.length && new C(c, t);
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m) : m();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", v) : v();
