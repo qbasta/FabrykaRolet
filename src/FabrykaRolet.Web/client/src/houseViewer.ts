@@ -2,10 +2,13 @@ import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const PANEL_ANIMATION_DURATION = 0.48;
-const PANEL_ANIMATION_EASE = "expo.out";
-const PANEL_FADE_OUT_DURATION = 0.18;
+const PANEL_ANIMATION_DURATION = 0.32;
+const PANEL_FADE_OUT_DURATION = 0.2;
+const VIEW_FADE_DURATION = 0.18;
+const LAYOUT_TRANSITION_MS = 420;
 const DESKTOP_MEDIA_QUERY = "(min-width: 901px)";
+
+const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 
 type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotBounds = {
@@ -17,64 +20,71 @@ type HotspotBounds = {
   centerY: number;
 };
 
+type HotspotLookup = {
+  viewIndex: number;
+  hotspot: HotspotData;
+};
+
 export class HouseViewer {
   private readonly layout: HTMLElement;
-  private readonly stageShell: HTMLElement;
   private readonly stage: HTMLElement;
   private readonly img: HTMLImageElement;
   private readonly overlay: SVGSVGElement;
   private readonly hitAreas: HTMLElement;
   private readonly connector: SVGSVGElement;
-  private readonly connectorArrow: SVGMarkerElement;
   private readonly connectorPath: SVGPathElement;
   private readonly panel: HTMLElement;
   private readonly panelClose: HTMLButtonElement;
   private readonly panelTitle: HTMLElement;
   private readonly panelDescription: HTMLElement;
   private readonly panelAdvantages: HTMLElement;
+  private readonly availability: HTMLElement | null;
+  private readonly panelStatus: HTMLElement | null;
   private readonly prevBtn: HTMLButtonElement | null;
   private readonly nextBtn: HTMLButtonElement | null;
   private readonly viewsNav: HTMLElement | null;
   private readonly systemButtons: HTMLButtonElement[];
   private readonly allowedImagePaths: Map<string, string>;
-  private readonly connectorArrowId: string;
+  private readonly listenerController = new AbortController();
+  private readonly hotspotIndex = new Map<string, HotspotLookup[]>();
 
   private currentIndex = 0;
   private activeSystemId: string | null = null;
   private lastFocused: HTMLElement | null = null;
-  private activePulseTween: gsap.core.Tween | null = null;
-  private connectorRefreshTween: gsap.core.Tween | null = null;
-  private stageCloseTween: gsap.core.Tween | null = null;
-  private isClosingPanel = false;
-  private readonly listenerController = new AbortController();
   private disconnectObserver: MutationObserver | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+  private panelTween: gsap.core.Tween | null = null;
+  private connectorTween: gsap.core.Tween | null = null;
+  private viewTween: gsap.core.Tween | null = null;
+  private connectorFrame: number | null = null;
+  private connectorRefreshUntil = 0;
+  private isClosingPanel = false;
 
   constructor(
     private readonly root: HTMLElement,
     private readonly data: HouseViewerData
   ) {
     this.layout = this.require(".house-viewer__layout");
-    this.stageShell = this.require(".house-viewer__stage-shell");
     this.stage = this.require(".house-viewer__stage");
     this.img = this.require(".house-viewer__image");
     this.overlay = this.require(".house-viewer__overlay");
     this.hitAreas = this.require(".house-viewer__hit-areas");
     this.connector = this.require(".house-viewer__connector");
-    this.connectorArrow = this.require(".house-viewer__connector-arrow");
     this.connectorPath = this.require(".house-viewer__connector-path");
     this.panel = this.require("#house-viewer-panel");
     this.panelClose = this.require(".house-viewer__panel-close");
     this.panelTitle = this.require("#house-viewer-panel-title");
     this.panelDescription = this.require("#house-viewer-panel-description");
     this.panelAdvantages = this.require("#house-viewer-panel-advantages");
+    this.availability = root.querySelector("#house-viewer-availability");
+    this.panelStatus = root.querySelector("#house-viewer-status");
     this.prevBtn = root.querySelector(".house-viewer__arrow--prev");
     this.nextBtn = root.querySelector(".house-viewer__arrow--next");
     this.viewsNav = root.querySelector(".house-viewer__views");
     this.systemButtons = this.collectSystemButtons();
     this.allowedImagePaths = new Map(data.views.map((view) => [view.image, this.normalizeImageUrl(view.image)]));
-    this.connectorArrowId = `${this.root.id || "house-viewer"}-connector-arrow`;
-    this.connectorArrow.id = this.connectorArrowId;
 
+    this.indexHotspots();
     this.bindNav();
     this.bindPanelClose();
     this.bindSystemButtons();
@@ -84,18 +94,36 @@ export class HouseViewer {
 
   private require<T extends Element>(selector: string): T {
     const el = this.root.querySelector<T>(selector);
-    if (!el) throw new Error(`HouseViewer: brak elementu "${selector}" w kontenerze.`);
+    if (!el) {
+      throw new Error(`HouseViewer: brak elementu "${selector}" w kontenerze.`);
+    }
+
     return el;
+  }
+
+  private indexHotspots(): void {
+    this.data.views.forEach((view, viewIndex) => {
+      view.hotspots.forEach((hotspot) => {
+        const entries = this.hotspotIndex.get(hotspot.systemId) ?? [];
+        entries.push({ viewIndex, hotspot });
+        this.hotspotIndex.set(hotspot.systemId, entries);
+      });
+    });
   }
 
   private bindNav(): void {
     const listenerOptions = { signal: this.listenerController.signal };
     const hasMultipleViews = this.data.views.length > 1;
-    if (this.prevBtn) this.prevBtn.hidden = !hasMultipleViews;
-    if (this.nextBtn) this.nextBtn.hidden = !hasMultipleViews;
 
-    this.prevBtn?.addEventListener("click", () => this.step(-1), listenerOptions);
-    this.nextBtn?.addEventListener("click", () => this.step(1), listenerOptions);
+    if (this.prevBtn) {
+      this.prevBtn.hidden = !hasMultipleViews;
+      this.prevBtn.addEventListener("click", () => this.step(-1), listenerOptions);
+    }
+
+    if (this.nextBtn) {
+      this.nextBtn.hidden = !hasMultipleViews;
+      this.nextBtn.addEventListener("click", () => this.step(1), listenerOptions);
+    }
 
     if (this.viewsNav) {
       this.viewsNav.replaceChildren();
@@ -110,70 +138,135 @@ export class HouseViewer {
       });
     }
 
-    this.root.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        this.step(-1);
-      }
+    this.root.addEventListener(
+      "keydown",
+      (event) => {
+        if (this.shouldIgnoreViewNavigationKey(event)) {
+          return;
+        }
 
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        this.step(1);
-      }
-    }, listenerOptions);
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          this.step(-1);
+        }
+
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          this.step(1);
+        }
+      },
+      listenerOptions
+    );
+  }
+
+  private shouldIgnoreViewNavigationKey(event: KeyboardEvent): boolean {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+      return true;
+    }
+
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return false;
+    }
+
+    if (this.panel.contains(target)) {
+      return true;
+    }
+
+    return !!target.closest("button, input, select, textarea, a, summary");
   }
 
   private bindPanelClose(): void {
     const listenerOptions = { signal: this.listenerController.signal };
     this.panelClose.addEventListener("click", () => this.closePanel(), listenerOptions);
 
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !this.panel.hidden) {
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Escape" && !this.panel.hidden) {
+          this.closePanel();
+        }
+      },
+      listenerOptions
+    );
+
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (this.panel.hidden) {
+          return;
+        }
+
+        const target = event.target as HTMLElement | null;
+        if (!target || this.panel.contains(target)) {
+          return;
+        }
+
+        if (target.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button")) {
+          return;
+        }
+
         this.closePanel();
-      }
-    }, listenerOptions);
-
-    document.addEventListener("click", (event) => {
-      if (this.panel.hidden) return;
-
-      const target = event.target as HTMLElement | null;
-      if (!target) return;
-      if (this.panel.contains(target)) return;
-      if (target.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button")) return;
-
-      this.closePanel();
-    }, listenerOptions);
+      },
+      listenerOptions
+    );
   }
 
   private bindSystemButtons(): void {
     const listenerOptions = { signal: this.listenerController.signal };
     this.systemButtons.forEach((button) => {
-      button.addEventListener("click", () => this.activateSystem(button.dataset.systemId!, button), listenerOptions);
+      const systemId = button.dataset.systemId;
+      if (!systemId) {
+        return;
+      }
+
+      button.addEventListener("click", () => this.activateSystem(systemId, button), listenerOptions);
     });
   }
 
   private bindGlobalEvents(): void {
     const listenerOptions = { signal: this.listenerController.signal };
-    window.addEventListener("resize", () => {
-      if (this.isDesktopViewport() && !this.panel.hidden) {
-        this.lockStageHeight();
-      } else {
-        this.clearStageHeightLock();
-      }
-      this.scheduleConnectorRefresh();
-    }, listenerOptions);
-    this.img.addEventListener("load", () => this.updateConnector(), listenerOptions);
+    window.addEventListener(
+      "resize",
+      () => {
+        this.syncLayoutMetrics();
+        this.scheduleConnectorRefresh();
+      },
+      listenerOptions
+    );
+
+    this.img.addEventListener(
+      "load",
+      () => {
+        this.syncLayoutMetrics();
+        this.scheduleConnectorRefresh();
+      },
+      listenerOptions
+    );
+
+    if ("ResizeObserver" in window) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.syncLayoutMetrics();
+        this.updateConnector();
+      });
+      this.resizeObserver.observe(this.stage);
+      this.resizeObserver.observe(this.panel);
+    }
+
     this.observeDisconnect();
   }
 
   private observeDisconnect(): void {
-    if (!document.body) return;
+    if (!document.body) {
+      return;
+    }
 
     this.disconnectObserver = new MutationObserver(() => {
       if (!this.root.isConnected) {
         this.destroy();
       }
     });
+
     this.disconnectObserver.observe(document.body, { childList: true, subtree: true });
   }
 
@@ -181,9 +274,12 @@ export class HouseViewer {
     this.listenerController.abort();
     this.disconnectObserver?.disconnect();
     this.disconnectObserver = null;
-    this.connectorRefreshTween?.kill();
-    this.activePulseTween?.kill();
-    this.stageCloseTween?.kill();
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    this.cancelConnectorRefresh();
+    this.panelTween?.kill();
+    this.connectorTween?.kill();
+    this.viewTween?.kill();
   }
 
   private collectSystemButtons(): HTMLButtonElement[] {
@@ -200,13 +296,13 @@ export class HouseViewer {
     return Array.from(container.querySelectorAll<HTMLButtonElement>(".system-button[data-system-id]"));
   }
 
-  private findHotspot(systemId: string): { viewIndex: number; hotspot: HotspotData } | null {
-    for (let viewIndex = 0; viewIndex < this.data.views.length; viewIndex++) {
-      const hotspot = this.data.views[viewIndex].hotspots.find((item) => item.systemId === systemId);
-      if (hotspot) return { viewIndex, hotspot };
+  private findHotspot(systemId: string): HotspotLookup | null {
+    const entries = this.hotspotIndex.get(systemId);
+    if (!entries?.length) {
+      return null;
     }
 
-    return null;
+    return entries.find((entry) => entry.viewIndex === this.currentIndex) ?? entries[0];
   }
 
   private findSystemSummary(systemId: string): SystemSummary | undefined {
@@ -217,7 +313,9 @@ export class HouseViewer {
     const found = this.findHotspot(systemId);
     if (!found) {
       const summary = this.findSystemSummary(systemId);
-      if (summary) this.openPanel(summary, trigger, null);
+      if (summary) {
+        this.openPanel(summary, trigger, null);
+      }
       return;
     }
 
@@ -250,36 +348,56 @@ export class HouseViewer {
 
   private renderView(index: number, onDone?: () => void): void {
     const isFirstRender = !this.img.src;
-    this.currentIndex = index;
-    const view = this.data.views[index];
-
-    if (!isFirstRender) {
-      this.closePanel(false, false);
-    }
-
+    const previousNodes = [this.img, this.overlay, this.hitAreas];
     const applyView = () => {
+      this.currentIndex = index;
+      const view = this.data.views[index];
       this.img.src = this.resolveImageUrl(view.image);
       this.img.alt = view.title;
       this.buildHotspots(view);
       this.syncViewButtons();
-
-      gsap.fromTo(
-        [this.img, this.overlay, this.hitAreas],
+      this.syncVisibleSystems(view);
+      this.syncLayoutMetrics();
+      this.viewTween?.kill();
+      this.viewTween = gsap.fromTo(
+        previousNodes,
         { opacity: 0 },
-        { opacity: 1, duration: 0.35, onComplete: onDone }
+        {
+          opacity: 1,
+          duration: VIEW_FADE_DURATION,
+          ease: "power1.in",
+          onComplete: () => {
+            this.viewTween = null;
+            onDone?.();
+          },
+        }
       );
     };
+
+    this.viewTween?.kill();
+    gsap.killTweensOf(previousNodes);
+
+    if (!isFirstRender) {
+      this.closePanel(false, false);
+    }
 
     if (isFirstRender) {
       applyView();
       return;
     }
 
-    gsap.to([this.img, this.overlay, this.hitAreas], { opacity: 0, duration: 0.2, onComplete: applyView });
+    this.viewTween = gsap.to(previousNodes, {
+      opacity: 0,
+      duration: VIEW_FADE_DURATION,
+      ease: "power1.in",
+      onComplete: applyView,
+    });
   }
 
   private syncViewButtons(): void {
-    if (!this.viewsNav) return;
+    if (!this.viewsNav) {
+      return;
+    }
 
     const buttons = Array.from(this.viewsNav.querySelectorAll<HTMLButtonElement>(".house-viewer__view-btn"));
     buttons.forEach((button, index) => {
@@ -287,6 +405,29 @@ export class HouseViewer {
       button.classList.toggle("is-active", active);
       button.setAttribute("aria-pressed", active ? "true" : "false");
     });
+  }
+
+  private syncVisibleSystems(view: HouseViewData): void {
+    const visibleIds = new Set(view.hotspots.map((hotspot) => hotspot.systemId));
+
+    this.systemButtons.forEach((button) => {
+      const visible = visibleIds.has(button.dataset.systemId ?? "");
+      button.classList.toggle("is-visible-in-view", visible);
+      if (visible) {
+        button.setAttribute("data-visible-in-view", "true");
+      } else {
+        button.removeAttribute("data-visible-in-view");
+      }
+    });
+
+    if (!this.availability) {
+      return;
+    }
+
+    const visibleNames = view.hotspots.map((hotspot) => hotspot.name);
+    this.availability.textContent = visibleNames.length > 0
+      ? `Widoczne na tym widoku: ${visibleNames.join(", ")}`
+      : "Widoczne na tym widoku: brak aktywnych systemów.";
   }
 
   private buildHotspots(view: HouseViewData): void {
@@ -302,8 +443,8 @@ export class HouseViewer {
       this.overlay.appendChild(polygon);
       this.hitAreas.append(hitArea, marker);
 
-      gsap.fromTo(polygon, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * index });
-      gsap.fromTo(marker, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * index });
+      gsap.fromTo(polygon, { opacity: 0 }, { opacity: 1, duration: 0.16, delay: 0.03 * index, ease: "power1.out" });
+      gsap.fromTo(marker, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.2, delay: 0.03 * index, ease: "back.out(1.5)" });
     });
 
     this.syncActiveSystemState();
@@ -337,10 +478,14 @@ export class HouseViewer {
     button.addEventListener("mouseleave", unhighlight, listenerOptions);
     button.addEventListener("focus", highlight, listenerOptions);
     button.addEventListener("blur", unhighlight, listenerOptions);
-    button.addEventListener("click", () => {
-      const marker = this.markerFor(hotspot.systemId);
-      this.openPanel(hotspot, marker ?? button, hotspot.systemId);
-    }, listenerOptions);
+    button.addEventListener(
+      "click",
+      () => {
+        const marker = this.markerFor(hotspot.systemId);
+        this.openPanel(hotspot, marker ?? button, hotspot.systemId);
+      },
+      listenerOptions
+    );
 
     return button;
   }
@@ -391,8 +536,8 @@ export class HouseViewer {
   }
 
   private openPanel(content: PanelContent, trigger: HTMLElement, systemId: string | null): void {
-    this.stageCloseTween?.kill();
-    this.stageCloseTween = null;
+    this.cancelConnectorRefresh();
+    this.killOpenCloseTweens();
     this.isClosingPanel = false;
     this.lastFocused = trigger;
     this.activeSystemId = systemId;
@@ -401,44 +546,45 @@ export class HouseViewer {
     this.panelDescription.textContent = content.description;
     this.panelAdvantages.replaceChildren();
     content.advantages.forEach((advantage) => {
-      const li = document.createElement("li");
-      li.textContent = advantage;
-      this.panelAdvantages.appendChild(li);
+      const item = document.createElement("li");
+      item.textContent = advantage;
+      this.panelAdvantages.appendChild(item);
     });
 
-    this.syncActiveSystemState();
     this.panel.hidden = false;
     this.panel.setAttribute("aria-hidden", "false");
-    this.lockStageHeight();
     this.layout.classList.add("is-panel-open");
+    this.syncActiveSystemState();
+    this.syncLayoutMetrics();
 
-    gsap.killTweensOf(this.stage);
-    gsap.killTweensOf(this.panel);
-    gsap.killTweensOf(this.connector);
-    requestAnimationFrame(() => {
-      this.updateConnector();
-      gsap.to(this.stage, {
-        scale: this.isDesktopViewport() ? 0.984 : 1,
+    const marker = systemId ? this.markerFor(systemId) : null;
+    if (marker) {
+      gsap.fromTo(marker, { scale: 1 }, { scale: 1.14, duration: 0.13, repeat: 1, yoyo: true, ease: "power1.out", overwrite: true });
+    }
+
+    this.panelTween = gsap.fromTo(
+      this.panel,
+      { autoAlpha: 0, x: this.isDesktopViewport() ? 28 : 0, y: this.isDesktopViewport() ? 0 : 14 },
+      {
+        autoAlpha: 1,
+        x: 0,
+        y: 0,
         duration: PANEL_ANIMATION_DURATION,
-        ease: PANEL_ANIMATION_EASE,
-      });
-      gsap.fromTo(
-        this.panel,
-        { autoAlpha: 0, x: this.isDesktopViewport() ? 36 : 0, y: this.isDesktopViewport() ? 0 : 18 },
-        { autoAlpha: 1, x: 0, y: 0, duration: PANEL_ANIMATION_DURATION, ease: PANEL_ANIMATION_EASE }
-      );
-      if (!this.isConnectorHidden()) {
-        gsap.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" });
+        ease: "power2.out",
+        overwrite: true,
+        onComplete: () => {
+          this.panelTween = null;
+        },
       }
-      this.scheduleConnectorRefresh();
-    });
+    );
 
-    this.panelClose.focus();
-  }
+    if (this.shouldMoveFocusIntoPanel(trigger)) {
+      this.panelClose.focus({ preventScroll: true });
+    } else {
+      this.announcePanelOpen(content.name);
+    }
 
-  private scheduleConnectorRefresh(): void {
-    this.connectorRefreshTween?.kill();
-    this.connectorRefreshTween = gsap.to({}, { duration: 0.5, ease: "power2.out", onUpdate: () => this.updateConnector() });
+    this.scheduleConnectorRefresh();
   }
 
   private resolveImageUrl(url: string): string {
@@ -459,17 +605,50 @@ export class HouseViewer {
     return match[0];
   }
 
-  private isConnectorHidden(): boolean {
-    return this.connector.hasAttribute("hidden");
+  private shouldMoveFocusIntoPanel(trigger: HTMLElement): boolean {
+    return trigger.matches(":focus-visible");
   }
 
-  private setConnectorHidden(hidden: boolean): void {
-    if (hidden) {
-      this.connector.setAttribute("hidden", "");
+  private announcePanelOpen(name: string): void {
+    if (!this.panelStatus) {
       return;
     }
 
-    this.connector.removeAttribute("hidden");
+    this.panelStatus.textContent = `${name} – szczegóły otwarte.`;
+  }
+
+
+  private killOpenCloseTweens(): void {
+    this.panelTween?.kill();
+    this.panelTween = null;
+    this.connectorTween?.kill();
+    this.connectorTween = null;
+    gsap.killTweensOf(this.panel);
+    gsap.killTweensOf(this.connector);
+  }
+
+  private scheduleConnectorRefresh(): void {
+    this.cancelConnectorRefresh();
+    this.connectorRefreshUntil = performance.now() + LAYOUT_TRANSITION_MS;
+
+    const tick = (now: number) => {
+      this.updateConnector();
+      if (now < this.connectorRefreshUntil) {
+        this.connectorFrame = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      this.connectorFrame = null;
+    };
+
+    this.connectorFrame = window.requestAnimationFrame(tick);
+  }
+
+  private cancelConnectorRefresh(): void {
+    if (this.connectorFrame !== null) {
+      window.cancelAnimationFrame(this.connectorFrame);
+      this.connectorFrame = null;
+    }
   }
 
   private syncActiveSystemState(): void {
@@ -487,27 +666,14 @@ export class HouseViewer {
       marker.classList.toggle("is-active", marker.dataset.systemId === this.activeSystemId);
     });
 
-    this.activePulseTween?.kill();
-    this.activePulseTween = null;
-
     if (!this.activeSystemId) {
       this.setConnectorHidden(true);
       return;
     }
 
-    const marker = this.markerFor(this.activeSystemId);
-    if (!marker) {
+    if (!this.markerFor(this.activeSystemId)) {
       this.setConnectorHidden(true);
-      return;
     }
-
-    this.activePulseTween = gsap.to(marker, {
-      scale: 1.18,
-      duration: 0.85,
-      ease: "sine.inOut",
-      repeat: -1,
-      yoyo: true,
-    });
   }
 
   private updateConnector(): void {
@@ -528,55 +694,63 @@ export class HouseViewer {
     const stageRect = this.stage.getBoundingClientRect();
     const panelRect = this.panel.getBoundingClientRect();
     const markerRect = marker.getBoundingClientRect();
-    const desktopViewport = this.isDesktopViewport();
 
-    const panelBelowStage = panelRect.top >= stageRect.bottom - 4;
-    if (panelBelowStage || !desktopViewport) {
+    const panelBelowStage = panelRect.top >= stageRect.bottom - 2;
+    if (!this.isDesktopViewport() || panelBelowStage) {
       this.panel.classList.add("is-stacked");
       this.setConnectorHidden(true);
       return;
     }
+
     this.panel.classList.remove("is-stacked");
 
-    const stageLeft = stageRect.left - layoutRect.left;
-    const stageTop = stageRect.top - layoutRect.top;
-    const stageRight = stageRect.right - layoutRect.left;
-    const stageBottom = stageRect.bottom - layoutRect.top;
     const startX = markerRect.left + markerRect.width / 2 - layoutRect.left;
     const startY = markerRect.top + markerRect.height / 2 - layoutRect.top;
-    const endX = panelRect.left - layoutRect.left + 12;
-    const markerAlignedY = markerRect.top + markerRect.height / 2 - panelRect.top;
-    const endY = panelRect.top - layoutRect.top + Math.max(34, Math.min(markerAlignedY, panelRect.height - 34));
-    const gapWidth = Math.max(10, panelRect.left - stageRect.right);
-    const laneX = stageRight + Math.min(16, Math.max(8, gapWidth * 0.45));
-    const topLaneY = stageTop + 14;
-    const bottomLaneY = stageBottom - 14;
-    const isRightSideMarker = startX >= stageLeft + stageRect.width * 0.68;
-    const useTopLane = startY <= stageTop + stageRect.height * 0.5;
+    const stageRight = stageRect.right - layoutRect.left;
+    const panelLeft = panelRect.left - layoutRect.left;
+    const gapWidth = panelRect.left - stageRect.right;
+    const distanceToRight = stageRect.right - (markerRect.left + markerRect.width / 2);
+    const panelTop = panelRect.top - layoutRect.top;
+    const panelBottom = panelRect.bottom - layoutRect.top;
+    const safePanelTop = panelTop + 28;
+    const safePanelBottom = panelBottom - 28;
 
-    if (endX <= laneX + 6) {
+    if (gapWidth < 24 || panelLeft <= stageRight + 12) {
       this.setConnectorHidden(true);
       return;
     }
 
-    const path = isRightSideMarker
-      ? [
-          `M ${startX} ${startY}`,
-          `Q ${Math.min(stageRight - 8, startX + 12)} ${startY} ${laneX} ${startY}`,
-          `L ${laneX} ${endY}`,
-          `Q ${laneX} ${endY} ${endX} ${endY}`,
-        ].join(" ")
-      : [
-          `M ${startX} ${startY}`,
-          `Q ${Math.min(stageRight - 24, startX + 8)} ${useTopLane ? Math.max(stageTop + 10, startY - 18) : Math.min(stageBottom - 10, startY + 18)} ${Math.min(stageRight - 18, startX + 28)} ${useTopLane ? topLaneY : bottomLaneY}`,
-          `L ${laneX} ${useTopLane ? topLaneY : bottomLaneY}`,
-          `L ${laneX} ${endY}`,
-          `Q ${laneX} ${endY} ${endX} ${endY}`,
-        ].join(" ");
+    if (distanceToRight > Math.min(stageRect.width * 0.2, 150)) {
+      this.setConnectorHidden(true);
+      return;
+    }
+
+    if (startY < safePanelTop || startY > safePanelBottom) {
+      this.setConnectorHidden(true);
+      return;
+    }
+
+    const markerCollision = Array.from(this.hitAreas.querySelectorAll<HTMLButtonElement>(".house-viewer__marker"))
+      .filter((candidate) => candidate !== marker)
+      .some((candidate) => {
+        const candidateRect = candidate.getBoundingClientRect();
+        const candidateCenterX = candidateRect.left + candidateRect.width / 2;
+        const candidateCenterY = candidateRect.top + candidateRect.height / 2;
+        const sameLane = Math.abs(candidateCenterY - (markerRect.top + markerRect.height / 2)) < Math.max(candidateRect.height, markerRect.height) * 1.2;
+        return sameLane && candidateCenterX > markerRect.right && candidateCenterX < stageRect.right + 8;
+      });
+
+    if (markerCollision) {
+      this.setConnectorHidden(true);
+      return;
+    }
+
+    const startLaneX = clamp(stageRight, stageRight, panelLeft - 12);
+    const endX = panelLeft;
+    const path = `M ${startX} ${startY} L ${startLaneX} ${startY} L ${endX} ${startY}`;
 
     this.connector.setAttribute("viewBox", `0 0 ${layoutRect.width} ${layoutRect.height}`);
     this.connectorPath.setAttribute("d", path);
-    this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`);
     this.setConnectorHidden(false);
   }
 
@@ -584,35 +758,34 @@ export class HouseViewer {
     return window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
   }
 
-  private lockStageHeight(): void {
-    if (!this.isDesktopViewport()) {
-      this.clearStageHeightLock();
+  private syncLayoutMetrics(): void {
+    if (!this.isDesktopViewport() || this.stage.offsetHeight === 0) {
+      this.root.style.removeProperty("--house-viewer-stage-height");
       return;
     }
 
-    const height = this.stage.getBoundingClientRect().height;
-    if (height > 0) {
-      this.root.style.setProperty("--house-viewer-stage-lock-height", `${height}px`);
-    }
+    const stageHeight = `${Math.round(this.stage.getBoundingClientRect().height)}px`;
+    this.root.style.setProperty("--house-viewer-stage-height", stageHeight);
   }
 
-  private clearStageHeightLock(): void {
-    this.root.style.removeProperty("--house-viewer-stage-lock-height");
+  private setConnectorHidden(hidden: boolean): void {
+    if (hidden) {
+      this.connector.setAttribute("hidden", "");
+      return;
+    }
+
+    this.connector.removeAttribute("hidden");
   }
 
   private closePanel(restoreFocus = true, animate = true): void {
-    if (this.panel.hidden || this.isClosingPanel) return;
+    if (this.panel.hidden || this.isClosingPanel) {
+      return;
+    }
 
-    this.stageCloseTween?.kill();
-    this.stageCloseTween = null;
+    this.cancelConnectorRefresh();
+    this.killOpenCloseTweens();
     this.activeSystemId = null;
     this.syncActiveSystemState();
-    this.connectorRefreshTween?.kill();
-    this.connectorRefreshTween = null;
-
-    gsap.killTweensOf(this.stage);
-    gsap.killTweensOf(this.panel);
-    gsap.killTweensOf(this.connector);
 
     if (!animate) {
       this.finishClosePanel(restoreFocus);
@@ -620,41 +793,42 @@ export class HouseViewer {
     }
 
     this.isClosingPanel = true;
-    gsap.to(this.connector, {
+    this.connectorTween = gsap.to(this.connector, {
       autoAlpha: 0,
-      duration: 0.16,
-      ease: "power1.in",
-    });
-    gsap.to(this.panel, {
-      autoAlpha: 0,
-      x: this.isDesktopViewport() ? 22 : 0,
-      y: this.isDesktopViewport() ? 0 : 12,
-      duration: PANEL_FADE_OUT_DURATION,
-      ease: "power1.in",
+      duration: 0.12,
+      ease: "power1.out",
+      overwrite: true,
       onComplete: () => {
-        this.stageCloseTween = gsap.to(this.stage, {
-          scale: 1,
-          duration: PANEL_ANIMATION_DURATION,
-          ease: PANEL_ANIMATION_EASE,
-          onComplete: () => this.finishClosePanel(restoreFocus),
-        });
+        this.connectorTween = null;
+      },
+    });
+
+    this.panelTween = gsap.to(this.panel, {
+      autoAlpha: 0,
+      x: this.isDesktopViewport() ? 20 : 0,
+      y: this.isDesktopViewport() ? 0 : 10,
+      duration: PANEL_FADE_OUT_DURATION,
+      ease: "power1.out",
+      overwrite: true,
+      onComplete: () => {
+        this.panelTween = null;
+        this.finishClosePanel(restoreFocus);
       },
     });
   }
 
   private finishClosePanel(restoreFocus: boolean): void {
-    this.stageCloseTween = null;
     this.isClosingPanel = false;
     this.layout.classList.remove("is-panel-open");
     this.panel.hidden = true;
     this.panel.setAttribute("aria-hidden", "true");
+    this.panel.classList.remove("is-stacked");
     this.setConnectorHidden(true);
-    this.clearStageHeightLock();
-    gsap.set(this.stage, { clearProps: "transform" });
     gsap.set(this.panel, { clearProps: "opacity,visibility,transform" });
     gsap.set(this.connector, { clearProps: "opacity,visibility,transform" });
     if (restoreFocus) {
       this.lastFocused?.focus();
     }
+    this.syncLayoutMetrics();
   }
 }

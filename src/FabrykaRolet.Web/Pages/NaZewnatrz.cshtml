@@ -21,16 +21,11 @@
                 </div>
 
                 <svg class="house-viewer__connector" aria-hidden="true" hidden>
-                    <defs>
-                        <marker class="house-viewer__connector-arrow" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
-                            <path d="M0,0 L0,7 L7,3.5 z"></path>
-                        </marker>
-                    </defs>
                     <path class="house-viewer__connector-path"></path>
                 </svg>
             </div>
 
-            <aside id="house-viewer-panel" class="house-viewer__panel" aria-labelledby="house-viewer-panel-title" hidden>
+            <aside id="house-viewer-panel" class="house-viewer__panel" aria-labelledby="house-viewer-panel-title" aria-hidden="true" tabindex="-1" hidden>
                 <button type="button" class="house-viewer__panel-close" data-close aria-label="Zamknij okno">&times;</button>
                 <h2 id="house-viewer-panel-title"></h2>
                 <p id="house-viewer-panel-description"></p>
@@ -43,6 +38,9 @@
             <nav class="house-viewer__views" aria-label="Wybierz widok domu"></nav>
             <button type="button" class="house-viewer__arrow house-viewer__arrow--next" aria-label="Następny widok" hidden>›</button>
         </div>
+
+        <p class="house-viewer__availability" id="house-viewer-availability" aria-live="polite"></p>
+        <span class="house-viewer__status" id="house-viewer-status" aria-live="polite" aria-atomic="true"></span>
     </section>
 
     <script id="house-viewer-data" type="application/json">@Html.Raw(Model.ViewerDataJson)</script>
