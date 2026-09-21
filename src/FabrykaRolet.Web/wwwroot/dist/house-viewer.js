@@ -1,9 +1,14 @@
-var g = Object.defineProperty;
-var S = (l, e, t) => e in l ? g(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
-var r = (l, e, t) => S(l, typeof e != "symbol" ? e + "" : e, t);
+var f = Object.defineProperty;
+var S = (c, e, t) => e in c ? f(c, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : c[e] = t;
+var r = (c, e, t) => S(c, typeof e != "symbol" ? e + "" : e, t);
 import { g as a } from "./index-9nJrthwM.js";
-const A = "http://www.w3.org/2000/svg";
-class C {
+const A = "http://www.w3.org/2000/svg", C = {
+  "/images/house/exterior-front.png": "/images/house/exterior-front.png",
+  "/images/house/exterior-taras.png": "/images/house/exterior-taras.png",
+  "/images/house/exterior-tyl.png": "/images/house/exterior-tyl.png",
+  "/images/house/exterior-garaz.png": "/images/house/exterior-garaz.png"
+};
+class k {
   constructor(e, t) {
     r(this, "layout");
     r(this, "stage");
@@ -154,7 +159,7 @@ class C {
     return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("focus", i), s.addEventListener("blur", n), s.addEventListener("click", () => this.openPanel(e, s, e.systemId)), s;
   }
   getBounds(e) {
-    const t = e.polygon.map(([c]) => c), s = e.polygon.map(([, c]) => c), i = Math.min(...t), n = Math.min(...s), o = Math.max(...t) - i, h = Math.max(...s) - n;
+    const t = e.polygon.map(([l]) => l), s = e.polygon.map(([, l]) => l), i = Math.min(...t), n = Math.min(...s), o = Math.max(...t) - i, h = Math.max(...s) - n;
     return {
       left: i,
       top: n,
@@ -185,10 +190,10 @@ class C {
     (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = a.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
   }
   resolveImageUrl(e) {
-    const t = new URL(e, window.location.origin);
-    if (t.origin !== window.location.origin || !/^https?:$/.test(t.protocol))
+    const t = C[e];
+    if (!t)
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
-    return t.pathname + t.search + t.hash;
+    return t;
   }
   isConnectorHidden() {
     return this.connector.hasAttribute("hidden");
@@ -242,13 +247,13 @@ class C {
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const h = n.left + n.width / 2 - t.left, c = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
+    const h = n.left + n.width / 2 - t.left, l = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
     if (d <= h + 20) {
       this.setConnectorHidden(!0);
       return;
     }
-    const p = d - h, y = h + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), f = `M ${h} ${c} C ${y} ${c}, ${w} ${u}, ${d} ${u}`;
-    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", f), this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)"), this.setConnectorHidden(!1);
+    const p = d - h, y = h + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), g = `M ${h} ${l} C ${y} ${l}, ${w} ${u}, ${d} ${u}`;
+    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", g), this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)"), this.setConnectorHidden(!1);
   }
   closePanel(e = !0) {
     var t;
@@ -265,8 +270,8 @@ class C {
 }
 function m() {
   var s;
-  const l = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
-  if (!l || !(e != null && e.textContent) || l.dataset.houseViewerInitialized === "true") return;
+  const c = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
+  if (!c || !(e != null && e.textContent) || c.dataset.houseViewerInitialized === "true") return;
   let t;
   try {
     t = JSON.parse(e.textContent);
@@ -274,6 +279,11 @@ function m() {
     console.error("HouseViewer: nie udało się sparsować danych widoku.");
     return;
   }
-  (s = t.views) != null && s.length && (l.dataset.houseViewerInitialized = "true", new C(l, t));
+  if ((s = t.views) != null && s.length)
+    try {
+      new k(c, t), c.dataset.houseViewerInitialized = "true";
+    } catch (i) {
+      console.error("HouseViewer: inicjalizacja nie powiodła się.", i);
+    }
 }
 document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m) : m();

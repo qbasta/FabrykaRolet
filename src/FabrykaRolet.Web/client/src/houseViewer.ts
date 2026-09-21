@@ -2,6 +2,12 @@ import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const ALLOWED_IMAGE_PATHS = {
+  "/images/house/exterior-front.png": "/images/house/exterior-front.png",
+  "/images/house/exterior-taras.png": "/images/house/exterior-taras.png",
+  "/images/house/exterior-tyl.png": "/images/house/exterior-tyl.png",
+  "/images/house/exterior-garaz.png": "/images/house/exterior-garaz.png",
+} as const;
 
 type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotBounds = {
@@ -377,12 +383,12 @@ export class HouseViewer {
   }
 
   private resolveImageUrl(url: string): string {
-    const resolved = new URL(url, window.location.origin);
-    if (resolved.origin !== window.location.origin || !/^https?:$/.test(resolved.protocol)) {
+    const safeUrl = ALLOWED_IMAGE_PATHS[url as keyof typeof ALLOWED_IMAGE_PATHS];
+    if (!safeUrl) {
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
     }
 
-    return resolved.pathname + resolved.search + resolved.hash;
+    return safeUrl;
   }
 
   private isConnectorHidden(): boolean {

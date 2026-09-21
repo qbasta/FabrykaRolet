@@ -17,8 +17,12 @@ function init(): void {
 
   if (!data.views?.length) return;
 
-  root.dataset.houseViewerInitialized = "true";
-  new HouseViewer(root, data);
+  try {
+    new HouseViewer(root, data);
+    root.dataset.houseViewerInitialized = "true";
+  } catch (error) {
+    console.error("HouseViewer: inicjalizacja nie powiodła się.", error);
+  }
 }
 
 if (document.readyState === "loading") {
