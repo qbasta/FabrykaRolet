@@ -1,78 +1,118 @@
-var $ = Object.defineProperty;
-var P = (h, e, t) => e in h ? $(h, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : h[e] = t;
-var r = (h, e, t) => P(h, typeof e != "symbol" ? e + "" : e, t);
+var y = Object.defineProperty;
+var f = (a, e, t) => e in a ? y(a, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : a[e] = t;
+var n = (a, e, t) => f(a, typeof e != "symbol" ? e + "" : e, t);
 import { g as o } from "./index-9nJrthwM.js";
-const T = "http://www.w3.org/2000/svg", f = 0.48, C = "expo.out", H = 0.18, x = "(min-width: 901px)";
-class B {
+const g = 0.32, b = 0.2, p = 0.18, C = 420, k = "(min-width: 901px)", I = 10;
+class S {
   constructor(e, t) {
-    r(this, "layout");
-    r(this, "stageShell");
-    r(this, "stage");
-    r(this, "img");
-    r(this, "overlay");
-    r(this, "hitAreas");
-    r(this, "connector");
-    r(this, "connectorArrow");
-    r(this, "connectorPath");
-    r(this, "panel");
-    r(this, "panelClose");
-    r(this, "panelTitle");
-    r(this, "panelDescription");
-    r(this, "panelAdvantages");
-    r(this, "prevBtn");
-    r(this, "nextBtn");
-    r(this, "viewsNav");
-    r(this, "systemButtons");
-    r(this, "allowedImagePaths");
-    r(this, "connectorArrowId");
-    r(this, "currentIndex", 0);
-    r(this, "activeSystemId", null);
-    r(this, "lastFocused", null);
-    r(this, "activePulseTween", null);
-    r(this, "connectorRefreshTween", null);
-    r(this, "stageCloseTween", null);
-    r(this, "isClosingPanel", !1);
-    r(this, "listenerController", new AbortController());
-    r(this, "disconnectObserver", null);
-    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stageShell = this.require(".house-viewer__stage-shell"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorArrow = this.require(".house-viewer__connector-arrow"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.allowedImagePaths = new Map(t.views.map((s) => [s.image, this.normalizeImageUrl(s.image)])), this.connectorArrowId = `${this.root.id || "house-viewer"}-connector-arrow`, this.connectorArrow.id = this.connectorArrowId, this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
+    n(this, "layout");
+    n(this, "stage");
+    n(this, "img");
+    n(this, "markersLayer");
+    n(this, "connector");
+    n(this, "connectorPath");
+    n(this, "panel");
+    n(this, "panelClose");
+    n(this, "panelTitle");
+    n(this, "panelDescription");
+    n(this, "panelAdvantages");
+    n(this, "availability");
+    n(this, "panelStatus");
+    n(this, "prevBtn");
+    n(this, "nextBtn");
+    n(this, "viewsNav");
+    n(this, "systemButtons");
+    n(this, "allowedImagePaths");
+    n(this, "listenerController", new AbortController());
+    n(this, "hotspotIndex", /* @__PURE__ */ new Map());
+    n(this, "currentIndex", 0);
+    n(this, "activeSystemId", null);
+    n(this, "lastFocused", null);
+    n(this, "disconnectObserver", null);
+    n(this, "resizeObserver", null);
+    n(this, "panelTween", null);
+    n(this, "connectorTween", null);
+    n(this, "viewTween", null);
+    n(this, "connectorFrame", null);
+    n(this, "connectorRefreshUntil", 0);
+    n(this, "isClosingPanel", !1);
+    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.markersLayer = this.require(".house-viewer__markers"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.availability = e.querySelector("#house-viewer-availability"), this.panelStatus = e.querySelector("#house-viewer-status"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.allowedImagePaths = new Map(t.views.map((s) => [s.image, this.normalizeImageUrl(s.image)])), this.indexHotspots(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
   }
   require(e) {
     const t = this.root.querySelector(e);
-    if (!t) throw new Error(`HouseViewer: brak elementu "${e}" w kontenerze.`);
+    if (!t)
+      throw new Error(`HouseViewer: brak elementu "${e}" w kontenerze.`);
     return t;
   }
+  indexHotspots() {
+    this.data.views.forEach((e, t) => {
+      e.hotspots.forEach((s) => {
+        const i = this.hotspotIndex.get(s.systemId) ?? [];
+        i.push({ viewIndex: t, hotspot: s }), this.hotspotIndex.set(s.systemId, i);
+      });
+    });
+  }
   bindNav() {
-    var s, i;
     const e = { signal: this.listenerController.signal }, t = this.data.views.length > 1;
-    this.prevBtn && (this.prevBtn.hidden = !t), this.nextBtn && (this.nextBtn.hidden = !t), (s = this.prevBtn) == null || s.addEventListener("click", () => this.step(-1), e), (i = this.nextBtn) == null || i.addEventListener("click", () => this.step(1), e), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((n, a) => {
-      var c;
-      const l = document.createElement("button");
-      l.type = "button", l.className = "house-viewer__view-btn", l.textContent = n.title, l.setAttribute("aria-pressed", a === this.currentIndex ? "true" : "false"), l.addEventListener("click", () => this.renderView(a), e), (c = this.viewsNav) == null || c.appendChild(l);
-    })), this.root.addEventListener("keydown", (n) => {
-      n.key === "ArrowLeft" && (n.preventDefault(), this.step(-1)), n.key === "ArrowRight" && (n.preventDefault(), this.step(1));
-    }, e);
+    this.prevBtn && (this.prevBtn.hidden = !t, this.prevBtn.addEventListener("click", () => this.step(-1), e)), this.nextBtn && (this.nextBtn.hidden = !t, this.nextBtn.addEventListener("click", () => this.step(1), e)), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((s, i) => {
+      var l;
+      const r = document.createElement("button");
+      r.type = "button", r.className = "house-viewer__view-btn", r.textContent = s.title, r.setAttribute("aria-pressed", i === this.currentIndex ? "true" : "false"), r.addEventListener("click", () => this.renderView(i), e), (l = this.viewsNav) == null || l.appendChild(r);
+    })), this.root.addEventListener(
+      "keydown",
+      (s) => {
+        this.shouldIgnoreViewNavigationKey(s) || (s.key === "ArrowLeft" && (s.preventDefault(), this.step(-1)), s.key === "ArrowRight" && (s.preventDefault(), this.step(1)));
+      },
+      e
+    );
+  }
+  shouldIgnoreViewNavigationKey(e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return !0;
+    const t = e.target;
+    return t ? this.panel.contains(t) ? !0 : !!t.closest("button, input, select, textarea, a, summary") : !1;
   }
   bindPanelClose() {
     const e = { signal: this.listenerController.signal };
-    this.panelClose.addEventListener("click", () => this.closePanel(), e), document.addEventListener("keydown", (t) => {
-      t.key === "Escape" && !this.panel.hidden && this.closePanel();
-    }, e), document.addEventListener("click", (t) => {
-      if (this.panel.hidden) return;
-      const s = t.target;
-      s && (this.panel.contains(s) || s.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button") || this.closePanel());
-    }, e);
+    this.panelClose.addEventListener("click", () => this.closePanel(), e), document.addEventListener(
+      "keydown",
+      (t) => {
+        t.key === "Escape" && !this.panel.hidden && this.closePanel();
+      },
+      e
+    ), document.addEventListener(
+      "click",
+      (t) => {
+        if (this.panel.hidden) return;
+        const s = t.target;
+        !s || this.panel.contains(s) || s.closest(".house-viewer__marker, .system-button") || this.closePanel();
+      },
+      e
+    );
   }
   bindSystemButtons() {
     const e = { signal: this.listenerController.signal };
     this.systemButtons.forEach((t) => {
-      t.addEventListener("click", () => this.activateSystem(t.dataset.systemId, t), e);
+      const s = t.dataset.systemId;
+      s && t.addEventListener("click", () => this.activateSystem(s, t), e);
     });
   }
   bindGlobalEvents() {
     const e = { signal: this.listenerController.signal };
-    window.addEventListener("resize", () => {
-      this.isDesktopViewport() && !this.panel.hidden ? this.lockStageHeight() : this.clearStageHeightLock(), this.scheduleConnectorRefresh();
-    }, e), this.img.addEventListener("load", () => this.updateConnector(), e), this.observeDisconnect();
+    window.addEventListener(
+      "resize",
+      () => {
+        this.syncLayoutMetrics(), this.scheduleConnectorRefresh();
+      },
+      e
+    ), this.img.addEventListener(
+      "load",
+      () => {
+        this.syncLayoutMetrics(), this.scheduleConnectorRefresh();
+      },
+      e
+    ), "ResizeObserver" in window && (this.resizeObserver = new ResizeObserver(() => {
+      this.syncLayoutMetrics(), this.updateConnector();
+    }), this.resizeObserver.observe(this.stage), this.resizeObserver.observe(this.panel)), this.observeDisconnect();
   }
   observeDisconnect() {
     document.body && (this.disconnectObserver = new MutationObserver(() => {
@@ -80,22 +120,18 @@ class B {
     }), this.disconnectObserver.observe(document.body, { childList: !0, subtree: !0 }));
   }
   destroy() {
-    var e, t, s, i;
-    this.listenerController.abort(), (e = this.disconnectObserver) == null || e.disconnect(), this.disconnectObserver = null, (t = this.connectorRefreshTween) == null || t.kill(), (s = this.activePulseTween) == null || s.kill(), (i = this.stageCloseTween) == null || i.kill();
+    var e, t, s, i, r;
+    this.listenerController.abort(), (e = this.disconnectObserver) == null || e.disconnect(), this.disconnectObserver = null, (t = this.resizeObserver) == null || t.disconnect(), this.resizeObserver = null, this.cancelConnectorRefresh(), (s = this.panelTween) == null || s.kill(), (i = this.connectorTween) == null || i.kill(), (r = this.viewTween) == null || r.kill();
   }
   collectSystemButtons() {
     const e = this.root.dataset.systemButtons;
-    if (!e)
-      return [];
+    if (!e) return [];
     const t = document.querySelector(e);
     return t ? Array.from(t.querySelectorAll(".system-button[data-system-id]")) : [];
   }
   findHotspot(e) {
-    for (let t = 0; t < this.data.views.length; t++) {
-      const s = this.data.views[t].hotspots.find((i) => i.systemId === e);
-      if (s) return { viewIndex: t, hotspot: s };
-    }
-    return null;
+    const t = this.hotspotIndex.get(e);
+    return t != null && t.length ? t.find((s) => s.viewIndex === this.currentIndex) ?? t[0] : null;
   }
   findSystemSummary(e) {
     return this.data.systems.find((t) => t.systemId === e);
@@ -103,13 +139,13 @@ class B {
   activateSystem(e, t) {
     const s = this.findHotspot(e);
     if (!s) {
-      const n = this.findSystemSummary(e);
-      n && this.openPanel(n, t, null);
+      const r = this.findSystemSummary(e);
+      r && this.openPanel(r, t, null);
       return;
     }
     const i = () => {
-      const n = this.markerFor(e);
-      this.openPanel(s.hotspot, n ?? t, e);
+      const r = this.markerFor(e);
+      this.openPanel(s.hotspot, r ?? t, e);
     };
     if (s.viewIndex === this.currentIndex) {
       i();
@@ -118,32 +154,43 @@ class B {
     this.renderView(s.viewIndex, i);
   }
   markerFor(e) {
-    return this.hitAreas.querySelector(`.house-viewer__marker[data-system-id="${CSS.escape(e)}"]`);
-  }
-  polygonFor(e) {
-    return this.overlay.querySelector(`polygon[data-system-id="${CSS.escape(e)}"]`);
+    return this.markersLayer.querySelector(
+      `.house-viewer__marker[data-system-id="${CSS.escape(e)}"]`
+    );
   }
   step(e) {
     const t = this.data.views.length, s = (this.currentIndex + e + t) % t;
     this.renderView(s);
   }
   renderView(e, t) {
-    const s = !this.img.src;
-    this.currentIndex = e;
-    const i = this.data.views[e];
-    s || this.closePanel(!1, !1);
-    const n = () => {
-      this.img.src = this.resolveImageUrl(i.image), this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), o.fromTo(
-        [this.img, this.overlay, this.hitAreas],
+    var l;
+    const s = !this.img.src, i = [this.img, this.markersLayer], r = () => {
+      var c;
+      this.currentIndex = e;
+      const h = this.data.views[e];
+      this.img.src = this.resolveImageUrl(h.image), this.img.alt = h.title, this.buildMarkers(h), this.syncViewButtons(), this.syncVisibleSystems(h), this.syncLayoutMetrics(), (c = this.viewTween) == null || c.kill(), this.viewTween = o.fromTo(
+        i,
         { opacity: 0 },
-        { opacity: 1, duration: 0.35, onComplete: t }
+        {
+          opacity: 1,
+          duration: p,
+          ease: "power1.in",
+          onComplete: () => {
+            this.viewTween = null, t == null || t();
+          }
+        }
       );
     };
-    if (s) {
-      n();
+    if ((l = this.viewTween) == null || l.kill(), o.killTweensOf(i), s || this.closePanel(!1, !1), s) {
+      r();
       return;
     }
-    o.to([this.img, this.overlay, this.hitAreas], { opacity: 0, duration: 0.2, onComplete: n });
+    this.viewTween = o.to(i, {
+      opacity: 0,
+      duration: p,
+      ease: "power1.in",
+      onComplete: r
+    });
   }
   syncViewButtons() {
     if (!this.viewsNav) return;
@@ -152,201 +199,186 @@ class B {
       t.classList.toggle("is-active", i), t.setAttribute("aria-pressed", i ? "true" : "false");
     });
   }
-  buildHotspots(e) {
-    this.overlay.replaceChildren(), this.hitAreas.replaceChildren(), e.hotspots.forEach((t, s) => {
-      const i = this.getBounds(t), n = this.createPolygon(t), a = this.createHitArea(t, i), l = this.createMarker(t, i);
-      this.overlay.appendChild(n), this.hitAreas.append(a, l), o.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), o.fromTo(l, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
+  syncVisibleSystems(e) {
+    const t = new Set(e.hotspots.map((i) => i.systemId));
+    if (this.systemButtons.forEach((i) => {
+      const r = t.has(i.dataset.systemId ?? "");
+      i.classList.toggle("is-visible-in-view", r), r ? i.setAttribute("data-visible-in-view", "true") : i.removeAttribute("data-visible-in-view");
+    }), !this.availability) return;
+    const s = e.hotspots.map((i) => i.name);
+    this.availability.textContent = s.length > 0 ? `Widoczne na tym widoku: ${s.join(", ")}` : "Widoczne na tym widoku: brak aktywnych systemów.";
+  }
+  /**
+   * Jeden element na hotspot: widoczna kropka, która JEST jednocześnie celem kliknięcia
+   * (poprzednio: prawie niewidoczny wielokąt SVG + osobny niewidoczny przycisk-hitbox +
+   * kropka, wszystkie trzy nasłuchujące tych samych zdarzeń - bez uzasadnienia, odkąd
+   * mechanizm przeszedł z obszarów na punkty).
+   */
+  buildMarkers(e) {
+    this.markersLayer.replaceChildren(), e.hotspots.forEach((t, s) => {
+      const i = this.createMarker(t);
+      this.markersLayer.appendChild(i), o.fromTo(
+        i,
+        { autoAlpha: 0, scale: 0.8 },
+        { autoAlpha: 1, scale: 1, duration: 0.2, delay: 0.03 * s, ease: "back.out(1.5)" }
+      );
     }), this.syncActiveSystemState();
   }
-  createPolygon(e) {
-    const t = document.createElementNS(T, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
-    return t.setAttribute("points", s), t.setAttribute("class", "house-viewer__hotspot"), t.dataset.systemId = e.systemId, t;
-  }
-  createHitArea(e, t) {
-    const s = { signal: this.listenerController.signal }, i = document.createElement("button");
-    i.type = "button", i.className = "house-viewer__hit-area", i.dataset.systemId = e.systemId, i.style.left = `${t.left}%`, i.style.top = `${t.top}%`, i.style.width = `${t.width}%`, i.style.height = `${t.height}%`, i.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
-    const n = () => this.setHoveredState(e.systemId, !0), a = () => this.setHoveredState(e.systemId, !1);
-    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", a, s), i.addEventListener("focus", n, s), i.addEventListener("blur", a, s), i.addEventListener("click", () => {
-      const l = this.markerFor(e.systemId);
-      this.openPanel(e, l ?? i, e.systemId);
-    }, s), i;
-  }
-  createMarker(e, t) {
-    const s = { signal: this.listenerController.signal }, i = document.createElement("button");
-    i.type = "button", i.className = "house-viewer__marker", i.dataset.systemId = e.systemId, i.style.left = `${t.centerX}%`, i.style.top = `${t.centerY}%`, i.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
-    const n = () => this.setHoveredState(e.systemId, !0), a = () => this.setHoveredState(e.systemId, !1);
-    return i.addEventListener("mouseenter", n, s), i.addEventListener("mouseleave", a, s), i.addEventListener("focus", n, s), i.addEventListener("blur", a, s), i.addEventListener("click", () => this.openPanel(e, i, e.systemId), s), i;
-  }
-  getBounds(e) {
-    const t = e.polygon.map(([c]) => c), s = e.polygon.map(([, c]) => c), i = Math.min(...t), n = Math.min(...s), a = Math.max(...t) - i, l = Math.max(...s) - n;
-    return {
-      left: i,
-      top: n,
-      width: a,
-      height: l,
-      centerX: i + a / 2,
-      centerY: n + l / 2
-    };
+  createMarker(e) {
+    const t = { signal: this.listenerController.signal }, s = document.createElement("button");
+    s.type = "button", s.className = "house-viewer__marker", s.dataset.systemId = e.systemId, s.style.left = `${e.x}%`, s.style.top = `${e.y}%`, s.setAttribute("aria-label", `${e.name} – pokaż szczegóły`);
+    const i = document.createElement("span");
+    return i.className = "house-viewer__marker-dot", i.setAttribute("aria-hidden", "true"), s.appendChild(i), s.addEventListener("mouseenter", () => this.setHoveredState(e.systemId, !0), t), s.addEventListener("mouseleave", () => this.setHoveredState(e.systemId, !1), t), s.addEventListener("focus", () => this.setHoveredState(e.systemId, !0), t), s.addEventListener("blur", () => this.setHoveredState(e.systemId, !1), t), s.addEventListener("click", () => this.openPanel(e, s, e.systemId), t), s;
   }
   setHoveredState(e, t) {
-    var s, i;
-    (s = this.markerFor(e)) == null || s.classList.toggle("is-hovered", t), (i = this.polygonFor(e)) == null || i.classList.toggle("is-hovered", t);
+    var s;
+    (s = this.markerFor(e)) == null || s.classList.toggle("is-hovered", t);
   }
   openPanel(e, t, s) {
-    var i;
-    (i = this.stageCloseTween) == null || i.kill(), this.stageCloseTween = null, this.isClosingPanel = !1, this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((n) => {
-      const a = document.createElement("li");
-      a.textContent = n, this.panelAdvantages.appendChild(a);
-    }), this.syncActiveSystemState(), this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.lockStageHeight(), this.layout.classList.add("is-panel-open"), o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), requestAnimationFrame(() => {
-      this.updateConnector(), o.to(this.stage, {
-        scale: this.isDesktopViewport() ? 0.984 : 1,
-        duration: f,
-        ease: C
-      }), o.fromTo(
-        this.panel,
-        { autoAlpha: 0, x: this.isDesktopViewport() ? 36 : 0, y: this.isDesktopViewport() ? 0 : 18 },
-        { autoAlpha: 1, x: 0, y: 0, duration: f, ease: C }
-      ), this.isConnectorHidden() || o.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }), this.scheduleConnectorRefresh();
-    }), this.panelClose.focus();
-  }
-  scheduleConnectorRefresh() {
-    var e;
-    (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = o.to({}, { duration: 0.5, ease: "power2.out", onUpdate: () => this.updateConnector() });
+    this.cancelConnectorRefresh(), this.killOpenCloseTweens(), this.isClosingPanel = !1, this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((r) => {
+      const l = document.createElement("li");
+      l.textContent = r, this.panelAdvantages.appendChild(l);
+    }), this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.layout.classList.add("is-panel-open"), this.syncActiveSystemState(), this.syncLayoutMetrics();
+    const i = s ? this.markerFor(s) : null;
+    i && o.fromTo(i, { scale: 1 }, { scale: 1.14, duration: 0.13, repeat: 1, yoyo: !0, ease: "power1.out", overwrite: !0 }), this.panelTween = o.fromTo(
+      this.panel,
+      { autoAlpha: 0, x: this.isDesktopViewport() ? 28 : 0, y: this.isDesktopViewport() ? 0 : 14 },
+      {
+        autoAlpha: 1,
+        x: 0,
+        y: 0,
+        duration: g,
+        ease: "power2.out",
+        overwrite: !0,
+        onComplete: () => {
+          this.panelTween = null;
+        }
+      }
+    ), this.shouldMoveFocusIntoPanel(t) ? this.panelClose.focus({ preventScroll: !0 }) : this.announcePanelOpen(e.name), this.scheduleConnectorRefresh();
   }
   resolveImageUrl(e) {
     const t = this.allowedImagePaths.get(e);
-    if (!t)
-      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
+    if (!t) throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
     return t;
   }
   normalizeImageUrl(e) {
     const t = /^\/images\/[a-z0-9/_-]+\.(png|jpe?g|webp)$/i.exec(e);
-    if (!t)
-      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
+    if (!t) throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
     return t[0];
   }
-  isConnectorHidden() {
-    return this.connector.hasAttribute("hidden");
+  shouldMoveFocusIntoPanel(e) {
+    return e.matches(":focus-visible");
   }
-  setConnectorHidden(e) {
-    if (e) {
-      this.connector.setAttribute("hidden", "");
-      return;
-    }
-    this.connector.removeAttribute("hidden");
+  announcePanelOpen(e) {
+    this.panelStatus && (this.panelStatus.textContent = `${e} – szczegóły otwarte.`);
+  }
+  killOpenCloseTweens() {
+    var e, t;
+    (e = this.panelTween) == null || e.kill(), this.panelTween = null, (t = this.connectorTween) == null || t.kill(), this.connectorTween = null, o.killTweensOf(this.panel), o.killTweensOf(this.connector);
+  }
+  scheduleConnectorRefresh() {
+    this.cancelConnectorRefresh(), this.connectorRefreshUntil = performance.now() + C;
+    const e = (t) => {
+      if (this.updateConnector(), t < this.connectorRefreshUntil) {
+        this.connectorFrame = window.requestAnimationFrame(e);
+        return;
+      }
+      this.connectorFrame = null;
+    };
+    this.connectorFrame = window.requestAnimationFrame(e);
+  }
+  cancelConnectorRefresh() {
+    this.connectorFrame !== null && (window.cancelAnimationFrame(this.connectorFrame), this.connectorFrame = null);
   }
   syncActiveSystemState() {
-    var t;
-    if (this.systemButtons.forEach((s) => {
-      const i = s.dataset.systemId === this.activeSystemId;
-      s.setAttribute("aria-pressed", i ? "true" : "false"), s.classList.toggle("is-active", i);
-    }), this.overlay.querySelectorAll(".house-viewer__hotspot").forEach((s) => {
-      s.classList.toggle("is-active", s.dataset.systemId === this.activeSystemId);
-    }), this.hitAreas.querySelectorAll(".house-viewer__marker").forEach((s) => {
-      s.classList.toggle("is-active", s.dataset.systemId === this.activeSystemId);
-    }), (t = this.activePulseTween) == null || t.kill(), this.activePulseTween = null, !this.activeSystemId) {
-      this.setConnectorHidden(!0);
-      return;
-    }
-    const e = this.markerFor(this.activeSystemId);
-    if (!e) {
-      this.setConnectorHidden(!0);
-      return;
-    }
-    this.activePulseTween = o.to(e, {
-      scale: 1.18,
-      duration: 0.85,
-      ease: "sine.inOut",
-      repeat: -1,
-      yoyo: !0
-    });
+    this.systemButtons.forEach((e) => {
+      const t = e.dataset.systemId === this.activeSystemId;
+      e.setAttribute("aria-pressed", t ? "true" : "false"), e.classList.toggle("is-active", t);
+    }), this.markersLayer.querySelectorAll(".house-viewer__marker").forEach((e) => {
+      e.classList.toggle("is-active", e.dataset.systemId === this.activeSystemId);
+    }), (!this.activeSystemId || !this.markerFor(this.activeSystemId)) && this.setConnectorHidden(!0);
   }
+  /**
+   * Rysuje linię łączącą marker z panelem. Celowo BEZ nadmiernie zachowawczej logiki
+   * (wykrywanie kolizji z innymi markerami, progi minimalnej odległości itd.) - jeśli
+   * panel jest otwarty na desktopie i marker istnieje, strzałka się pokazuje. Jedyne
+   * warunki ukrycia: układ mobilny (panel pod obrazem, nie obok) albo panel/marker
+   * faktycznie nie istnieją.
+   */
   updateConnector() {
     if (this.panel.hidden || !this.activeSystemId) {
-      this.panel.classList.remove("is-stacked"), this.setConnectorHidden(!0);
+      this.setConnectorHidden(!0);
       return;
     }
     const e = this.markerFor(this.activeSystemId);
     if (!e) {
-      this.panel.classList.remove("is-stacked"), this.setConnectorHidden(!0);
+      this.setConnectorHidden(!0);
       return;
     }
-    const t = this.layout.getBoundingClientRect(), s = this.stage.getBoundingClientRect(), i = this.panel.getBoundingClientRect(), n = e.getBoundingClientRect(), a = this.isDesktopViewport();
-    if (i.top >= s.bottom - 4 || !a) {
+    const t = this.layout.getBoundingClientRect(), s = this.stage.getBoundingClientRect(), i = this.panel.getBoundingClientRect(), r = e.getBoundingClientRect(), l = i.top >= s.bottom - 2;
+    if (!this.isDesktopViewport() || l) {
       this.panel.classList.add("is-stacked"), this.setConnectorHidden(!0);
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const c = s.left - t.left, w = s.top - t.top, g = s.right - t.left, k = s.bottom - t.top, p = n.left + n.width / 2 - t.left, d = n.top + n.height / 2 - t.top, v = i.left - t.left + 12, _ = n.top + n.height / 2 - i.top, m = i.top - t.top + Math.max(34, Math.min(_, i.height - 34)), I = Math.max(10, i.left - s.right), u = g + Math.min(16, Math.max(8, I * 0.45)), A = w + 14, S = k - 14, E = p >= c + s.width * 0.68, y = d <= w + s.height * 0.5;
-    if (v <= u + 6) {
+    const h = r.left + r.width / 2 - t.left, c = r.top + r.height / 2 - t.top, u = s.right - t.left, d = i.left - t.left;
+    if (d <= u + I) {
       this.setConnectorHidden(!0);
       return;
     }
-    const L = E ? [
-      `M ${p} ${d}`,
-      `Q ${Math.min(g - 8, p + 12)} ${d} ${u} ${d}`,
-      `L ${u} ${m}`,
-      `Q ${u} ${m} ${v} ${m}`
-    ].join(" ") : [
-      `M ${p} ${d}`,
-      `Q ${Math.min(g - 24, p + 8)} ${y ? Math.max(w + 10, d - 18) : Math.min(k - 10, d + 18)} ${Math.min(g - 18, p + 28)} ${y ? A : S}`,
-      `L ${u} ${y ? A : S}`,
-      `L ${u} ${m}`,
-      `Q ${u} ${m} ${v} ${m}`
-    ].join(" ");
-    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", L), this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`), this.setConnectorHidden(!1);
+    const w = u + (d - u) / 2, v = `M ${h} ${c} L ${w} ${c} L ${d} ${c}`;
+    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", v), this.setConnectorHidden(!1);
   }
   isDesktopViewport() {
-    return window.matchMedia(x).matches;
+    return window.matchMedia(k).matches;
   }
-  lockStageHeight() {
-    if (!this.isDesktopViewport()) {
-      this.clearStageHeightLock();
+  syncLayoutMetrics() {
+    if (!this.isDesktopViewport() || this.stage.offsetHeight === 0) {
+      this.root.style.removeProperty("--house-viewer-stage-height");
       return;
     }
-    const e = this.stage.getBoundingClientRect().height;
-    e > 0 && this.root.style.setProperty("--house-viewer-stage-lock-height", `${e}px`);
+    const e = `${Math.round(this.stage.getBoundingClientRect().height)}px`;
+    this.root.style.setProperty("--house-viewer-stage-height", e);
   }
-  clearStageHeightLock() {
-    this.root.style.removeProperty("--house-viewer-stage-lock-height");
+  setConnectorHidden(e) {
+    e ? this.connector.setAttribute("hidden", "") : this.connector.removeAttribute("hidden");
   }
   closePanel(e = !0, t = !0) {
-    var s, i;
     if (!(this.panel.hidden || this.isClosingPanel)) {
-      if ((s = this.stageCloseTween) == null || s.kill(), this.stageCloseTween = null, this.activeSystemId = null, this.syncActiveSystemState(), (i = this.connectorRefreshTween) == null || i.kill(), this.connectorRefreshTween = null, o.killTweensOf(this.stage), o.killTweensOf(this.panel), o.killTweensOf(this.connector), !t) {
+      if (this.cancelConnectorRefresh(), this.killOpenCloseTweens(), this.activeSystemId = null, this.syncActiveSystemState(), !t) {
         this.finishClosePanel(e);
         return;
       }
-      this.isClosingPanel = !0, o.to(this.connector, {
+      this.isClosingPanel = !0, this.connectorTween = o.to(this.connector, {
         autoAlpha: 0,
-        duration: 0.16,
-        ease: "power1.in"
-      }), o.to(this.panel, {
-        autoAlpha: 0,
-        x: this.isDesktopViewport() ? 22 : 0,
-        y: this.isDesktopViewport() ? 0 : 12,
-        duration: H,
-        ease: "power1.in",
+        duration: 0.12,
+        ease: "power1.out",
+        overwrite: !0,
         onComplete: () => {
-          this.stageCloseTween = o.to(this.stage, {
-            scale: 1,
-            duration: f,
-            ease: C,
-            onComplete: () => this.finishClosePanel(e)
-          });
+          this.connectorTween = null;
+        }
+      }), this.panelTween = o.to(this.panel, {
+        autoAlpha: 0,
+        x: this.isDesktopViewport() ? 20 : 0,
+        y: this.isDesktopViewport() ? 0 : 10,
+        duration: b,
+        ease: "power1.out",
+        overwrite: !0,
+        onComplete: () => {
+          this.panelTween = null, this.finishClosePanel(e);
         }
       });
     }
   }
   finishClosePanel(e) {
     var t;
-    this.stageCloseTween = null, this.isClosingPanel = !1, this.layout.classList.remove("is-panel-open"), this.panel.hidden = !0, this.panel.setAttribute("aria-hidden", "true"), this.setConnectorHidden(!0), this.clearStageHeightLock(), o.set(this.stage, { clearProps: "transform" }), o.set(this.panel, { clearProps: "opacity,visibility,transform" }), o.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((t = this.lastFocused) == null || t.focus());
+    this.isClosingPanel = !1, this.layout.classList.remove("is-panel-open"), this.panel.hidden = !0, this.panel.setAttribute("aria-hidden", "true"), this.panel.classList.remove("is-stacked"), this.setConnectorHidden(!0), o.set(this.panel, { clearProps: "opacity,visibility,transform" }), o.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((t = this.lastFocused) == null || t.focus()), this.syncLayoutMetrics();
   }
 }
-function b() {
+function m() {
   var s;
-  const h = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
-  if (!h || !(e != null && e.textContent) || h.dataset.houseViewerInitialized === "true") return;
+  const a = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
+  if (!a || !(e != null && e.textContent) || a.dataset.houseViewerInitialized === "true") return;
   let t;
   try {
     t = JSON.parse(e.textContent);
@@ -356,9 +388,9 @@ function b() {
   }
   if ((s = t.views) != null && s.length)
     try {
-      new B(h, t), h.dataset.houseViewerInitialized = "true";
+      new S(a, t), a.dataset.houseViewerInitialized = "true";
     } catch (i) {
       console.error("HouseViewer: inicjalizacja nie powiodła się.", i);
     }
 }
-document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", b) : b();
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m) : m();

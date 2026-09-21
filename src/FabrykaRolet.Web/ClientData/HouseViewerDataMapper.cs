@@ -35,6 +35,7 @@ public static class HouseViewerDataMapper
             system?.Name ?? hotspot.WindowSystemId,
             system?.ShortDescription ?? string.Empty,
             system?.Advantages ?? Array.Empty<string>(),
-            hotspot.Polygon.Select(p => new[] { p.X, p.Y }).ToList());
+            hotspot.Position.X,
+            hotspot.Position.Y);
     }
 }

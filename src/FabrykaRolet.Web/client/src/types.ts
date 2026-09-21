@@ -3,7 +3,8 @@ export interface HotspotData {
   name: string;
   description: string;
   advantages: string[];
-  polygon: [number, number][];
+  x: number;
+  y: number;
 }
 
 export interface HouseViewData {

@@ -20,7 +20,8 @@ public sealed record HotspotDto(
     string Name,
     string Description,
     IReadOnlyList<string> Advantages,
-    IReadOnlyList<double[]> Polygon);
+    double X,
+    double Y);
 
 /// <summary>Pełna lista systemów sekcji - także tych bez hotspotu na żadnym widoku (jeszcze).</summary>
 public sealed record SystemSummaryDto(
