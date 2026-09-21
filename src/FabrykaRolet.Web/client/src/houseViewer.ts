@@ -39,6 +39,7 @@ export class HouseViewer {
   private readonly panelDescription: HTMLElement;
   private readonly panelAdvantages: HTMLElement;
   private readonly availability: HTMLElement | null;
+  private readonly panelStatus: HTMLElement | null;
   private readonly prevBtn: HTMLButtonElement | null;
   private readonly nextBtn: HTMLButtonElement | null;
   private readonly viewsNav: HTMLElement | null;
@@ -76,6 +77,7 @@ export class HouseViewer {
     this.panelDescription = this.require("#house-viewer-panel-description");
     this.panelAdvantages = this.require("#house-viewer-panel-advantages");
     this.availability = root.querySelector("#house-viewer-availability");
+    this.panelStatus = root.querySelector("#house-viewer-status");
     this.prevBtn = root.querySelector(".house-viewer__arrow--prev");
     this.nextBtn = root.querySelector(".house-viewer__arrow--next");
     this.viewsNav = root.querySelector(".house-viewer__views");
@@ -139,6 +141,10 @@ export class HouseViewer {
     this.root.addEventListener(
       "keydown",
       (event) => {
+        if (this.shouldIgnoreViewNavigationKey(event)) {
+          return;
+        }
+
         if (event.key === "ArrowLeft") {
           event.preventDefault();
           this.step(-1);
@@ -151,6 +157,23 @@ export class HouseViewer {
       },
       listenerOptions
     );
+  }
+
+  private shouldIgnoreViewNavigationKey(event: KeyboardEvent): boolean {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+      return true;
+    }
+
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return false;
+    }
+
+    if (this.panel.contains(target)) {
+      return true;
+    }
+
+    return !!target.closest("button, input, select, textarea, a, summary");
   }
 
   private bindPanelClose(): void {
@@ -401,10 +424,10 @@ export class HouseViewer {
       return;
     }
 
-    const visibleCount = visibleIds.size;
-    this.availability.textContent = visibleCount > 0
-      ? `Widoczne na tym widoku: ${visibleCount}`
-      : "Widoczne na tym widoku: 0";
+    const visibleNames = view.hotspots.map((hotspot) => hotspot.name);
+    this.availability.textContent = visibleNames.length > 0
+      ? `Widoczne na tym widoku: ${visibleNames.join(", ")}`
+      : "Widoczne na tym widoku: brak aktywnych systemów.";
   }
 
   private buildHotspots(view: HouseViewData): void {
@@ -555,7 +578,12 @@ export class HouseViewer {
       }
     );
 
-    this.panel.focus({ preventScroll: true });
+    if (this.shouldMoveFocusIntoPanel(trigger)) {
+      this.panelClose.focus({ preventScroll: true });
+    } else {
+      this.announcePanelOpen(content.name);
+    }
+
     this.scheduleConnectorRefresh();
   }
 
@@ -575,6 +603,18 @@ export class HouseViewer {
     }
 
     return match[0];
+  }
+
+  private shouldMoveFocusIntoPanel(trigger: HTMLElement): boolean {
+    return trigger.matches(":focus-visible");
+  }
+
+  private announcePanelOpen(name: string): void {
+    if (!this.panelStatus) {
+      return;
+    }
+
+    this.panelStatus.textContent = `${name} – szczegóły otwarte.`;
   }
 
 
