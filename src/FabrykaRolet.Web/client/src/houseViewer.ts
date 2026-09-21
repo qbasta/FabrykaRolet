@@ -45,7 +45,7 @@ export class HouseViewer {
   private readonly systemButtons: HTMLButtonElement[];
   private readonly allowedImagePaths: Map<string, string>;
   private readonly listenerController = new AbortController();
-  private readonly hotspotIndex = new Map<string, HotspotLookup>();
+  private readonly hotspotIndex = new Map<string, HotspotLookup[]>();
 
   private currentIndex = 0;
   private activeSystemId: string | null = null;
@@ -102,7 +102,9 @@ export class HouseViewer {
   private indexHotspots(): void {
     this.data.views.forEach((view, viewIndex) => {
       view.hotspots.forEach((hotspot) => {
-        this.hotspotIndex.set(hotspot.systemId, { viewIndex, hotspot });
+        const entries = this.hotspotIndex.get(hotspot.systemId) ?? [];
+        entries.push({ viewIndex, hotspot });
+        this.hotspotIndex.set(hotspot.systemId, entries);
       });
     });
   }
@@ -272,7 +274,12 @@ export class HouseViewer {
   }
 
   private findHotspot(systemId: string): HotspotLookup | null {
-    return this.hotspotIndex.get(systemId) ?? null;
+    const entries = this.hotspotIndex.get(systemId);
+    if (!entries?.length) {
+      return null;
+    }
+
+    return entries.find((entry) => entry.viewIndex === this.currentIndex) ?? entries[0];
   }
 
   private findSystemSummary(systemId: string): SystemSummary | undefined {
@@ -379,7 +386,6 @@ export class HouseViewer {
 
   private syncVisibleSystems(view: HouseViewData): void {
     const visibleIds = new Set(view.hotspots.map((hotspot) => hotspot.systemId));
-    const visibleNames = view.hotspots.map((hotspot) => hotspot.name);
 
     this.systemButtons.forEach((button) => {
       const visible = visibleIds.has(button.dataset.systemId ?? "");
@@ -395,9 +401,10 @@ export class HouseViewer {
       return;
     }
 
-    this.availability.textContent = visibleNames.length > 0
-      ? `Widoczne na tym widoku: ${visibleNames.join(", ")}`
-      : "Widoczne na tym widoku: brak aktywnych systemów.";
+    const visibleCount = visibleIds.size;
+    this.availability.textContent = visibleCount > 0
+      ? `Widoczne na tym widoku: ${visibleCount}`
+      : "Widoczne na tym widoku: 0";
   }
 
   private buildHotspots(view: HouseViewData): void {
@@ -548,10 +555,7 @@ export class HouseViewer {
       }
     );
 
-    if (this.shouldMoveFocusToPanel(trigger)) {
-      this.panel.focus({ preventScroll: true });
-    }
-
+    this.panel.focus({ preventScroll: true });
     this.scheduleConnectorRefresh();
   }
 
@@ -573,9 +577,6 @@ export class HouseViewer {
     return match[0];
   }
 
-  private shouldMoveFocusToPanel(trigger: HTMLElement): boolean {
-    return trigger.matches(":focus-visible");
-  }
 
   private killOpenCloseTweens(): void {
     this.panelTween?.kill();
