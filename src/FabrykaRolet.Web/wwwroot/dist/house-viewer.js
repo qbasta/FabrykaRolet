@@ -267,7 +267,7 @@ class R {
           this.panelTween = null;
         }
       }
-    ), this.scheduleConnectorRefresh();
+    ), this.shouldMoveFocusToPanel(t) && this.panel.focus({ preventScroll: !0 }), this.scheduleConnectorRefresh();
   }
   resolveImageUrl(e) {
     const t = this.allowedImagePaths.get(e);
@@ -280,6 +280,9 @@ class R {
     if (!t)
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
     return t[0];
+  }
+  shouldMoveFocusToPanel(e) {
+    return e.matches(":focus-visible");
   }
   killOpenCloseTweens() {
     var e, t;
@@ -323,7 +326,7 @@ class R {
       this.panel.classList.remove("is-stacked"), this.setConnectorHidden(!0);
       return;
     }
-    const t = this.layout.getBoundingClientRect(), i = this.stage.getBoundingClientRect(), s = this.panel.getBoundingClientRect(), n = e.getBoundingClientRect(), o = s.top >= i.bottom - 2 || s.left <= i.right;
+    const t = this.layout.getBoundingClientRect(), i = this.stage.getBoundingClientRect(), s = this.panel.getBoundingClientRect(), n = e.getBoundingClientRect(), o = s.top >= i.bottom - 2;
     if (!this.isDesktopViewport() || o) {
       this.panel.classList.add("is-stacked"), this.setConnectorHidden(!0);
       return;
