@@ -548,6 +548,10 @@ export class HouseViewer {
       }
     );
 
+    if (this.shouldMoveFocusToPanel(trigger)) {
+      this.panel.focus({ preventScroll: true });
+    }
+
     this.scheduleConnectorRefresh();
   }
 
@@ -567,6 +571,10 @@ export class HouseViewer {
     }
 
     return match[0];
+  }
+
+  private shouldMoveFocusToPanel(trigger: HTMLElement): boolean {
+    return trigger.matches(":focus-visible");
   }
 
   private killOpenCloseTweens(): void {
@@ -646,7 +654,7 @@ export class HouseViewer {
     const panelRect = this.panel.getBoundingClientRect();
     const markerRect = marker.getBoundingClientRect();
 
-    const panelBelowStage = panelRect.top >= stageRect.bottom - 2 || panelRect.left <= stageRect.right;
+    const panelBelowStage = panelRect.top >= stageRect.bottom - 2;
     if (!this.isDesktopViewport() || panelBelowStage) {
       this.panel.classList.add("is-stacked");
       this.setConnectorHidden(true);
