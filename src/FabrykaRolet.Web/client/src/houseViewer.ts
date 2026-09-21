@@ -45,6 +45,7 @@ export class HouseViewer {
   private activePulseTween: gsap.core.Tween | null = null;
   private connectorRefreshTween: gsap.core.Tween | null = null;
   private panelHideTween: gsap.core.Tween | null = null;
+  private isClosingPanel = false;
   private readonly listenerController = new AbortController();
   private disconnectObserver: MutationObserver | null = null;
 
@@ -392,6 +393,7 @@ export class HouseViewer {
   private openPanel(content: PanelContent, trigger: HTMLElement, systemId: string | null): void {
     this.panelHideTween?.kill();
     this.panelHideTween = null;
+    this.isClosingPanel = false;
     this.lastFocused = trigger;
     this.activeSystemId = systemId;
 
@@ -599,7 +601,7 @@ export class HouseViewer {
   }
 
   private closePanel(restoreFocus = true, animate = true): void {
-    if (this.panel.hidden) return;
+    if (this.panel.hidden || this.isClosingPanel) return;
 
     this.panelHideTween?.kill();
     this.panelHideTween = null;
@@ -617,6 +619,7 @@ export class HouseViewer {
       return;
     }
 
+    this.isClosingPanel = true;
     gsap.to(this.connector, {
       autoAlpha: 0,
       duration: 0.16,
@@ -638,6 +641,7 @@ export class HouseViewer {
 
   private finishClosePanel(restoreFocus: boolean): void {
     this.panelHideTween = null;
+    this.isClosingPanel = false;
     this.layout.classList.remove("is-panel-open");
     this.panel.hidden = true;
     this.panel.setAttribute("aria-hidden", "true");
