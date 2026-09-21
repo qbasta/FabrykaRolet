@@ -13,20 +13,22 @@
 {
     <section class="house-viewer container" id="house-viewer" data-system-buttons="#house-viewer-systems">
         <div class="house-viewer__layout">
-            <div class="house-viewer__stage">
-                <img class="house-viewer__image" alt="" />
-                <svg class="house-viewer__overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
-                <div class="house-viewer__hit-areas"></div>
-            </div>
+            <div class="house-viewer__stage-shell">
+                <div class="house-viewer__stage">
+                    <img class="house-viewer__image" alt="" />
+                    <svg class="house-viewer__overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+                    <div class="house-viewer__hit-areas"></div>
+                </div>
 
-            <svg class="house-viewer__connector" aria-hidden="true" hidden>
-                <defs>
-                    <marker class="house-viewer__connector-arrow" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
-                        <path d="M0,0 L0,7 L7,3.5 z"></path>
-                    </marker>
-                </defs>
-                <path class="house-viewer__connector-path"></path>
-            </svg>
+                <svg class="house-viewer__connector" aria-hidden="true" hidden>
+                    <defs>
+                        <marker class="house-viewer__connector-arrow" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
+                            <path d="M0,0 L0,7 L7,3.5 z"></path>
+                        </marker>
+                    </defs>
+                    <path class="house-viewer__connector-path"></path>
+                </svg>
+            </div>
 
             <aside id="house-viewer-panel" class="house-viewer__panel" aria-labelledby="house-viewer-panel-title" hidden>
                 <button type="button" class="house-viewer__panel-close" data-close aria-label="Zamknij okno">&times;</button>
