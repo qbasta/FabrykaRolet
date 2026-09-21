@@ -225,3 +225,8 @@ a { color: var(--color-accent); }
 @media (max-width: 640px) {
   .house-viewer__stage { aspect-ratio: 4 / 5; }
 }
+
+/* Kontakt ------------------------------------------------------------------- */
+.contact-details { padding-block: var(--space-3) var(--space-5); }
+.contact-details dt { font-weight: 600; margin-top: var(--space-2); }
+.contact-details dd { margin: 0; color: var(--color-ink-soft); }

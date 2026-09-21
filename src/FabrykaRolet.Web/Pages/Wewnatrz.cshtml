@@ -1,0 +1,29 @@
+@page
+@model FabrykaRolet.Web.Pages.WewnatrzModel
+@{
+    ViewData["Title"] = "Wewnątrz";
+}
+
+<section class="section-intro container">
+    <h1>Systemy wewnętrzne</h1>
+    <p>Interaktywne widoki okien z systemami wewnętrznymi pojawią się w tym miejscu wkrótce.</p>
+</section>
+
+@if (!Model.HasViews)
+{
+    <p class="container">
+        Model danych zawiera już wszystkie systemy wewnętrzne poniżej – brakuje jedynie
+        docelowej grafiki i rozmieszczenia hotspotów, żeby działały tak jak w sekcji
+        „Na zewnątrz".
+    </p>
+
+    <section class="system-grid container">
+        @foreach (var system in Model.Systems)
+        {
+            <article class="system-card">
+                <h2>@system.Name</h2>
+                <p>@system.ShortDescription</p>
+            </article>
+        }
+    </section>
+}
