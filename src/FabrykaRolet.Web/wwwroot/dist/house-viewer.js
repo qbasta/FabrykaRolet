@@ -2,8 +2,8 @@ var L = Object.defineProperty;
 var E = (l, e, t) => e in l ? L(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
 var r = (l, e, t) => E(l, typeof e != "symbol" ? e + "" : e, t);
 import { g as h } from "./index-9nJrthwM.js";
-const T = "http://www.w3.org/2000/svg", x = 0.32, P = 0.2, w = 0.18, B = 420, O = "(min-width: 901px)", H = (l, e, t) => Math.min(Math.max(l, e), t);
-class R {
+const T = "http://www.w3.org/2000/svg", x = 0.32, P = 0.2, w = 0.18, O = 420, B = "(min-width: 901px)", R = (l, e, t) => Math.min(Math.max(l, e), t);
+class H {
   constructor(e, t) {
     r(this, "layout");
     r(this, "stage");
@@ -18,6 +18,7 @@ class R {
     r(this, "panelDescription");
     r(this, "panelAdvantages");
     r(this, "availability");
+    r(this, "panelStatus");
     r(this, "prevBtn");
     r(this, "nextBtn");
     r(this, "viewsNav");
@@ -36,7 +37,7 @@ class R {
     r(this, "connectorFrame", null);
     r(this, "connectorRefreshUntil", 0);
     r(this, "isClosingPanel", !1);
-    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.availability = e.querySelector("#house-viewer-availability"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.allowedImagePaths = new Map(t.views.map((i) => [i.image, this.normalizeImageUrl(i.image)])), this.indexHotspots(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
+    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.availability = e.querySelector("#house-viewer-availability"), this.panelStatus = e.querySelector("#house-viewer-status"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.allowedImagePaths = new Map(t.views.map((i) => [i.image, this.normalizeImageUrl(i.image)])), this.indexHotspots(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
   }
   require(e) {
     const t = this.root.querySelector(e);
@@ -61,10 +62,16 @@ class R {
     })), this.root.addEventListener(
       "keydown",
       (i) => {
-        i.key === "ArrowLeft" && (i.preventDefault(), this.step(-1)), i.key === "ArrowRight" && (i.preventDefault(), this.step(1));
+        this.shouldIgnoreViewNavigationKey(i) || (i.key === "ArrowLeft" && (i.preventDefault(), this.step(-1)), i.key === "ArrowRight" && (i.preventDefault(), this.step(1)));
       },
       e
     );
+  }
+  shouldIgnoreViewNavigationKey(e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight")
+      return !0;
+    const t = e.target;
+    return t ? this.panel.contains(t) ? !0 : !!t.closest("button, input, select, textarea, a, summary") : !1;
   }
   bindPanelClose() {
     const e = { signal: this.listenerController.signal };
@@ -205,8 +212,8 @@ class R {
       s.classList.toggle("is-visible-in-view", n), n ? s.setAttribute("data-visible-in-view", "true") : s.removeAttribute("data-visible-in-view");
     }), !this.availability)
       return;
-    const i = t.size;
-    this.availability.textContent = i > 0 ? `Widoczne na tym widoku: ${i}` : "Widoczne na tym widoku: 0";
+    const i = e.hotspots.map((s) => s.name);
+    this.availability.textContent = i.length > 0 ? `Widoczne na tym widoku: ${i.join(", ")}` : "Widoczne na tym widoku: brak aktywnych systemów.";
   }
   buildHotspots(e) {
     this.overlay.replaceChildren(), this.hitAreas.replaceChildren(), e.hotspots.forEach((t, i) => {
@@ -272,7 +279,7 @@ class R {
           this.panelTween = null;
         }
       }
-    ), this.panel.focus({ preventScroll: !0 }), this.scheduleConnectorRefresh();
+    ), this.shouldMoveFocusIntoPanel(t) ? this.panelClose.focus({ preventScroll: !0 }) : this.announcePanelOpen(e.name), this.scheduleConnectorRefresh();
   }
   resolveImageUrl(e) {
     const t = this.allowedImagePaths.get(e);
@@ -286,12 +293,18 @@ class R {
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
     return t[0];
   }
+  shouldMoveFocusIntoPanel(e) {
+    return e.matches(":focus-visible");
+  }
+  announcePanelOpen(e) {
+    this.panelStatus && (this.panelStatus.textContent = `${e} – szczegóły otwarte.`);
+  }
   killOpenCloseTweens() {
     var e, t;
     (e = this.panelTween) == null || e.kill(), this.panelTween = null, (t = this.connectorTween) == null || t.kill(), this.connectorTween = null, h.killTweensOf(this.panel), h.killTweensOf(this.connector);
   }
   scheduleConnectorRefresh() {
-    this.cancelConnectorRefresh(), this.connectorRefreshUntil = performance.now() + B;
+    this.cancelConnectorRefresh(), this.connectorRefreshUntil = performance.now() + O;
     const e = (t) => {
       if (this.updateConnector(), t < this.connectorRefreshUntil) {
         this.connectorFrame = window.requestAnimationFrame(e);
@@ -334,8 +347,8 @@ class R {
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const a = n.left + n.width / 2 - t.left, c = n.top + n.height / 2 - t.top, u = i.right - t.left, p = s.left - t.left, g = s.left - i.right, f = i.right - (n.left + n.width / 2), b = s.top - t.top, C = s.bottom - t.top, k = b + 28, A = C - 28;
-    if (g < 24 || p <= u + 12) {
+    const a = n.left + n.width / 2 - t.left, c = n.top + n.height / 2 - t.top, d = i.right - t.left, p = s.left - t.left, g = s.left - i.right, f = i.right - (n.left + n.width / 2), b = s.top - t.top, C = s.bottom - t.top, k = b + 28, S = C - 28;
+    if (g < 24 || p <= d + 12) {
       this.setConnectorHidden(!0);
       return;
     }
@@ -343,22 +356,22 @@ class R {
       this.setConnectorHidden(!0);
       return;
     }
-    if (c < k || c > A) {
+    if (c < k || c > S) {
       this.setConnectorHidden(!0);
       return;
     }
     if (Array.from(this.hitAreas.querySelectorAll(".house-viewer__marker")).filter((m) => m !== e).some((m) => {
-      const d = m.getBoundingClientRect(), v = d.left + d.width / 2, _ = d.top + d.height / 2;
-      return Math.abs(_ - (n.top + n.height / 2)) < Math.max(d.height, n.height) * 1.2 && v > n.right && v < i.right + 8;
+      const u = m.getBoundingClientRect(), v = u.left + u.width / 2, _ = u.top + u.height / 2;
+      return Math.abs(_ - (n.top + n.height / 2)) < Math.max(u.height, n.height) * 1.2 && v > n.right && v < i.right + 8;
     })) {
       this.setConnectorHidden(!0);
       return;
     }
-    const S = H(u, u, p - 12), I = `M ${a} ${c} L ${S} ${c} L ${p} ${c}`;
+    const A = R(d, d, p - 12), I = `M ${a} ${c} L ${A} ${c} L ${p} ${c}`;
     this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", I), this.setConnectorHidden(!1);
   }
   isDesktopViewport() {
-    return window.matchMedia(O).matches;
+    return window.matchMedia(B).matches;
   }
   syncLayoutMetrics() {
     if (!this.isDesktopViewport() || this.stage.offsetHeight === 0) {
@@ -420,7 +433,7 @@ function y() {
   }
   if ((i = t.views) != null && i.length)
     try {
-      new R(l, t), l.dataset.houseViewerInitialized = "true";
+      new H(l, t), l.dataset.houseViewerInitialized = "true";
     } catch (s) {
       console.error("HouseViewer: inicjalizacja nie powiodła się.", s);
     }
