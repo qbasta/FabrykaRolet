@@ -8,7 +8,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FabrykaRolet.Domain\FabrykaRolet.Domain.csproj" />
+    <ProjectReference Include="..\FabrykaRolet.Application\FabrykaRolet.Application.csproj" />
     <ProjectReference Include="..\FabrykaRolet.Infrastructure\FabrykaRolet.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Źródła TypeScript nie są częścią publikowanej aplikacji .NET - buduje je Vite do wwwroot/dist. -->
+    <Content Remove="client\**" />
+    <None Include="client\**" Exclude="client\node_modules\**;client\dist-check\**" />
   </ItemGroup>
 
 </Project>

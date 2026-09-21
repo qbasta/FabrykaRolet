@@ -4,6 +4,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabrykaRolet.Domain", "src\FabrykaRolet.Domain\FabrykaRolet.Domain.csproj", "{D464F2BD-6600-42C1-8EAF-5B5B63331A79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabrykaRolet.Application", "src\FabrykaRolet.Application\FabrykaRolet.Application.csproj", "{D67C4BAF-926D-4ECF-89C5-7729B1B2CE42}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabrykaRolet.Infrastructure", "src\FabrykaRolet.Infrastructure\FabrykaRolet.Infrastructure.csproj", "{580ADED9-E194-43D5-BA8B-50B193179C41}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabrykaRolet.Web", "src\FabrykaRolet.Web\FabrykaRolet.Web.csproj", "{1C47117B-352D-48E1-B419-C0666AF1D404}"
@@ -18,6 +20,10 @@ Global
 		{D464F2BD-6600-42C1-8EAF-5B5B63331A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D464F2BD-6600-42C1-8EAF-5B5B63331A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D464F2BD-6600-42C1-8EAF-5B5B63331A79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D67C4BAF-926D-4ECF-89C5-7729B1B2CE42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D67C4BAF-926D-4ECF-89C5-7729B1B2CE42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D67C4BAF-926D-4ECF-89C5-7729B1B2CE42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D67C4BAF-926D-4ECF-89C5-7729B1B2CE42}.Release|Any CPU.Build.0 = Release|Any CPU
 		{580ADED9-E194-43D5-BA8B-50B193179C41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{580ADED9-E194-43D5-BA8B-50B193179C41}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{580ADED9-E194-43D5-BA8B-50B193179C41}.Release|Any CPU.ActiveCfg = Release|Any CPU
