@@ -2,6 +2,12 @@ import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const ALLOWED_IMAGE_PATHS = {
+  "/images/house/exterior-front.png": "/images/house/exterior-front.png",
+  "/images/house/exterior-taras.png": "/images/house/exterior-taras.png",
+  "/images/house/exterior-tyl.png": "/images/house/exterior-tyl.png",
+  "/images/house/exterior-garaz.png": "/images/house/exterior-garaz.png",
+} as const;
 
 type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotBounds = {
@@ -36,6 +42,8 @@ export class HouseViewer {
   private lastFocused: HTMLElement | null = null;
   private activePulseTween: gsap.core.Tween | null = null;
   private connectorRefreshTween: gsap.core.Tween | null = null;
+  private readonly listenerController = new AbortController();
+  private disconnectObserver: MutationObserver | null = null;
 
   constructor(
     private readonly root: HTMLElement,
@@ -72,12 +80,13 @@ export class HouseViewer {
   }
 
   private bindNav(): void {
+    const listenerOptions = { signal: this.listenerController.signal };
     const hasMultipleViews = this.data.views.length > 1;
     if (this.prevBtn) this.prevBtn.hidden = !hasMultipleViews;
     if (this.nextBtn) this.nextBtn.hidden = !hasMultipleViews;
 
-    this.prevBtn?.addEventListener("click", () => this.step(-1));
-    this.nextBtn?.addEventListener("click", () => this.step(1));
+    this.prevBtn?.addEventListener("click", () => this.step(-1), listenerOptions);
+    this.nextBtn?.addEventListener("click", () => this.step(1), listenerOptions);
 
     if (this.viewsNav) {
       this.viewsNav.replaceChildren();
@@ -87,7 +96,7 @@ export class HouseViewer {
         button.className = "house-viewer__view-btn";
         button.textContent = view.title;
         button.setAttribute("aria-pressed", index === this.currentIndex ? "true" : "false");
-        button.addEventListener("click", () => this.renderView(index));
+        button.addEventListener("click", () => this.renderView(index), listenerOptions);
         this.viewsNav?.appendChild(button);
       });
     }
@@ -102,17 +111,18 @@ export class HouseViewer {
         event.preventDefault();
         this.step(1);
       }
-    });
+    }, listenerOptions);
   }
 
   private bindPanelClose(): void {
-    this.panelClose.addEventListener("click", () => this.closePanel());
+    const listenerOptions = { signal: this.listenerController.signal };
+    this.panelClose.addEventListener("click", () => this.closePanel(), listenerOptions);
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !this.panel.hidden) {
         this.closePanel();
       }
-    });
+    }, listenerOptions);
 
     document.addEventListener("click", (event) => {
       if (this.panel.hidden) return;
@@ -123,18 +133,40 @@ export class HouseViewer {
       if (target.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button")) return;
 
       this.closePanel();
-    });
+    }, listenerOptions);
   }
 
   private bindSystemButtons(): void {
+    const listenerOptions = { signal: this.listenerController.signal };
     this.systemButtons.forEach((button) => {
-      button.addEventListener("click", () => this.activateSystem(button.dataset.systemId!, button));
+      button.addEventListener("click", () => this.activateSystem(button.dataset.systemId!, button), listenerOptions);
     });
   }
 
   private bindGlobalEvents(): void {
-    window.addEventListener("resize", () => this.updateConnector());
-    this.img.addEventListener("load", () => this.updateConnector());
+    const listenerOptions = { signal: this.listenerController.signal };
+    window.addEventListener("resize", () => this.updateConnector(), listenerOptions);
+    this.img.addEventListener("load", () => this.updateConnector(), listenerOptions);
+    this.observeDisconnect();
+  }
+
+  private observeDisconnect(): void {
+    if (!document.body) return;
+
+    this.disconnectObserver = new MutationObserver(() => {
+      if (!this.root.isConnected) {
+        this.destroy();
+      }
+    });
+    this.disconnectObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  private destroy(): void {
+    this.listenerController.abort();
+    this.disconnectObserver?.disconnect();
+    this.disconnectObserver = null;
+    this.connectorRefreshTween?.kill();
+    this.activePulseTween?.kill();
   }
 
   private collectSystemButtons(): HTMLButtonElement[] {
@@ -379,12 +411,12 @@ export class HouseViewer {
   }
 
   private resolveImageUrl(url: string): string {
-    const match = /^\/images\/house\/[a-z0-9-]+\.(png|jpe?g|webp)$/i.exec(url);
-    if (!match) {
+    const safeUrl = ALLOWED_IMAGE_PATHS[url as keyof typeof ALLOWED_IMAGE_PATHS];
+    if (!safeUrl) {
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
     }
 
-    return match[0];
+    return safeUrl;
   }
 
   private isConnectorHidden(): boolean {

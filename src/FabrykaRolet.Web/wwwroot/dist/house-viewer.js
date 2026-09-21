@@ -1,9 +1,14 @@
-var g = Object.defineProperty;
-var S = (c, e, t) => e in c ? g(c, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : c[e] = t;
-var r = (c, e, t) => S(c, typeof e != "symbol" ? e + "" : e, t);
-import { g as o } from "./index-9nJrthwM.js";
-const A = "http://www.w3.org/2000/svg";
-class C {
+var f = Object.defineProperty;
+var C = (l, e, t) => e in l ? f(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
+var r = (l, e, t) => C(l, typeof e != "symbol" ? e + "" : e, t);
+import { g as a } from "./index-9nJrthwM.js";
+const S = "http://www.w3.org/2000/svg", b = {
+  "/images/house/exterior-front.png": "/images/house/exterior-front.png",
+  "/images/house/exterior-taras.png": "/images/house/exterior-taras.png",
+  "/images/house/exterior-tyl.png": "/images/house/exterior-tyl.png",
+  "/images/house/exterior-garaz.png": "/images/house/exterior-garaz.png"
+};
+class A {
   constructor(e, t) {
     r(this, "layout");
     r(this, "stage");
@@ -26,6 +31,8 @@ class C {
     r(this, "lastFocused", null);
     r(this, "activePulseTween", null);
     r(this, "connectorRefreshTween", null);
+    r(this, "listenerController", new AbortController());
+    r(this, "disconnectObserver", null);
     this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.overlay = this.require(".house-viewer__overlay"), this.hitAreas = this.require(".house-viewer__hit-areas"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
   }
   require(e) {
@@ -34,32 +41,44 @@ class C {
     return t;
   }
   bindNav() {
-    var t, s;
-    const e = this.data.views.length > 1;
-    this.prevBtn && (this.prevBtn.hidden = !e), this.nextBtn && (this.nextBtn.hidden = !e), (t = this.prevBtn) == null || t.addEventListener("click", () => this.step(-1)), (s = this.nextBtn) == null || s.addEventListener("click", () => this.step(1)), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((i, n) => {
-      var h;
-      const a = document.createElement("button");
-      a.type = "button", a.className = "house-viewer__view-btn", a.textContent = i.title, a.setAttribute("aria-pressed", n === this.currentIndex ? "true" : "false"), a.addEventListener("click", () => this.renderView(n)), (h = this.viewsNav) == null || h.appendChild(a);
-    })), this.root.addEventListener("keydown", (i) => {
-      i.key === "ArrowLeft" && (i.preventDefault(), this.step(-1)), i.key === "ArrowRight" && (i.preventDefault(), this.step(1));
-    });
+    var s, i;
+    const e = { signal: this.listenerController.signal }, t = this.data.views.length > 1;
+    this.prevBtn && (this.prevBtn.hidden = !t), this.nextBtn && (this.nextBtn.hidden = !t), (s = this.prevBtn) == null || s.addEventListener("click", () => this.step(-1), e), (i = this.nextBtn) == null || i.addEventListener("click", () => this.step(1), e), this.viewsNav && (this.viewsNav.replaceChildren(), this.data.views.forEach((n, h) => {
+      var c;
+      const o = document.createElement("button");
+      o.type = "button", o.className = "house-viewer__view-btn", o.textContent = n.title, o.setAttribute("aria-pressed", h === this.currentIndex ? "true" : "false"), o.addEventListener("click", () => this.renderView(h), e), (c = this.viewsNav) == null || c.appendChild(o);
+    })), this.root.addEventListener("keydown", (n) => {
+      n.key === "ArrowLeft" && (n.preventDefault(), this.step(-1)), n.key === "ArrowRight" && (n.preventDefault(), this.step(1));
+    }, e);
   }
   bindPanelClose() {
-    this.panelClose.addEventListener("click", () => this.closePanel()), document.addEventListener("keydown", (e) => {
-      e.key === "Escape" && !this.panel.hidden && this.closePanel();
-    }), document.addEventListener("click", (e) => {
+    const e = { signal: this.listenerController.signal };
+    this.panelClose.addEventListener("click", () => this.closePanel(), e), document.addEventListener("keydown", (t) => {
+      t.key === "Escape" && !this.panel.hidden && this.closePanel();
+    }, e), document.addEventListener("click", (t) => {
       if (this.panel.hidden) return;
-      const t = e.target;
-      t && (this.panel.contains(t) || t.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button") || this.closePanel());
-    });
+      const s = t.target;
+      s && (this.panel.contains(s) || s.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button") || this.closePanel());
+    }, e);
   }
   bindSystemButtons() {
-    this.systemButtons.forEach((e) => {
-      e.addEventListener("click", () => this.activateSystem(e.dataset.systemId, e));
+    const e = { signal: this.listenerController.signal };
+    this.systemButtons.forEach((t) => {
+      t.addEventListener("click", () => this.activateSystem(t.dataset.systemId, t), e);
     });
   }
   bindGlobalEvents() {
-    window.addEventListener("resize", () => this.updateConnector()), this.img.addEventListener("load", () => this.updateConnector());
+    const e = { signal: this.listenerController.signal };
+    window.addEventListener("resize", () => this.updateConnector(), e), this.img.addEventListener("load", () => this.updateConnector(), e), this.observeDisconnect();
+  }
+  observeDisconnect() {
+    document.body && (this.disconnectObserver = new MutationObserver(() => {
+      this.root.isConnected || this.destroy();
+    }), this.disconnectObserver.observe(document.body, { childList: !0, subtree: !0 }));
+  }
+  destroy() {
+    var e, t, s;
+    this.listenerController.abort(), (e = this.disconnectObserver) == null || e.disconnect(), this.disconnectObserver = null, (t = this.connectorRefreshTween) == null || t.kill(), (s = this.activePulseTween) == null || s.kill();
   }
   collectSystemButtons() {
     const e = this.root.dataset.systemButtons;
@@ -111,7 +130,7 @@ class C {
     const i = this.data.views[e];
     s || this.closePanel(!1);
     const n = () => {
-      this.img.src = this.resolveImageUrl(i.image), this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), o.fromTo(
+      this.img.src = this.resolveImageUrl(i.image), this.img.alt = i.title, this.buildHotspots(i), this.syncViewButtons(), a.fromTo(
         [this.img, this.overlay, this.hitAreas],
         { opacity: 0 },
         { opacity: 1, duration: 0.35, onComplete: t }
@@ -121,7 +140,7 @@ class C {
       n();
       return;
     }
-    o.to([this.img, this.overlay, this.hitAreas], { opacity: 0, duration: 0.2, onComplete: n });
+    a.to([this.img, this.overlay, this.hitAreas], { opacity: 0, duration: 0.2, onComplete: n });
   }
   syncViewButtons() {
     if (!this.viewsNav) return;
@@ -132,12 +151,12 @@ class C {
   }
   buildHotspots(e) {
     this.overlay.replaceChildren(), this.hitAreas.replaceChildren(), e.hotspots.forEach((t, s) => {
-      const i = this.getBounds(t), n = this.createPolygon(t), a = this.createHitArea(t, i), h = this.createMarker(t, i);
-      this.overlay.appendChild(n), this.hitAreas.append(a, h), o.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), o.fromTo(h, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
+      const i = this.getBounds(t), n = this.createPolygon(t), h = this.createHitArea(t, i), o = this.createMarker(t, i);
+      this.overlay.appendChild(n), this.hitAreas.append(h, o), a.fromTo(n, { opacity: 0 }, { opacity: 1, duration: 0.24, delay: 0.06 * s }), a.fromTo(o, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, delay: 0.08 + 0.06 * s });
     }), this.syncActiveSystemState();
   }
   createPolygon(e) {
-    const t = document.createElementNS(A, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
+    const t = document.createElementNS(S, "polygon"), s = e.polygon.map(([i, n]) => `${i},${n}`).join(" ");
     return t.setAttribute("points", s), t.setAttribute("class", "house-viewer__hotspot"), t.dataset.systemId = e.systemId, t;
   }
   createHitArea(e, t) {
@@ -145,8 +164,8 @@ class C {
     s.type = "button", s.className = "house-viewer__hit-area", s.dataset.systemId = e.systemId, s.style.left = `${t.left}%`, s.style.top = `${t.top}%`, s.style.width = `${t.width}%`, s.style.height = `${t.height}%`, s.tabIndex = -1, s.setAttribute("aria-hidden", "true");
     const i = () => this.setHoveredState(e.systemId, !0), n = () => this.setHoveredState(e.systemId, !1);
     return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("click", () => {
-      const a = this.markerFor(e.systemId);
-      this.openPanel(e, a ?? s, e.systemId);
+      const h = this.markerFor(e.systemId);
+      this.openPanel(e, h ?? s, e.systemId);
     }), s;
   }
   createMarker(e, t) {
@@ -156,14 +175,14 @@ class C {
     return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("focus", i), s.addEventListener("blur", n), s.addEventListener("click", () => this.openPanel(e, s, e.systemId)), s;
   }
   getBounds(e) {
-    const t = e.polygon.map(([l]) => l), s = e.polygon.map(([, l]) => l), i = Math.min(...t), n = Math.min(...s), a = Math.max(...t) - i, h = Math.max(...s) - n;
+    const t = e.polygon.map(([c]) => c), s = e.polygon.map(([, c]) => c), i = Math.min(...t), n = Math.min(...s), h = Math.max(...t) - i, o = Math.max(...s) - n;
     return {
       left: i,
       top: n,
-      width: a,
-      height: h,
-      centerX: i + a / 2,
-      centerY: n + h / 2
+      width: h,
+      height: o,
+      centerX: i + h / 2,
+      centerY: n + o / 2
     };
   }
   setHoveredState(e, t) {
@@ -174,23 +193,23 @@ class C {
     this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((i) => {
       const n = document.createElement("li");
       n.textContent = i, this.panelAdvantages.appendChild(n);
-    }), this.syncActiveSystemState(), this.panel.hidden = !1, this.layout.classList.add("is-panel-open"), o.killTweensOf(this.panel), o.killTweensOf(this.connector), requestAnimationFrame(() => {
-      this.updateConnector(), o.fromTo(
+    }), this.syncActiveSystemState(), this.panel.hidden = !1, this.layout.classList.add("is-panel-open"), a.killTweensOf(this.panel), a.killTweensOf(this.connector), requestAnimationFrame(() => {
+      this.updateConnector(), a.fromTo(
         this.panel,
         { autoAlpha: 0, x: 28 },
         { autoAlpha: 1, x: 0, duration: 0.32, ease: "power2.out" }
-      ), this.isConnectorHidden() || o.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22, ease: "power1.out" }), this.scheduleConnectorRefresh();
+      ), this.isConnectorHidden() || a.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22, ease: "power1.out" }), this.scheduleConnectorRefresh();
     }), this.panelClose.focus();
   }
   scheduleConnectorRefresh() {
     var e;
-    (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = o.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
+    (e = this.connectorRefreshTween) == null || e.kill(), this.connectorRefreshTween = a.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
   }
   resolveImageUrl(e) {
-    const t = /^\/images\/house\/[a-z0-9-]+\.(png|jpe?g|webp)$/i.exec(e);
+    const t = b[e];
     if (!t)
       throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${e}".`);
-    return t[0];
+    return t;
   }
   isConnectorHidden() {
     return this.connector.hasAttribute("hidden");
@@ -220,7 +239,7 @@ class C {
       this.setConnectorHidden(!0);
       return;
     }
-    this.activePulseTween = o.to(e, {
+    this.activePulseTween = a.to(e, {
       scale: 1.18,
       duration: 0.85,
       ease: "sine.inOut",
@@ -244,31 +263,31 @@ class C {
       return;
     }
     this.panel.classList.remove("is-stacked");
-    const h = n.left + n.width / 2 - t.left, l = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
-    if (d <= h + 20) {
+    const o = n.left + n.width / 2 - t.left, c = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
+    if (d <= o + 20) {
       this.setConnectorHidden(!0);
       return;
     }
-    const p = d - h, y = h + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), f = `M ${h} ${l} C ${y} ${l}, ${w} ${u}, ${d} ${u}`;
-    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", f), this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)"), this.setConnectorHidden(!1);
+    const p = d - o, y = o + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), g = `M ${o} ${c} C ${y} ${c}, ${w} ${u}, ${d} ${u}`;
+    this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", g), this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)"), this.setConnectorHidden(!1);
   }
   closePanel(e = !0) {
     var t;
-    this.panel.hidden || (this.activeSystemId = null, this.syncActiveSystemState(), (t = this.connectorRefreshTween) == null || t.kill(), this.connectorRefreshTween = null, o.killTweensOf(this.panel), o.killTweensOf(this.connector), o.to(this.panel, { autoAlpha: 0, x: 20, duration: 0.18, ease: "power1.in" }), o.to(this.connector, {
+    this.panel.hidden || (this.activeSystemId = null, this.syncActiveSystemState(), (t = this.connectorRefreshTween) == null || t.kill(), this.connectorRefreshTween = null, a.killTweensOf(this.panel), a.killTweensOf(this.connector), a.to(this.panel, { autoAlpha: 0, x: 20, duration: 0.18, ease: "power1.in" }), a.to(this.connector, {
       autoAlpha: 0,
       duration: 0.18,
       ease: "power1.in",
       onComplete: () => {
         var s;
-        this.panel.hidden = !0, this.setConnectorHidden(!0), this.layout.classList.remove("is-panel-open"), o.set(this.panel, { clearProps: "opacity,visibility,transform" }), o.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((s = this.lastFocused) == null || s.focus());
+        this.panel.hidden = !0, this.setConnectorHidden(!0), this.layout.classList.remove("is-panel-open"), a.set(this.panel, { clearProps: "opacity,visibility,transform" }), a.set(this.connector, { clearProps: "opacity,visibility,transform" }), e && ((s = this.lastFocused) == null || s.focus());
       }
     }));
   }
 }
 function m() {
   var s;
-  const c = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
-  if (!c || !(e != null && e.textContent) || c.dataset.houseViewerInitialized === "true") return;
+  const l = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
+  if (!l || !(e != null && e.textContent) || l.dataset.houseViewerInitialized === "true") return;
   let t;
   try {
     t = JSON.parse(e.textContent);
@@ -278,7 +297,7 @@ function m() {
   }
   if ((s = t.views) != null && s.length)
     try {
-      new C(c, t), c.dataset.houseViewerInitialized = "true";
+      new A(l, t), l.dataset.houseViewerInitialized = "true";
     } catch (i) {
       console.error("HouseViewer: inicjalizacja nie powiodła się.", i);
     }
