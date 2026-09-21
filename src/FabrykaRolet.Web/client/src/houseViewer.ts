@@ -2,6 +2,8 @@ import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const PANEL_ANIMATION_DURATION = 0.46;
+const PANEL_ANIMATION_EASE = "power2.out";
 
 type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotBounds = {
@@ -391,17 +393,23 @@ export class HouseViewer {
     this.panel.hidden = false;
     this.layout.classList.add("is-panel-open");
 
+    gsap.killTweensOf(this.stage);
     gsap.killTweensOf(this.panel);
     gsap.killTweensOf(this.connector);
     requestAnimationFrame(() => {
       this.updateConnector();
+      gsap.to(this.stage, {
+        scale: this.isDesktopViewport() ? 0.992 : 1,
+        duration: PANEL_ANIMATION_DURATION,
+        ease: PANEL_ANIMATION_EASE,
+      });
       gsap.fromTo(
         this.panel,
-        { autoAlpha: 0, x: 28 },
-        { autoAlpha: 1, x: 0, duration: 0.32, ease: "power2.out" }
+        { autoAlpha: 0, x: this.isDesktopViewport() ? 28 : 0, y: this.isDesktopViewport() ? 0 : 14 },
+        { autoAlpha: 1, x: 0, y: 0, duration: PANEL_ANIMATION_DURATION, ease: PANEL_ANIMATION_EASE }
       );
       if (!this.isConnectorHidden()) {
-        gsap.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22, ease: "power1.out" });
+        gsap.fromTo(this.connector, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "expo.out" });
       }
       this.scheduleConnectorRefresh();
     });
@@ -411,7 +419,7 @@ export class HouseViewer {
 
   private scheduleConnectorRefresh(): void {
     this.connectorRefreshTween?.kill();
-    this.connectorRefreshTween = gsap.to({}, { duration: 0.4, onUpdate: () => this.updateConnector() });
+    this.connectorRefreshTween = gsap.to({}, { duration: 0.5, ease: "power2.out", onUpdate: () => this.updateConnector() });
   }
 
   private resolveImageUrl(url: string): string {
@@ -501,9 +509,10 @@ export class HouseViewer {
     const stageRect = this.stage.getBoundingClientRect();
     const panelRect = this.panel.getBoundingClientRect();
     const markerRect = marker.getBoundingClientRect();
+    const desktopViewport = this.isDesktopViewport();
 
     const panelBelowStage = panelRect.top >= stageRect.bottom - 4;
-    if (panelBelowStage) {
+    if (panelBelowStage || !desktopViewport) {
       this.panel.classList.add("is-stacked");
       this.setConnectorHidden(true);
       return;
@@ -512,24 +521,35 @@ export class HouseViewer {
 
     const startX = markerRect.left + markerRect.width / 2 - layoutRect.left;
     const startY = markerRect.top + markerRect.height / 2 - layoutRect.top;
-    const endX = panelRect.left - layoutRect.left + 10;
+    const endX = panelRect.left - layoutRect.left + 12;
     const markerAlignedY = markerRect.top + markerRect.height / 2 - panelRect.top;
     const endY = panelRect.top - layoutRect.top + Math.max(34, Math.min(markerAlignedY, panelRect.height - 34));
+    const stageRight = stageRect.right - layoutRect.left - 12;
+    const laneTop = 22;
+    const laneBottom = layoutRect.height - 22;
+    const laneY = startY < layoutRect.height * 0.52 ? laneTop : laneBottom;
 
-    if (endX <= startX + 20) {
+    if (endX <= startX + 16 || stageRight <= startX + 8) {
       this.setConnectorHidden(true);
       return;
     }
 
-    const distance = endX - startX;
-    const control1X = startX + Math.max(30, distance * 0.35);
-    const control2X = endX - Math.max(26, distance * 0.26);
-    const path = `M ${startX} ${startY} C ${control1X} ${startY}, ${control2X} ${endY}, ${endX} ${endY}`;
+    const prePanelX = Math.max(stageRight + 8, endX - 12);
+    const path = [
+      `M ${startX} ${startY}`,
+      `Q ${stageRight} ${startY} ${stageRight} ${laneY}`,
+      `L ${prePanelX} ${laneY}`,
+      `Q ${endX} ${laneY} ${endX} ${endY}`,
+    ].join(" ");
 
     this.connector.setAttribute("viewBox", `0 0 ${layoutRect.width} ${layoutRect.height}`);
     this.connectorPath.setAttribute("d", path);
     this.connectorPath.setAttribute("marker-end", `url(#${this.connectorArrowId})`);
     this.setConnectorHidden(false);
+  }
+
+  private isDesktopViewport(): boolean {
+    return window.matchMedia("(min-width: 901px)").matches;
   }
 
   private closePanel(restoreFocus = true): void {
@@ -540,12 +560,15 @@ export class HouseViewer {
     this.connectorRefreshTween?.kill();
     this.connectorRefreshTween = null;
 
+    gsap.killTweensOf(this.stage);
     gsap.killTweensOf(this.panel);
     gsap.killTweensOf(this.connector);
-    gsap.to(this.panel, { autoAlpha: 0, x: 20, duration: 0.18, ease: "power1.in" });
-    gsap.to(this.connector, {
+    gsap.to(this.stage, { scale: 1, duration: 0.42, ease: PANEL_ANIMATION_EASE });
+    gsap.to(this.panel, {
       autoAlpha: 0,
-      duration: 0.18,
+      x: this.isDesktopViewport() ? 20 : 0,
+      y: this.isDesktopViewport() ? 0 : 8,
+      duration: 0.24,
       ease: "power1.in",
       onComplete: () => {
         this.panel.hidden = true;
@@ -557,6 +580,11 @@ export class HouseViewer {
           this.lastFocused?.focus();
         }
       },
+    });
+    gsap.to(this.connector, {
+      autoAlpha: 0,
+      duration: 0.2,
+      ease: "power1.in",
     });
   }
 }
