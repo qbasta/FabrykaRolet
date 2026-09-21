@@ -5,6 +5,7 @@ function init(): void {
   const root = document.getElementById("house-viewer");
   const dataScript = document.getElementById("house-viewer-data");
   if (!root || !dataScript?.textContent) return;
+  if (root.dataset.houseViewerInitialized === "true") return;
 
   let data: HouseViewerData;
   try {
@@ -16,6 +17,7 @@ function init(): void {
 
   if (!data.views?.length) return;
 
+  root.dataset.houseViewerInitialized = "true";
   new HouseViewer(root, data);
 }
 

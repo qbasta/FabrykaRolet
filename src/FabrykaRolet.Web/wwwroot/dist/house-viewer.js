@@ -1,6 +1,6 @@
 var g = Object.defineProperty;
-var S = (c, e, t) => e in c ? g(c, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : c[e] = t;
-var r = (c, e, t) => S(c, typeof e != "symbol" ? e + "" : e, t);
+var S = (l, e, t) => e in l ? g(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
+var r = (l, e, t) => S(l, typeof e != "symbol" ? e + "" : e, t);
 import { g as a } from "./index-9nJrthwM.js";
 const A = "http://www.w3.org/2000/svg";
 class C {
@@ -154,7 +154,7 @@ class C {
     return s.addEventListener("mouseenter", i), s.addEventListener("mouseleave", n), s.addEventListener("focus", i), s.addEventListener("blur", n), s.addEventListener("click", () => this.openPanel(e, s, e.systemId)), s;
   }
   getBounds(e) {
-    const t = e.polygon.map(([l]) => l), s = e.polygon.map(([, l]) => l), i = Math.min(...t), n = Math.min(...s), o = Math.max(...t) - i, h = Math.max(...s) - n;
+    const t = e.polygon.map(([c]) => c), s = e.polygon.map(([, c]) => c), i = Math.min(...t), n = Math.min(...s), o = Math.max(...t) - i, h = Math.max(...s) - n;
     return {
       left: i,
       top: n,
@@ -204,7 +204,7 @@ class C {
     var t;
     if (this.systemButtons.forEach((s) => {
       const i = s.dataset.systemId === this.activeSystemId;
-      s.setAttribute("aria-pressed", i ? "true" : "false");
+      s.setAttribute("aria-pressed", i ? "true" : "false"), s.classList.toggle("is-active", i);
     }), this.overlay.querySelectorAll(".house-viewer__hotspot").forEach((s) => {
       s.classList.toggle("is-active", s.dataset.systemId === this.activeSystemId);
     }), this.hitAreas.querySelectorAll(".house-viewer__marker").forEach((s) => {
@@ -228,25 +228,26 @@ class C {
   }
   updateConnector() {
     if (this.panel.hidden || !this.activeSystemId) {
-      this.setConnectorHidden(!0);
+      this.panel.classList.remove("is-stacked"), this.setConnectorHidden(!0);
       return;
     }
     const e = this.markerFor(this.activeSystemId);
     if (!e) {
-      this.setConnectorHidden(!0);
+      this.panel.classList.remove("is-stacked"), this.setConnectorHidden(!0);
       return;
     }
     const t = this.layout.getBoundingClientRect(), s = this.stage.getBoundingClientRect(), i = this.panel.getBoundingClientRect(), n = e.getBoundingClientRect();
     if (i.top >= s.bottom - 4) {
-      this.setConnectorHidden(!0);
+      this.panel.classList.add("is-stacked"), this.setConnectorHidden(!0);
       return;
     }
-    const h = n.left + n.width / 2 - t.left, l = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
+    this.panel.classList.remove("is-stacked");
+    const h = n.left + n.width / 2 - t.left, c = n.top + n.height / 2 - t.top, d = i.left - t.left + 10, v = n.top + n.height / 2 - i.top, u = i.top - t.top + Math.max(34, Math.min(v, i.height - 34));
     if (d <= h + 20) {
       this.setConnectorHidden(!0);
       return;
     }
-    const p = d - h, y = h + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), f = `M ${h} ${l} C ${y} ${l}, ${w} ${u}, ${d} ${u}`;
+    const p = d - h, y = h + Math.max(30, p * 0.35), w = d - Math.max(26, p * 0.26), f = `M ${h} ${c} C ${y} ${c}, ${w} ${u}, ${d} ${u}`;
     this.connector.setAttribute("viewBox", `0 0 ${t.width} ${t.height}`), this.connectorPath.setAttribute("d", f), this.connectorPath.setAttribute("marker-end", "url(#house-viewer-connector-arrow)"), this.setConnectorHidden(!1);
   }
   closePanel(e = !0) {
@@ -264,8 +265,8 @@ class C {
 }
 function m() {
   var s;
-  const c = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
-  if (!c || !(e != null && e.textContent)) return;
+  const l = document.getElementById("house-viewer"), e = document.getElementById("house-viewer-data");
+  if (!l || !(e != null && e.textContent) || l.dataset.houseViewerInitialized === "true") return;
   let t;
   try {
     t = JSON.parse(e.textContent);
@@ -273,6 +274,6 @@ function m() {
     console.error("HouseViewer: nie udało się sparsować danych widoku.");
     return;
   }
-  (s = t.views) != null && s.length && new C(c, t);
+  (s = t.views) != null && s.length && (l.dataset.houseViewerInitialized = "true", new C(l, t));
 }
 document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m) : m();

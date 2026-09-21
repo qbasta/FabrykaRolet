@@ -402,6 +402,7 @@ export class HouseViewer {
     this.systemButtons.forEach((button) => {
       const active = button.dataset.systemId === this.activeSystemId;
       button.setAttribute("aria-pressed", active ? "true" : "false");
+      button.classList.toggle("is-active", active);
     });
 
     this.overlay.querySelectorAll<SVGPolygonElement>(".house-viewer__hotspot").forEach((polygon) => {
@@ -437,12 +438,14 @@ export class HouseViewer {
 
   private updateConnector(): void {
     if (this.panel.hidden || !this.activeSystemId) {
+      this.panel.classList.remove("is-stacked");
       this.setConnectorHidden(true);
       return;
     }
 
     const marker = this.markerFor(this.activeSystemId);
     if (!marker) {
+      this.panel.classList.remove("is-stacked");
       this.setConnectorHidden(true);
       return;
     }
@@ -454,9 +457,11 @@ export class HouseViewer {
 
     const panelBelowStage = panelRect.top >= stageRect.bottom - 4;
     if (panelBelowStage) {
+      this.panel.classList.add("is-stacked");
       this.setConnectorHidden(true);
       return;
     }
+    this.panel.classList.remove("is-stacked");
 
     const startX = markerRect.left + markerRect.width / 2 - layoutRect.left;
     const startY = markerRect.top + markerRect.height / 2 - layoutRect.top;

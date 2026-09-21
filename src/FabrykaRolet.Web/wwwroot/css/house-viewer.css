@@ -147,6 +147,10 @@
   display: none;
 }
 
+.house-viewer__panel.is-stacked {
+  border-top: 3px solid var(--color-accent);
+}
+
 .house-viewer__panel-close {
   position: absolute;
   top: var(--space-2);
@@ -234,6 +238,12 @@
   border-color: var(--color-accent);
   color: var(--color-accent);
   background: var(--color-accent-soft);
+}
+
+.system-button.is-active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 900px) {
