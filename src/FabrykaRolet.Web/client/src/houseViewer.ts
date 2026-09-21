@@ -1,36 +1,21 @@
 import gsap from "gsap";
 import type { HotspotData, HouseViewData, HouseViewerData, SystemSummary } from "./types";
 
-const SVG_NS = "http://www.w3.org/2000/svg";
 const PANEL_ANIMATION_DURATION = 0.32;
 const PANEL_FADE_OUT_DURATION = 0.2;
 const VIEW_FADE_DURATION = 0.18;
 const LAYOUT_TRANSITION_MS = 420;
 const DESKTOP_MEDIA_QUERY = "(min-width: 901px)";
-
-const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
+const CONNECTOR_MARGIN = 10;
 
 type PanelContent = { name: string; description: string; advantages: string[] };
-type HotspotBounds = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  centerX: number;
-  centerY: number;
-};
-
-type HotspotLookup = {
-  viewIndex: number;
-  hotspot: HotspotData;
-};
+type HotspotLookup = { viewIndex: number; hotspot: HotspotData };
 
 export class HouseViewer {
   private readonly layout: HTMLElement;
   private readonly stage: HTMLElement;
   private readonly img: HTMLImageElement;
-  private readonly overlay: SVGSVGElement;
-  private readonly hitAreas: HTMLElement;
+  private readonly markersLayer: HTMLElement;
   private readonly connector: SVGSVGElement;
   private readonly connectorPath: SVGPathElement;
   private readonly panel: HTMLElement;
@@ -67,8 +52,7 @@ export class HouseViewer {
     this.layout = this.require(".house-viewer__layout");
     this.stage = this.require(".house-viewer__stage");
     this.img = this.require(".house-viewer__image");
-    this.overlay = this.require(".house-viewer__overlay");
-    this.hitAreas = this.require(".house-viewer__hit-areas");
+    this.markersLayer = this.require(".house-viewer__markers");
     this.connector = this.require(".house-viewer__connector");
     this.connectorPath = this.require(".house-viewer__connector-path");
     this.panel = this.require("#house-viewer-panel");
@@ -97,7 +81,6 @@ export class HouseViewer {
     if (!el) {
       throw new Error(`HouseViewer: brak elementu "${selector}" w kontenerze.`);
     }
-
     return el;
   }
 
@@ -141,15 +124,11 @@ export class HouseViewer {
     this.root.addEventListener(
       "keydown",
       (event) => {
-        if (this.shouldIgnoreViewNavigationKey(event)) {
-          return;
-        }
-
+        if (this.shouldIgnoreViewNavigationKey(event)) return;
         if (event.key === "ArrowLeft") {
           event.preventDefault();
           this.step(-1);
         }
-
         if (event.key === "ArrowRight") {
           event.preventDefault();
           this.step(1);
@@ -160,19 +139,10 @@ export class HouseViewer {
   }
 
   private shouldIgnoreViewNavigationKey(event: KeyboardEvent): boolean {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
-      return true;
-    }
-
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return true;
     const target = event.target as HTMLElement | null;
-    if (!target) {
-      return false;
-    }
-
-    if (this.panel.contains(target)) {
-      return true;
-    }
-
+    if (!target) return false;
+    if (this.panel.contains(target)) return true;
     return !!target.closest("button, input, select, textarea, a, summary");
   }
 
@@ -183,9 +153,7 @@ export class HouseViewer {
     document.addEventListener(
       "keydown",
       (event) => {
-        if (event.key === "Escape" && !this.panel.hidden) {
-          this.closePanel();
-        }
+        if (event.key === "Escape" && !this.panel.hidden) this.closePanel();
       },
       listenerOptions
     );
@@ -193,19 +161,10 @@ export class HouseViewer {
     document.addEventListener(
       "click",
       (event) => {
-        if (this.panel.hidden) {
-          return;
-        }
-
+        if (this.panel.hidden) return;
         const target = event.target as HTMLElement | null;
-        if (!target || this.panel.contains(target)) {
-          return;
-        }
-
-        if (target.closest(".house-viewer__marker, .house-viewer__hit-area, .system-button")) {
-          return;
-        }
-
+        if (!target || this.panel.contains(target)) return;
+        if (target.closest(".house-viewer__marker, .system-button")) return;
         this.closePanel();
       },
       listenerOptions
@@ -216,10 +175,7 @@ export class HouseViewer {
     const listenerOptions = { signal: this.listenerController.signal };
     this.systemButtons.forEach((button) => {
       const systemId = button.dataset.systemId;
-      if (!systemId) {
-        return;
-      }
-
+      if (!systemId) return;
       button.addEventListener("click", () => this.activateSystem(systemId, button), listenerOptions);
     });
   }
@@ -257,16 +213,10 @@ export class HouseViewer {
   }
 
   private observeDisconnect(): void {
-    if (!document.body) {
-      return;
-    }
-
+    if (!document.body) return;
     this.disconnectObserver = new MutationObserver(() => {
-      if (!this.root.isConnected) {
-        this.destroy();
-      }
+      if (!this.root.isConnected) this.destroy();
     });
-
     this.disconnectObserver.observe(document.body, { childList: true, subtree: true });
   }
 
@@ -284,24 +234,15 @@ export class HouseViewer {
 
   private collectSystemButtons(): HTMLButtonElement[] {
     const selector = this.root.dataset.systemButtons;
-    if (!selector) {
-      return [];
-    }
-
+    if (!selector) return [];
     const container = document.querySelector<HTMLElement>(selector);
-    if (!container) {
-      return [];
-    }
-
+    if (!container) return [];
     return Array.from(container.querySelectorAll<HTMLButtonElement>(".system-button[data-system-id]"));
   }
 
   private findHotspot(systemId: string): HotspotLookup | null {
     const entries = this.hotspotIndex.get(systemId);
-    if (!entries?.length) {
-      return null;
-    }
-
+    if (!entries?.length) return null;
     return entries.find((entry) => entry.viewIndex === this.currentIndex) ?? entries[0];
   }
 
@@ -313,9 +254,7 @@ export class HouseViewer {
     const found = this.findHotspot(systemId);
     if (!found) {
       const summary = this.findSystemSummary(systemId);
-      if (summary) {
-        this.openPanel(summary, trigger, null);
-      }
+      if (summary) this.openPanel(summary, trigger, null);
       return;
     }
 
@@ -333,11 +272,9 @@ export class HouseViewer {
   }
 
   private markerFor(systemId: string): HTMLButtonElement | null {
-    return this.hitAreas.querySelector<HTMLButtonElement>(`.house-viewer__marker[data-system-id="${CSS.escape(systemId)}"]`);
-  }
-
-  private polygonFor(systemId: string): SVGPolygonElement | null {
-    return this.overlay.querySelector<SVGPolygonElement>(`polygon[data-system-id="${CSS.escape(systemId)}"]`);
+    return this.markersLayer.querySelector<HTMLButtonElement>(
+      `.house-viewer__marker[data-system-id="${CSS.escape(systemId)}"]`
+    );
   }
 
   private step(delta: number): void {
@@ -348,19 +285,20 @@ export class HouseViewer {
 
   private renderView(index: number, onDone?: () => void): void {
     const isFirstRender = !this.img.src;
-    const previousNodes = [this.img, this.overlay, this.hitAreas];
+    const fadeNodes = [this.img, this.markersLayer];
+
     const applyView = () => {
       this.currentIndex = index;
       const view = this.data.views[index];
       this.img.src = this.resolveImageUrl(view.image);
       this.img.alt = view.title;
-      this.buildHotspots(view);
+      this.buildMarkers(view);
       this.syncViewButtons();
       this.syncVisibleSystems(view);
       this.syncLayoutMetrics();
       this.viewTween?.kill();
       this.viewTween = gsap.fromTo(
-        previousNodes,
+        fadeNodes,
         { opacity: 0 },
         {
           opacity: 1,
@@ -375,18 +313,16 @@ export class HouseViewer {
     };
 
     this.viewTween?.kill();
-    gsap.killTweensOf(previousNodes);
+    gsap.killTweensOf(fadeNodes);
 
-    if (!isFirstRender) {
-      this.closePanel(false, false);
-    }
+    if (!isFirstRender) this.closePanel(false, false);
 
     if (isFirstRender) {
       applyView();
       return;
     }
 
-    this.viewTween = gsap.to(previousNodes, {
+    this.viewTween = gsap.to(fadeNodes, {
       opacity: 0,
       duration: VIEW_FADE_DURATION,
       ease: "power1.in",
@@ -395,10 +331,7 @@ export class HouseViewer {
   }
 
   private syncViewButtons(): void {
-    if (!this.viewsNav) {
-      return;
-    }
-
+    if (!this.viewsNav) return;
     const buttons = Array.from(this.viewsNav.querySelectorAll<HTMLButtonElement>(".house-viewer__view-btn"));
     buttons.forEach((button, index) => {
       const active = index === this.currentIndex;
@@ -413,126 +346,63 @@ export class HouseViewer {
     this.systemButtons.forEach((button) => {
       const visible = visibleIds.has(button.dataset.systemId ?? "");
       button.classList.toggle("is-visible-in-view", visible);
-      if (visible) {
-        button.setAttribute("data-visible-in-view", "true");
-      } else {
-        button.removeAttribute("data-visible-in-view");
-      }
+      if (visible) button.setAttribute("data-visible-in-view", "true");
+      else button.removeAttribute("data-visible-in-view");
     });
 
-    if (!this.availability) {
-      return;
-    }
-
+    if (!this.availability) return;
     const visibleNames = view.hotspots.map((hotspot) => hotspot.name);
     this.availability.textContent = visibleNames.length > 0
       ? `Widoczne na tym widoku: ${visibleNames.join(", ")}`
       : "Widoczne na tym widoku: brak aktywnych systemów.";
   }
 
-  private buildHotspots(view: HouseViewData): void {
-    this.overlay.replaceChildren();
-    this.hitAreas.replaceChildren();
-
+  /**
+   * Jeden element na hotspot: widoczna kropka, która JEST jednocześnie celem kliknięcia
+   * (poprzednio: prawie niewidoczny wielokąt SVG + osobny niewidoczny przycisk-hitbox +
+   * kropka, wszystkie trzy nasłuchujące tych samych zdarzeń - bez uzasadnienia, odkąd
+   * mechanizm przeszedł z obszarów na punkty).
+   */
+  private buildMarkers(view: HouseViewData): void {
+    this.markersLayer.replaceChildren();
     view.hotspots.forEach((hotspot, index) => {
-      const bounds = this.getBounds(hotspot);
-      const polygon = this.createPolygon(hotspot);
-      const hitArea = this.createHitArea(hotspot, bounds);
-      const marker = this.createMarker(hotspot, bounds);
-
-      this.overlay.appendChild(polygon);
-      this.hitAreas.append(hitArea, marker);
-
-      gsap.fromTo(polygon, { opacity: 0 }, { opacity: 1, duration: 0.16, delay: 0.03 * index, ease: "power1.out" });
-      gsap.fromTo(marker, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.2, delay: 0.03 * index, ease: "back.out(1.5)" });
+      const marker = this.createMarker(hotspot);
+      this.markersLayer.appendChild(marker);
+      gsap.fromTo(
+        marker,
+        { autoAlpha: 0, scale: 0.8 },
+        { autoAlpha: 1, scale: 1, duration: 0.2, delay: 0.03 * index, ease: "back.out(1.5)" }
+      );
     });
-
     this.syncActiveSystemState();
   }
 
-  private createPolygon(hotspot: HotspotData): SVGPolygonElement {
-    const polygon = document.createElementNS(SVG_NS, "polygon");
-    const points = hotspot.polygon.map(([x, y]) => `${x},${y}`).join(" ");
-    polygon.setAttribute("points", points);
-    polygon.setAttribute("class", "house-viewer__hotspot");
-    polygon.dataset.systemId = hotspot.systemId;
-    return polygon;
-  }
-
-  private createHitArea(hotspot: HotspotData, bounds: HotspotBounds): HTMLButtonElement {
-    const listenerOptions = { signal: this.listenerController.signal };
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "house-viewer__hit-area";
-    button.dataset.systemId = hotspot.systemId;
-    button.style.left = `${bounds.left}%`;
-    button.style.top = `${bounds.top}%`;
-    button.style.width = `${bounds.width}%`;
-    button.style.height = `${bounds.height}%`;
-    button.setAttribute("aria-label", `${hotspot.name} – pokaż szczegóły`);
-
-    const highlight = () => this.setHoveredState(hotspot.systemId, true);
-    const unhighlight = () => this.setHoveredState(hotspot.systemId, false);
-
-    button.addEventListener("mouseenter", highlight, listenerOptions);
-    button.addEventListener("mouseleave", unhighlight, listenerOptions);
-    button.addEventListener("focus", highlight, listenerOptions);
-    button.addEventListener("blur", unhighlight, listenerOptions);
-    button.addEventListener(
-      "click",
-      () => {
-        const marker = this.markerFor(hotspot.systemId);
-        this.openPanel(hotspot, marker ?? button, hotspot.systemId);
-      },
-      listenerOptions
-    );
-
-    return button;
-  }
-
-  private createMarker(hotspot: HotspotData, bounds: HotspotBounds): HTMLButtonElement {
+  private createMarker(hotspot: HotspotData): HTMLButtonElement {
     const listenerOptions = { signal: this.listenerController.signal };
     const button = document.createElement("button");
     button.type = "button";
     button.className = "house-viewer__marker";
     button.dataset.systemId = hotspot.systemId;
-    button.style.left = `${bounds.centerX}%`;
-    button.style.top = `${bounds.centerY}%`;
+    button.style.left = `${hotspot.x}%`;
+    button.style.top = `${hotspot.y}%`;
     button.setAttribute("aria-label", `${hotspot.name} – pokaż szczegóły`);
 
-    const highlight = () => this.setHoveredState(hotspot.systemId, true);
-    const unhighlight = () => this.setHoveredState(hotspot.systemId, false);
+    const dot = document.createElement("span");
+    dot.className = "house-viewer__marker-dot";
+    dot.setAttribute("aria-hidden", "true");
+    button.appendChild(dot);
 
-    button.addEventListener("mouseenter", highlight, listenerOptions);
-    button.addEventListener("mouseleave", unhighlight, listenerOptions);
-    button.addEventListener("focus", highlight, listenerOptions);
-    button.addEventListener("blur", unhighlight, listenerOptions);
+    button.addEventListener("mouseenter", () => this.setHoveredState(hotspot.systemId, true), listenerOptions);
+    button.addEventListener("mouseleave", () => this.setHoveredState(hotspot.systemId, false), listenerOptions);
+    button.addEventListener("focus", () => this.setHoveredState(hotspot.systemId, true), listenerOptions);
+    button.addEventListener("blur", () => this.setHoveredState(hotspot.systemId, false), listenerOptions);
     button.addEventListener("click", () => this.openPanel(hotspot, button, hotspot.systemId), listenerOptions);
 
     return button;
   }
 
-  private getBounds(hotspot: HotspotData): HotspotBounds {
-    const xs = hotspot.polygon.map(([x]) => x);
-    const ys = hotspot.polygon.map(([, y]) => y);
-    const left = Math.min(...xs);
-    const top = Math.min(...ys);
-    const width = Math.max(...xs) - left;
-    const height = Math.max(...ys) - top;
-
-    return {
-      left,
-      top,
-      width,
-      height,
-      centerX: left + width / 2,
-      centerY: top + height / 2,
-    };
-  }
-
   private setHoveredState(systemId: string, hovered: boolean): void {
     this.markerFor(systemId)?.classList.toggle("is-hovered", hovered);
-    this.polygonFor(systemId)?.classList.toggle("is-hovered", hovered);
   }
 
   private openPanel(content: PanelContent, trigger: HTMLElement, systemId: string | null): void {
@@ -589,19 +459,13 @@ export class HouseViewer {
 
   private resolveImageUrl(url: string): string {
     const safeUrl = this.allowedImagePaths.get(url);
-    if (!safeUrl) {
-      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
-    }
-
+    if (!safeUrl) throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
     return safeUrl;
   }
 
   private normalizeImageUrl(url: string): string {
     const match = /^\/images\/[a-z0-9/_-]+\.(png|jpe?g|webp)$/i.exec(url);
-    if (!match) {
-      throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
-    }
-
+    if (!match) throw new Error(`HouseViewer: nieobsługiwany adres obrazu "${url}".`);
     return match[0];
   }
 
@@ -610,13 +474,9 @@ export class HouseViewer {
   }
 
   private announcePanelOpen(name: string): void {
-    if (!this.panelStatus) {
-      return;
-    }
-
+    if (!this.panelStatus) return;
     this.panelStatus.textContent = `${name} – szczegóły otwarte.`;
   }
-
 
   private killOpenCloseTweens(): void {
     this.panelTween?.kill();
@@ -637,7 +497,6 @@ export class HouseViewer {
         this.connectorFrame = window.requestAnimationFrame(tick);
         return;
       }
-
       this.connectorFrame = null;
     };
 
@@ -658,34 +517,30 @@ export class HouseViewer {
       button.classList.toggle("is-active", active);
     });
 
-    this.overlay.querySelectorAll<SVGPolygonElement>(".house-viewer__hotspot").forEach((polygon) => {
-      polygon.classList.toggle("is-active", polygon.dataset.systemId === this.activeSystemId);
-    });
-
-    this.hitAreas.querySelectorAll<HTMLButtonElement>(".house-viewer__marker").forEach((marker) => {
+    this.markersLayer.querySelectorAll<HTMLButtonElement>(".house-viewer__marker").forEach((marker) => {
       marker.classList.toggle("is-active", marker.dataset.systemId === this.activeSystemId);
     });
 
-    if (!this.activeSystemId) {
-      this.setConnectorHidden(true);
-      return;
-    }
-
-    if (!this.markerFor(this.activeSystemId)) {
+    if (!this.activeSystemId || !this.markerFor(this.activeSystemId)) {
       this.setConnectorHidden(true);
     }
   }
 
+  /**
+   * Rysuje linię łączącą marker z panelem. Celowo BEZ nadmiernie zachowawczej logiki
+   * (wykrywanie kolizji z innymi markerami, progi minimalnej odległości itd.) - jeśli
+   * panel jest otwarty na desktopie i marker istnieje, strzałka się pokazuje. Jedyne
+   * warunki ukrycia: układ mobilny (panel pod obrazem, nie obok) albo panel/marker
+   * faktycznie nie istnieją.
+   */
   private updateConnector(): void {
     if (this.panel.hidden || !this.activeSystemId) {
-      this.panel.classList.remove("is-stacked");
       this.setConnectorHidden(true);
       return;
     }
 
     const marker = this.markerFor(this.activeSystemId);
     if (!marker) {
-      this.panel.classList.remove("is-stacked");
       this.setConnectorHidden(true);
       return;
     }
@@ -701,53 +556,20 @@ export class HouseViewer {
       this.setConnectorHidden(true);
       return;
     }
-
     this.panel.classList.remove("is-stacked");
 
     const startX = markerRect.left + markerRect.width / 2 - layoutRect.left;
     const startY = markerRect.top + markerRect.height / 2 - layoutRect.top;
     const stageRight = stageRect.right - layoutRect.left;
     const panelLeft = panelRect.left - layoutRect.left;
-    const gapWidth = panelRect.left - stageRect.right;
-    const distanceToRight = stageRect.right - (markerRect.left + markerRect.width / 2);
-    const panelTop = panelRect.top - layoutRect.top;
-    const panelBottom = panelRect.bottom - layoutRect.top;
-    const safePanelTop = panelTop + 28;
-    const safePanelBottom = panelBottom - 28;
 
-    if (gapWidth < 24 || panelLeft <= stageRight + 12) {
+    if (panelLeft <= stageRight + CONNECTOR_MARGIN) {
       this.setConnectorHidden(true);
       return;
     }
 
-    if (distanceToRight > Math.min(stageRect.width * 0.2, 150)) {
-      this.setConnectorHidden(true);
-      return;
-    }
-
-    if (startY < safePanelTop || startY > safePanelBottom) {
-      this.setConnectorHidden(true);
-      return;
-    }
-
-    const markerCollision = Array.from(this.hitAreas.querySelectorAll<HTMLButtonElement>(".house-viewer__marker"))
-      .filter((candidate) => candidate !== marker)
-      .some((candidate) => {
-        const candidateRect = candidate.getBoundingClientRect();
-        const candidateCenterX = candidateRect.left + candidateRect.width / 2;
-        const candidateCenterY = candidateRect.top + candidateRect.height / 2;
-        const sameLane = Math.abs(candidateCenterY - (markerRect.top + markerRect.height / 2)) < Math.max(candidateRect.height, markerRect.height) * 1.2;
-        return sameLane && candidateCenterX > markerRect.right && candidateCenterX < stageRect.right + 8;
-      });
-
-    if (markerCollision) {
-      this.setConnectorHidden(true);
-      return;
-    }
-
-    const startLaneX = clamp(stageRight, stageRight, panelLeft - 12);
-    const endX = panelLeft;
-    const path = `M ${startX} ${startY} L ${startLaneX} ${startY} L ${endX} ${startY}`;
+    const midX = stageRight + (panelLeft - stageRight) / 2;
+    const path = `M ${startX} ${startY} L ${midX} ${startY} L ${panelLeft} ${startY}`;
 
     this.connector.setAttribute("viewBox", `0 0 ${layoutRect.width} ${layoutRect.height}`);
     this.connectorPath.setAttribute("d", path);
@@ -763,24 +585,17 @@ export class HouseViewer {
       this.root.style.removeProperty("--house-viewer-stage-height");
       return;
     }
-
     const stageHeight = `${Math.round(this.stage.getBoundingClientRect().height)}px`;
     this.root.style.setProperty("--house-viewer-stage-height", stageHeight);
   }
 
   private setConnectorHidden(hidden: boolean): void {
-    if (hidden) {
-      this.connector.setAttribute("hidden", "");
-      return;
-    }
-
-    this.connector.removeAttribute("hidden");
+    if (hidden) this.connector.setAttribute("hidden", "");
+    else this.connector.removeAttribute("hidden");
   }
 
   private closePanel(restoreFocus = true, animate = true): void {
-    if (this.panel.hidden || this.isClosingPanel) {
-      return;
-    }
+    if (this.panel.hidden || this.isClosingPanel) return;
 
     this.cancelConnectorRefresh();
     this.killOpenCloseTweens();
@@ -826,9 +641,7 @@ export class HouseViewer {
     this.setConnectorHidden(true);
     gsap.set(this.panel, { clearProps: "opacity,visibility,transform" });
     gsap.set(this.connector, { clearProps: "opacity,visibility,transform" });
-    if (restoreFocus) {
-      this.lastFocused?.focus();
-    }
+    if (restoreFocus) this.lastFocused?.focus();
     this.syncLayoutMetrics();
   }
 }

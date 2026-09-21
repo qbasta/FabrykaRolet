@@ -4,8 +4,11 @@ using FabrykaRolet.Domain.Repositories;
 namespace FabrykaRolet.Infrastructure.Repositories;
 
 /// <summary>
-/// Widoki i hotspoty. Współrzędne (w procentach) zweryfikowane wizualnie przez nałożenie
-/// na rzeczywiste rendery - patrz konwersacja z 2026-09-21.
+/// Widoki i hotspoty. Punkty (w procentach) zweryfikowane wizualnie przez nałożenie
+/// na rzeczywiste rendery - patrz historia konwersacji z 2026-09-21/22. Współrzędne
+/// screeny-fasadowe (taras) i moskitiery-zewnetrzne (tyl) poprawione po zgłoszeniu
+/// błędnego umiejscowienia - poprzednie wartości lądowały obok właściwych produktów,
+/// nie na nich.
 ///
 /// Sekcja Interior celowo zwraca pustą listę - widoki wnętrz jeszcze nie istnieją.
 /// </summary>
@@ -23,22 +26,8 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
-                new()
-                {
-                    WindowSystemId = "rolety-antywlamaniowe",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(57, 44), new(65, 44), new(65, 67), new(57, 67),
-                    },
-                },
-                new()
-                {
-                    WindowSystemId = "bramy-garazowe",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(10, 47), new(32, 47), new(32, 68), new(10, 68),
-                    },
-                },
+                new() { WindowSystemId = "rolety-antywlamaniowe", Position = new HotspotPoint(61, 55.5) },
+                new() { WindowSystemId = "bramy-garazowe", Position = new HotspotPoint(21, 57.5) },
             },
         },
         new()
@@ -51,33 +40,10 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
-                new()
-                {
-                    WindowSystemId = "markizy",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(30, 27), new(77, 27), new(77, 38), new(30, 38),
-                    },
-                },
-                new()
-                {
-                    WindowSystemId = "zaluzje-fasadowe",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(30, 40), new(78, 40), new(78, 63), new(30, 63),
-                    },
-                },
-                new()
-                {
-                    // Prawe skrzydło przeszklenia tarasowego (obok żaluzji fasadowych),
-                    // gdzie montowany jest screen fasadowy - węższy, wyraźnie oddzielny
-                    // panel od głównego przeszklenia z żaluzjami.
-                    WindowSystemId = "screeny-fasadowe",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(78, 41), new(87, 41), new(87, 63), new(78, 63),
-                    },
-                },
+                new() { WindowSystemId = "markizy", Position = new HotspotPoint(53.5, 32.5) },
+                new() { WindowSystemId = "zaluzje-fasadowe", Position = new HotspotPoint(54, 51.5) },
+                // Poprawione: było (82.5, 52) - lądowało na gołej ścianie za panelem.
+                new() { WindowSystemId = "screeny-fasadowe", Position = new HotspotPoint(71, 54) },
             },
         },
         new()
@@ -90,24 +56,9 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
-                new()
-                {
-                    WindowSystemId = "rolety-zewnetrzne",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(59, 46), new(65, 46), new(65, 64), new(59, 64),
-                    },
-                },
-                new()
-                {
-                    // Przeszklenie tarasowe po prawej stronie elewacji tylnej,
-                    // gdzie widoczna jest zwijana moskitiera przy drzwiach balkonowych.
-                    WindowSystemId = "moskitiery-zewnetrzne",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(67, 47), new(73, 47), new(73, 68), new(67, 68),
-                    },
-                },
+                new() { WindowSystemId = "rolety-zewnetrzne", Position = new HotspotPoint(62, 55) },
+                // Poprawione: było (70, 57.5) - lądowało tuż obok ramy, nie na siatce.
+                new() { WindowSystemId = "moskitiery-zewnetrzne", Position = new HotspotPoint(74.5, 54) },
             },
         },
         new()
@@ -120,22 +71,10 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
             ImageHeight = 768,
             Hotspots = new List<Hotspot>
             {
-                new()
-                {
-                    WindowSystemId = "bramy-garazowe",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(30, 35), new(56, 35), new(56, 70), new(30, 70),
-                    },
-                },
-                new()
-                {
-                    WindowSystemId = "rolety-zewnetrzne",
-                    Polygon = new List<HotspotPoint>
-                    {
-                        new(63, 43), new(71, 43), new(71, 69), new(63, 69),
-                    },
-                },
+                new() { WindowSystemId = "bramy-garazowe", Position = new HotspotPoint(43, 52.5) },
+                // Poprawione: było (67, 56) - lądowało na drzwiach wejściowych, nie na
+                // sąsiednim oknie z roletą.
+                new() { WindowSystemId = "rolety-zewnetrzne", Position = new HotspotPoint(63, 50) },
             },
         },
     };
