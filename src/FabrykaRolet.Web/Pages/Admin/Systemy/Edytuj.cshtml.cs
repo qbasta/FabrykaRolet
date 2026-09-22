@@ -60,7 +60,7 @@ public sealed class EdytujModel(AppDbContext dbContext) : PageModel
             Mounting = entity.Mounting,
             Control = entity.Control,
             MaxDimensions = entity.MaxDimensions,
-            IsVisible = entity.IsVisible && !entity.IsArchived,
+            IsVisible = entity.IsVisible,
             IsArchived = entity.IsArchived,
             SortOrder = entity.SortOrder,
         };

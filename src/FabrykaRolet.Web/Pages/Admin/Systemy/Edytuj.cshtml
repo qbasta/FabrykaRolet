@@ -143,6 +143,10 @@
                     archiveToggle.checked = false;
                 }
 
+                if (!source && archiveToggle.checked && visibleToggle.checked) {
+                    visibleToggle.checked = false;
+                }
+
                 if (archiveToggle.checked) {
                     stateHelp.textContent = "Stan po zapisie: system trafi do archiwum i nie będzie widoczny na stronie publicznej.";
                     return;
