@@ -198,28 +198,35 @@ public sealed class ApplicationDbInitializer(
 
         if (user is null)
         {
-            if (await userManager.Users.AnyAsync(cancellationToken))
+            var existingUsers = await userManager.Users.Take(2).ToListAsync(cancellationToken);
+            if (existingUsers.Count == 1)
+            {
+                user = existingUsers[0];
+            }
+            else if (existingUsers.Count > 1)
             {
                 logger.LogInformation(
-                    "Istnieje już konto administratora, więc pominięto seed użytkownika {ConfiguredUserName}.",
+                    "Istnieje już wiele kont administratora, więc pominięto seed użytkownika {ConfiguredUserName}.",
                     options.UserName);
                 return;
             }
-
-            user = new AdminUser
+            else
             {
-                UserName = options.UserName,
-                Email = options.Email,
-                EmailConfirmed = true,
-            };
+                user = new AdminUser
+                {
+                    UserName = options.UserName,
+                    Email = options.Email,
+                    EmailConfirmed = true,
+                };
 
-            var createResult = await userManager.CreateAsync(user, options.Password);
-            if (!createResult.Succeeded)
-            {
-                throw new InvalidOperationException($"Nie udało się utworzyć administratora: {string.Join(", ", createResult.Errors.Select(x => x.Description))}");
+                var createResult = await userManager.CreateAsync(user, options.Password);
+                if (!createResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Nie udało się utworzyć administratora: {string.Join(", ", createResult.Errors.Select(x => x.Description))}");
+                }
+
+                return;
             }
-
-            return;
         }
 
         var shouldUpdate = false;

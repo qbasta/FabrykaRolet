@@ -158,6 +158,50 @@ public sealed class ApplicationDbInitializerTests
         Assert.False(await verificationUserManager.CheckPasswordAsync(user, "NoweHaslo456!"));
     }
 
+    [Fact]
+    public async Task InitializeAsync_updates_single_existing_admin_identity_without_creating_duplicate()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var services = CreateServiceProvider(connection);
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager, new AdminSeedOptions
+            {
+                UserName = "admin",
+                Email = "admin@fabrykarolet.local",
+                Password = "Stabilizacja123!"
+            });
+            await initializer.InitializeAsync();
+        }
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager, new AdminSeedOptions
+            {
+                UserName = "panel",
+                Email = "panel@fabrykarolet.local",
+                Password = "NoweHaslo456!"
+            });
+            await initializer.InitializeAsync();
+        }
+
+        await using var verificationScope = services.CreateAsyncScope();
+        var verificationDbContext = verificationScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var verificationUserManager = verificationScope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+        var user = await verificationDbContext.Users.SingleAsync();
+
+        Assert.Equal("panel", user.UserName);
+        Assert.Equal("panel@fabrykarolet.local", user.Email);
+        Assert.True(await verificationUserManager.CheckPasswordAsync(user, "Stabilizacja123!"));
+        Assert.False(await verificationUserManager.CheckPasswordAsync(user, "NoweHaslo456!"));
+    }
+
     private static ServiceProvider CreateServiceProvider(SqliteConnection connection)
     {
         var services = new ServiceCollection();
