@@ -1,8 +1,10 @@
 using FabrykaRolet.Infrastructure.Data;
 using FabrykaRolet.Infrastructure.Identity;
 using FabrykaRolet.Infrastructure.Services;
+using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -15,7 +17,9 @@ public sealed class ApplicationDbInitializerTests
     [Fact]
     public async Task InitializeAsync_is_idempotent_for_seeded_data()
     {
-        await using var services = CreateServiceProvider();
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var services = CreateServiceProvider(connection);
 
         await using (var scope = services.CreateAsyncScope())
         {
@@ -69,12 +73,15 @@ public sealed class ApplicationDbInitializerTests
         Assert.Equal("admin@fabrykarolet.local", user.Email);
     }
 
-    private static ServiceProvider CreateServiceProvider()
+    private static ServiceProvider CreateServiceProvider(SqliteConnection connection)
     {
-        var databaseName = Guid.NewGuid().ToString("N");
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(databaseName));
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseSqlite(connection);
+            options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+        });
         services
             .AddIdentity<AdminUser, IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>()
