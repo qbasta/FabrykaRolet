@@ -34,6 +34,8 @@ na podstawie zmiennych środowiskowych.
 
 Możesz ustawić własne dane logowania lokalnie:
 
+macOS / Linux:
+
 ```bash
 export FABRYKAROLET_ADMIN_USERNAME="twoj-login"
 export FABRYKAROLET_ADMIN_EMAIL="twoj@email.pl"
@@ -41,12 +43,32 @@ export FABRYKAROLET_ADMIN_PASSWORD="TwojeSilneHaslo123"
 docker compose up --build
 ```
 
+Windows PowerShell:
+
+```powershell
+$env:FABRYKAROLET_ADMIN_USERNAME="twoj-login"
+$env:FABRYKAROLET_ADMIN_EMAIL="twoj@email.pl"
+$env:FABRYKAROLET_ADMIN_PASSWORD="TwojeSilneHaslo123"
+docker compose up --build
+```
+
 Możesz też ustawić własne dane PostgreSQL:
+
+macOS / Linux:
 
 ```bash
 export FABRYKAROLET_POSTGRES_DB="fabrykarolet"
 export FABRYKAROLET_POSTGRES_USER="fabrykarolet"
 export FABRYKAROLET_POSTGRES_PASSWORD="lokalne-haslo-dev"
+docker compose up --build
+```
+
+Windows PowerShell:
+
+```powershell
+$env:FABRYKAROLET_POSTGRES_DB="fabrykarolet"
+$env:FABRYKAROLET_POSTGRES_USER="fabrykarolet"
+$env:FABRYKAROLET_POSTGRES_PASSWORD="lokalne-haslo-dev"
 docker compose up --build
 ```
 

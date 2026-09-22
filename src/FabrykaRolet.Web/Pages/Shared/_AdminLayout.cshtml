@@ -51,10 +51,8 @@
                 document.querySelectorAll("[data-admin-desktop-only]").forEach((element) => {
                     if (isDesktop) {
                         element.removeAttribute("inert");
-                        element.removeAttribute("aria-hidden");
                     } else {
                         element.setAttribute("inert", "");
-                        element.setAttribute("aria-hidden", "true");
                     }
                 });
             };
