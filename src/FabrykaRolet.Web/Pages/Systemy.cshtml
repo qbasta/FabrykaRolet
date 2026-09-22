@@ -39,8 +39,9 @@
             {
                 var sectionSlug = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "exterior" : "interior";
                 var sectionLabel = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "System zewnętrzny" : "System wewnętrzny";
-                var images = Model.SystemImages.TryGetValue(system.Id, out var assignedImages) ? assignedImages : Array.Empty<string>();
+                var images = Model.SystemImages.TryGetValue(system.Id, out var assignedImages) ? assignedImages : Array.Empty<FabrykaRolet.Web.Services.PublicSystemImage>();
                 var slideCount = images.Count > 0 ? images.Count : 1;
+                var returnUrl = $"/Systemy?adminPreview=1#{system.Id}";
 
                 <article
                     id="@system.Id"
@@ -50,7 +51,7 @@
                     @if (isAdminPreview)
                     {
                         <div class="absolute right-6 top-6 z-10 hidden flex-wrap gap-2 xl:flex">
-                            <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" class="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj treść</a>
+                            <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" asp-route-returnUrl="@returnUrl" class="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj treść</a>
                             <a asp-page="/Admin/Systemy/Zdjecia" asp-route-id="@system.Id" class="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Zdjęcia</a>
                         </div>
                     }
@@ -74,7 +75,7 @@
                                     {
                                         @for (var slideIndex = 0; slideIndex < images.Count; slideIndex++)
                                         {
-                                            var imagePath = images[slideIndex].Contains('/') ? images[slideIndex] : $"/images/systems/{images[slideIndex]}";
+                                            var image = images[slideIndex];
                                             <div
                                                 class="system-carousel__slide @(slideIndex == 0 ? "is-active" : null)"
                                                 data-carousel-slide
@@ -84,8 +85,8 @@
                                                 aria-hidden="@(slideIndex == 0 ? "false" : "true")">
                                                 <img
                                                     class="system-carousel__image"
-                                                    src="@imagePath"
-                                                    alt="@($"{system.Name} – zdjęcie {slideIndex + 1}")"
+                                                    src="@image.Path"
+                                                    alt="@image.AltText"
                                                     loading="lazy" />
                                             </div>
                                         }

@@ -15,6 +15,7 @@ namespace FabrykaRolet.Web.Pages.Admin.Systemy;
 public sealed class EdytujModel(AppDbContext dbContext) : PageModel
 {
     [BindProperty] public WindowSystemEditorModel Input { get; set; } = new();
+    [BindProperty(SupportsGet = true)] public string? ReturnUrl { get; set; }
     public bool IsNew { get; private set; }
     public IReadOnlyList<SelectListItem> SectionOptions { get; } =
     [
@@ -59,7 +60,7 @@ public sealed class EdytujModel(AppDbContext dbContext) : PageModel
             Mounting = entity.Mounting,
             Control = entity.Control,
             MaxDimensions = entity.MaxDimensions,
-            IsVisible = entity.IsVisible,
+            IsVisible = entity.IsVisible && !entity.IsArchived,
             IsArchived = entity.IsArchived,
             SortOrder = entity.SortOrder,
         };
@@ -154,6 +155,11 @@ public sealed class EdytujModel(AppDbContext dbContext) : PageModel
         });
 
         await dbContext.SaveChangesAsync();
+        if (Url.IsLocalUrl(ReturnUrl))
+        {
+            return LocalRedirect(ReturnUrl);
+        }
+
         return RedirectToPage("/Admin/Systemy/Index", new { message = IsNew ? "Dodano nowy system." : "Zapisano zmiany w systemie." });
     }
 

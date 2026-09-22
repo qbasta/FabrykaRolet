@@ -5,13 +5,15 @@ using Microsoft.Extensions.Options;
 
 namespace FabrykaRolet.Web.Services;
 
+public sealed record PublicSystemImage(string Path, string AltText);
+
 public sealed class SystemImageReadService(AppDbContext dbContext, IOptions<SystemImageStorageOptions> options)
 {
     private static readonly HashSet<string> SeededFiles = WindowSystemSeedData.ImagesBySystemId.Values
         .SelectMany(x => x)
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-    public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetPublicImagesBySystemIdAsync(
+    public async Task<IReadOnlyDictionary<string, IReadOnlyList<PublicSystemImage>>> GetPublicImagesBySystemIdAsync(
         IEnumerable<string> systemIds,
         CancellationToken cancellationToken = default)
     {
@@ -22,7 +24,7 @@ public sealed class SystemImageReadService(AppDbContext dbContext, IOptions<Syst
             .OrderBy(x => x.WindowSystemId)
             .ThenByDescending(x => x.IsPrimary)
             .ThenBy(x => x.SortOrder)
-            .Select(x => new { x.WindowSystemId, x.FileName })
+            .Select(x => new { x.WindowSystemId, x.FileName, x.AltText })
             .ToListAsync(cancellationToken);
 
         var uploadsBasePath = "/" + options.Value.RelativeDirectory.Trim('/').Replace('\\', '/');
@@ -31,7 +33,11 @@ public sealed class SystemImageReadService(AppDbContext dbContext, IOptions<Syst
             .GroupBy(x => x.WindowSystemId, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
                 g => g.Key,
-                g => (IReadOnlyList<string>)g.Select(x => SeededFiles.Contains(x.FileName) ? x.FileName : $"{uploadsBasePath}/{x.FileName}").ToList(),
+                g => (IReadOnlyList<PublicSystemImage>)g
+                    .Select(x => new PublicSystemImage(
+                        SeededFiles.Contains(x.FileName) ? $"/images/systems/{x.FileName}" : $"{uploadsBasePath}/{x.FileName}",
+                        string.IsNullOrWhiteSpace(x.AltText) ? "Zdjęcie systemu" : x.AltText))
+                    .ToList(),
                 StringComparer.OrdinalIgnoreCase);
     }
 }

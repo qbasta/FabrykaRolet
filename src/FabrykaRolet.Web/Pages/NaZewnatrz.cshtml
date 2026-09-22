@@ -58,10 +58,11 @@ else
 <section id="house-viewer-systems" class="system-grid container" aria-label="Lista systemów zewnętrznych">
     @foreach (var system in Model.Systems)
     {
+        var returnUrl = $"/NaZewnatrz?adminPreview=1#{system.Id}";
         <div class="relative">
             @if (isAdminPreview)
             {
-                <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" class="absolute -top-3 right-0 z-10 hidden rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm xl:inline-flex">Edytuj popup</a>
+                <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" asp-route-returnUrl="@returnUrl" class="absolute -top-3 right-0 z-10 hidden rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm xl:inline-flex">Edytuj popup</a>
             }
             <button type="button" class="system-button" data-system-id="@system.Id">
                 @system.Name

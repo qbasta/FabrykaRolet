@@ -91,7 +91,7 @@ public sealed class ApplicationDbInitializer(
             }
 
             var shouldRestoreLegacyViewerDescription =
-                string.Equals(entity.ViewerDescription, LegacyViewerDescriptions.GetValueOrDefault(seed.Id), StringComparison.Ordinal)
+                string.Equals(entity.ViewerDescription, ObsoleteExpandedViewerDescriptions.GetValueOrDefault(seed.Id), StringComparison.Ordinal)
                 && string.Equals(entity.ShortDescription, seed.ShortDescription, StringComparison.Ordinal);
 
             if (string.IsNullOrWhiteSpace(entity.ViewerDescription) || shouldRestoreLegacyViewerDescription)
@@ -191,8 +191,21 @@ public sealed class ApplicationDbInitializer(
         }
 
         var user = await userManager.FindByNameAsync(options.UserName);
+        if (user is null && !string.IsNullOrWhiteSpace(options.Email))
+        {
+            user = await userManager.FindByEmailAsync(options.Email);
+        }
+
         if (user is null)
         {
+            if (await userManager.Users.AnyAsync(cancellationToken))
+            {
+                logger.LogInformation(
+                    "Istnieje już konto administratora, więc pominięto seed użytkownika {ConfiguredUserName}.",
+                    options.UserName);
+                return;
+            }
+
             user = new AdminUser
             {
                 UserName = options.UserName,
@@ -209,14 +222,34 @@ public sealed class ApplicationDbInitializer(
             return;
         }
 
-        user.Email = options.Email;
-        user.EmailConfirmed = true;
-        await userManager.UpdateAsync(user);
-        var token = await userManager.GeneratePasswordResetTokenAsync(user);
-        var passwordResult = await userManager.ResetPasswordAsync(user, token, options.Password);
-        if (!passwordResult.Succeeded)
+        var shouldUpdate = false;
+        if (!string.Equals(user.UserName, options.UserName, StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(options.UserName))
         {
-            throw new InvalidOperationException($"Nie udało się zaktualizować hasła administratora: {string.Join(", ", passwordResult.Errors.Select(x => x.Description))}");
+            user.UserName = options.UserName;
+            shouldUpdate = true;
+        }
+
+        if (!string.Equals(user.Email, options.Email, StringComparison.Ordinal))
+        {
+            user.Email = options.Email;
+            shouldUpdate = true;
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            user.EmailConfirmed = true;
+            shouldUpdate = true;
+        }
+
+        if (!shouldUpdate)
+        {
+            return;
+        }
+
+        var updateResult = await userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            throw new InvalidOperationException($"Nie udało się zaktualizować administratora: {string.Join(", ", updateResult.Errors.Select(x => x.Description))}");
         }
     }
 
@@ -240,19 +273,19 @@ public sealed class ApplicationDbInitializer(
         }
     }
 
-    private static readonly IReadOnlyDictionary<string, string> LegacyViewerDescriptions = new Dictionary<string, string>(StringComparer.Ordinal)
+    private static readonly IReadOnlyDictionary<string, string> ObsoleteExpandedViewerDescriptions = new Dictionary<string, string>(StringComparer.Ordinal)
     {
-        ["rolety-zewnetrzne"] = "Zewnętrzna osłona okienna, która pomaga ograniczyć słońce, hałas i straty ciepła.",
-        ["rolety-antywlamaniowe"] = "Wzmocnione rolety zewnętrzne zwiększające ochronę okien i domu.",
-        ["zaluzje-fasadowe"] = "Regulowane lamele zewnętrzne pozwalające wygodnie sterować światłem.",
-        ["markizy"] = "Zewnętrzna osłona przeciwsłoneczna dla tarasu, balkonu lub dużych przeszkleń.",
-        ["screeny-fasadowe"] = "Tkaninowa osłona zewnętrzna, która ogranicza nagrzewanie i olśnienie.",
-        ["moskitiery-zewnetrzne"] = "Zwijana siatka chroniąca przed owadami bez ograniczania wietrzenia.",
-        ["bramy-garazowe"] = "Izolowana brama garażowa z wygodnym, opcjonalnym sterowaniem automatycznym.",
-        ["zaluzje-poziome"] = "Wewnętrzne lamele umożliwiające precyzyjną regulację światła.",
-        ["zaluzje-pionowe"] = "Pionowe pasy do wygodnego przesłaniania dużych okien i drzwi balkonowych.",
-        ["plisy"] = "Składana osłona okienna pozwalająca zasłonić wybraną część szyby.",
-        ["rolety-wewnetrzne"] = "Materiałowe osłony okienne dostępne w wielu tkaninach i stopniach zaciemnienia.",
-        ["moskitiery-wewnetrzne"] = "Lekka siatka w ramce, która chroni wnętrze przed owadami.",
+        ["rolety-zewnetrzne"] = "Rolety montowane na zewnątrz okna, zwijane w skrzynkę nad oknem. Chronią przed słońcem, hałasem i utratą ciepła.",
+        ["rolety-antywlamaniowe"] = "Wzmocniona wersja rolety zewnętrznej, wykonana z profili o podwyższonej odporności na włamanie.",
+        ["zaluzje-fasadowe"] = "Żaluzje z regulowanymi lamelami montowane na elewacji, pozwalające płynnie sterować ilością wpadającego światła.",
+        ["markizy"] = "Wysuwane zadaszenia tkaninowe montowane nad oknem, drzwiami lub tarasem.",
+        ["screeny-fasadowe"] = "Rolety z przepuszczalnej tkaniny technicznej, tłumiące nasłonecznienie przy zachowaniu widoczności na zewnątrz.",
+        ["moskitiery-zewnetrzne"] = "Zwijane siatki montowane na zewnątrz okna lub drzwi, chroniące przed owadami.",
+        ["bramy-garazowe"] = "Segmentowe lub rolowane bramy wjazdowe do garażu, zwykle z napędem elektrycznym.",
+        ["zaluzje-poziome"] = "Klasyczne żaluzje z poziomych lamel aluminiowych montowane wewnątrz, na ramie okna lub nad nim.",
+        ["zaluzje-pionowe"] = "Żaluzje z pionowych pasów tkaniny, dobrze sprawdzające się przy dużych i szerokich oknach.",
+        ["plisy"] = "Zaplisowana tkanina rozkładana w harmonijkę, montowana bezpośrednio na skrzydle okna - sprawdza się też przy nietypowych kształtach.",
+        ["rolety-wewnetrzne"] = "Rolety materiałowe montowane wewnątrz pomieszczenia (m.in. rzymskie, dzień-noc, wolnowiszące, zaciemniające).",
+        ["moskitiery-wewnetrzne"] = "Moskitiery w sztywnej ramie montowane od wewnątrz, w futrynie okna lub drzwi.",
     };
 }

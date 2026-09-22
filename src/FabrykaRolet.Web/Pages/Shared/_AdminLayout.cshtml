@@ -1,16 +1,17 @@
-@using Microsoft.AspNetCore.Authorization
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] – Panel administracyjny</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/dist/tailwind.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="min-h-screen bg-stone-100 text-stone-900">
+<body class="min-h-screen bg-stone-100 text-stone-900 font-sans">
     <div class="min-h-screen xl:grid xl:grid-cols-[16rem_minmax(0,1fr)]">
         <aside class="border-b border-stone-200 bg-white xl:min-h-screen xl:border-b-0 xl:border-r">
             <div class="flex items-center justify-between gap-3 px-4 py-4 xl:px-5">
