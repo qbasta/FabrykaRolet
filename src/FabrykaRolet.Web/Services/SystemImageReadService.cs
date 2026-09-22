@@ -7,6 +7,10 @@ namespace FabrykaRolet.Web.Services;
 
 public sealed class SystemImageReadService(AppDbContext dbContext, IOptions<SystemImageStorageOptions> options)
 {
+    private static readonly HashSet<string> SeededFiles = WindowSystemSeedData.ImagesBySystemId.Values
+        .SelectMany(x => x)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetPublicImagesBySystemIdAsync(
         IEnumerable<string> systemIds,
         CancellationToken cancellationToken = default)
@@ -21,14 +25,13 @@ public sealed class SystemImageReadService(AppDbContext dbContext, IOptions<Syst
             .Select(x => new { x.WindowSystemId, x.FileName })
             .ToListAsync(cancellationToken);
 
-        var seededFiles = WindowSystemSeedData.ImagesBySystemId.Values.SelectMany(x => x).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var uploadsBasePath = "/" + options.Value.RelativeDirectory.Trim('/').Replace('\\', '/');
 
         return images
             .GroupBy(x => x.WindowSystemId, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
                 g => g.Key,
-                g => (IReadOnlyList<string>)g.Select(x => seededFiles.Contains(x.FileName) ? x.FileName : $"{uploadsBasePath}/{x.FileName}").ToList(),
+                g => (IReadOnlyList<string>)g.Select(x => SeededFiles.Contains(x.FileName) ? x.FileName : $"{uploadsBasePath}/{x.FileName}").ToList(),
                 StringComparer.OrdinalIgnoreCase);
     }
 }

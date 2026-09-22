@@ -52,7 +52,7 @@
                     {
                         <article class="grid gap-4 rounded-2xl border border-stone-200 p-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
                             <div class="overflow-hidden rounded-2xl bg-stone-100">
-                                <img src="@Model.Images[i].PublicPath" alt="" class="h-40 w-full object-cover" />
+                                <img src="@Model.Images[i].PublicPath" alt="@(string.IsNullOrWhiteSpace(Model.Images[i].AltText) ? $"Podgląd zdjęcia systemu {Model.SystemName}" : Model.Images[i].AltText)" class="h-40 w-full object-cover" />
                             </div>
                             <div class="space-y-3">
                                 <input asp-for="Images[i].Id" type="hidden" />
@@ -69,7 +69,7 @@
                                 </div>
                                 <div class="flex flex-wrap gap-4 text-sm">
                                     <label class="inline-flex items-center gap-2">
-                                        <input asp-for="Images[i].IsPrimary" class="h-4 w-4 rounded border-stone-300" />
+                                        <input type="radio" name="SelectedPrimaryImageId" value="@Model.Images[i].Id" checked="@(Model.SelectedPrimaryImageId == Model.Images[i].Id ? "checked" : null)" class="h-4 w-4 border-stone-300" />
                                         <span>Zdjęcie główne</span>
                                     </label>
                                     <label class="inline-flex items-center gap-2 text-red-700">

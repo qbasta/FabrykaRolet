@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using FabrykaRolet.Domain.Entities;
 using FabrykaRolet.Infrastructure.Data;
 using FabrykaRolet.Infrastructure.Data.Entities;
@@ -78,6 +79,12 @@ public sealed class EdytujModel(AppDbContext dbContext) : PageModel
         if (string.IsNullOrWhiteSpace(normalizedId))
         {
             ModelState.AddModelError(nameof(Input.Id), "Slug jest wymagany.");
+            return Page();
+        }
+
+        if (!Regex.IsMatch(normalizedId, "^[a-z0-9-]+$"))
+        {
+            ModelState.AddModelError(nameof(Input.Id), "Slug może zawierać tylko małe litery, cyfry i myślniki.");
             return Page();
         }
 

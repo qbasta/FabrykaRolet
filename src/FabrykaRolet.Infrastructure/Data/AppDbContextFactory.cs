@@ -7,10 +7,13 @@ public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
 {
     public AppDbContext CreateDbContext(string[] args)
     {
-        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        var connectionString = Environment.GetEnvironmentVariable("FABRYKAROLET_EF_CONNECTION")
-            ?? "Host=localhost;Port=5432;Database=fabrykarolet;Username=fabrykarolet;******";
+        var connectionString = Environment.GetEnvironmentVariable("FABRYKAROLET_EF_CONNECTION");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Ustaw zmienną środowiskową FABRYKAROLET_EF_CONNECTION przed uruchomieniem narzędzi EF Core.");
+        }
 
+        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
         optionsBuilder.UseNpgsql(connectionString);
         return new AppDbContext(optionsBuilder.Options);
     }

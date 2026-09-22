@@ -28,7 +28,7 @@ public sealed class LoginModel(SignInManager<AdminUser> signInManager) : PageMod
             return Page();
         }
 
-        var result = await signInManager.PasswordSignInAsync(Input.UserName, Input.Password, true, lockoutOnFailure: true);
+        var result = await signInManager.PasswordSignInAsync(Input.UserName, Input.Password, false, lockoutOnFailure: true);
         if (result.Succeeded)
         {
             return LocalRedirect(returnUrl ?? Url.Page("/Admin/Index")!);

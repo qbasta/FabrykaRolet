@@ -31,10 +31,15 @@ if (string.IsNullOrWhiteSpace(connectionString))
         && !string.IsNullOrWhiteSpace(dbUser)
         && !string.IsNullOrWhiteSpace(dbPassword))
     {
+        if (!int.TryParse(dbPort, out var parsedPort))
+        {
+            throw new InvalidOperationException("Database:Port musi być poprawną liczbą całkowitą.");
+        }
+
         connectionString = new Npgsql.NpgsqlConnectionStringBuilder
         {
             Host = dbHost,
-            Port = int.Parse(dbPort),
+            Port = parsedPort,
             Database = dbName,
             Username = dbUser,
             Password = dbPassword,

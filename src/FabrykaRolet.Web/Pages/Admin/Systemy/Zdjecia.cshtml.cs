@@ -13,10 +13,15 @@ namespace FabrykaRolet.Web.Pages.Admin.Systemy;
 [Authorize]
 public sealed class ZdjeciaModel(AppDbContext dbContext, LocalSystemImageStorage imageStorage) : PageModel
 {
+    private static readonly HashSet<string> SeededFiles = WindowSystemSeedData.ImagesBySystemId.Values
+        .SelectMany(x => x)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
     [BindProperty] public string SystemId { get; set; } = string.Empty;
     [BindProperty] public IFormFile? UploadFile { get; set; }
     [BindProperty] public string UploadAltText { get; set; } = string.Empty;
     [BindProperty] public List<SystemImageUpdateInput> Images { get; set; } = [];
+    [BindProperty] public Guid? SelectedPrimaryImageId { get; set; }
     public string SystemName { get; private set; } = string.Empty;
     public string? StatusMessage { get; private set; }
 
@@ -93,12 +98,13 @@ public sealed class ZdjeciaModel(AppDbContext dbContext, LocalSystemImageStorage
         var remaining = system.Images.Where(x => dbContext.Entry(x).State != EntityState.Deleted).OrderBy(x => x.SortOrder).ToList();
         if (remaining.Count > 0)
         {
-            if (remaining.All(x => !x.IsPrimary))
-            {
-                remaining[0].IsPrimary = true;
-            }
+            var primary = SelectedPrimaryImageId.HasValue
+                ? remaining.FirstOrDefault(x => x.Id == SelectedPrimaryImageId.Value)
+                : null;
 
-            var primary = remaining.First(x => x.IsPrimary);
+            primary ??= remaining.FirstOrDefault(x => x.IsPrimary);
+            primary ??= remaining[0];
+
             foreach (var image in remaining)
             {
                 image.IsPrimary = image == primary;
@@ -123,6 +129,8 @@ public sealed class ZdjeciaModel(AppDbContext dbContext, LocalSystemImageStorage
 
         SystemId = id;
         SystemName = system.Name;
+        SelectedPrimaryImageId = system.Images.FirstOrDefault(x => x.IsPrimary)?.Id;
+
         Images = system.Images
             .OrderByDescending(x => x.IsPrimary)
             .ThenBy(x => x.SortOrder)
@@ -140,7 +148,7 @@ public sealed class ZdjeciaModel(AppDbContext dbContext, LocalSystemImageStorage
         return Page();
     }
 
-    private static bool IsSeedFile(string fileName) => WindowSystemSeedData.ImagesBySystemId.Values.SelectMany(x => x).Contains(fileName, StringComparer.OrdinalIgnoreCase);
+    private static bool IsSeedFile(string fileName) => SeededFiles.Contains(fileName);
 
     public sealed class SystemImageUpdateInput : SystemImageUpdateRow
     {
