@@ -5,14 +5,16 @@ gsap.registerPlugin(ScrollTrigger);
 
 const CAROUSEL_INTERACTIVE_SELECTOR =
   ".system-carousel, [data-carousel-prev], [data-carousel-next], [data-carousel-dot], [data-carousel-viewport], a, button, input, label, select, textarea, summary";
+let mobileNavCleanup: (() => void) | null = null;
 let systemsSelectionHashHandler: (() => void) | null = null;
 
 function initMobileNav(): void {
+  mobileNavCleanup?.();
+  mobileNavCleanup = null;
+
   const toggle = document.querySelector<HTMLButtonElement>("[data-mobile-nav-toggle]");
   const menu = document.querySelector<HTMLElement>("[data-mobile-nav-menu]");
-  if (!toggle || !menu || toggle.dataset.mobileNavInitialized === "true") return;
-
-  toggle.dataset.mobileNavInitialized = "true";
+  if (!toggle || !menu) return;
 
   const openIcon = toggle.querySelector<HTMLElement>("[data-mobile-nav-open-icon]");
   const closeIcon = toggle.querySelector<HTMLElement>("[data-mobile-nav-close-icon]");
@@ -47,37 +49,51 @@ function initMobileNav(): void {
     syncState();
   };
 
-  toggle.addEventListener("click", () => {
+  const handleToggleClick = (): void => {
     toggleMenu();
-  });
+  };
 
-  menuLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      closeMenu();
-    });
-  });
+  const handleLinkClick = (): void => {
+    closeMenu();
+  };
 
-  document.addEventListener("click", (event) => {
+  const handleDocumentClick = (event: MouseEvent): void => {
     if (!isOpen || desktopMedia.matches) return;
 
     const target = event.target as Node | null;
     if (!target || menu.contains(target) || toggle.contains(target)) return;
     closeMenu();
-  });
+  };
 
-  document.addEventListener("keydown", (event) => {
+  const handleDocumentKeydown = (event: KeyboardEvent): void => {
     if (event.key !== "Escape" || !isOpen) return;
 
     event.preventDefault();
     closeMenu(true);
-  });
+  };
 
   const handleViewportChange = (): void => {
     isOpen = false;
     syncState();
   };
 
+  toggle.addEventListener("click", handleToggleClick);
+  menuLinks.forEach((link) => {
+    link.addEventListener("click", handleLinkClick);
+  });
+  document.addEventListener("click", handleDocumentClick);
+  document.addEventListener("keydown", handleDocumentKeydown);
   desktopMedia.addEventListener("change", handleViewportChange);
+
+  mobileNavCleanup = () => {
+    toggle.removeEventListener("click", handleToggleClick);
+    menuLinks.forEach((link) => {
+      link.removeEventListener("click", handleLinkClick);
+    });
+    document.removeEventListener("click", handleDocumentClick);
+    document.removeEventListener("keydown", handleDocumentKeydown);
+    desktopMedia.removeEventListener("change", handleViewportChange);
+  };
 
   syncState();
 }
