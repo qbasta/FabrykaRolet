@@ -77,11 +77,8 @@ function initMobileNav(): void {
     syncState();
   };
 
-  if ("addEventListener" in desktopMedia) {
-    desktopMedia.addEventListener("change", handleViewportChange);
-  } else {
-    desktopMedia.addListener(handleViewportChange);
-  }
+  desktopMedia.addEventListener("change", handleViewportChange);
+  window.addEventListener("resize", handleViewportChange);
 
   syncState();
 }
