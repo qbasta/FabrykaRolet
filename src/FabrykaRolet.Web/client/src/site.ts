@@ -78,7 +78,6 @@ function initMobileNav(): void {
   };
 
   desktopMedia.addEventListener("change", handleViewportChange);
-  window.addEventListener("resize", handleViewportChange);
 
   syncState();
 }
