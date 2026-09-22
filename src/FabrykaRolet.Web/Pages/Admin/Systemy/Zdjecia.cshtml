@@ -20,7 +20,7 @@
         Zarządzanie zdjęciami jest dostępne wyłącznie na komputerze. Na telefonie i tablecie ukrywamy upload oraz formularze galerii, żeby uniknąć błędnej edycji.
     </div>
 
-    <section class="hidden rounded-3xl border border-stone-200 bg-white p-6 shadow-sm xl:block" data-admin-desktop-only>
+    <section class="hidden rounded-3xl border border-stone-200 bg-white p-6 shadow-sm xl:block" data-admin-desktop-only inert>
         <h3 class="text-lg font-semibold">Dodaj zdjęcie</h3>
         <form method="post" enctype="multipart/form-data" asp-page-handler="Upload" class="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_18rem_auto] md:items-end">
             <input type="hidden" asp-for="SystemId" />
@@ -37,7 +37,7 @@
         </form>
     </section>
 
-    <form method="post" asp-page-handler="Save" class="hidden space-y-6 xl:block" data-admin-desktop-only>
+    <form method="post" asp-page-handler="Save" class="hidden space-y-6 xl:block" data-admin-desktop-only inert>
         <input type="hidden" asp-for="SystemId" />
         <section class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between gap-4">
