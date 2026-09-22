@@ -19,7 +19,6 @@ public sealed record HotspotDto(
     string SystemId,
     string Name,
     string Description,
-    IReadOnlyList<string> Advantages,
     double X,
     double Y);
 
@@ -27,5 +26,4 @@ public sealed record HotspotDto(
 public sealed record SystemSummaryDto(
     string SystemId,
     string Name,
-    string Description,
-    IReadOnlyList<string> Advantages);
+    string Description);
