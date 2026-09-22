@@ -11,4 +11,8 @@ public sealed class WindowSystem
     public required HouseSection Section { get; init; }
     public required string ShortDescription { get; init; }
     public required IReadOnlyList<string> Advantages { get; init; }
+    public required IReadOnlyList<string> Materials { get; init; }
+    public required string Mounting { get; init; }
+    public required string Control { get; init; }
+    public required string MaxDimensions { get; init; }
 }

@@ -25,6 +25,7 @@
                 <h2 id="house-viewer-panel-title"></h2>
                 <p id="house-viewer-panel-description"></p>
                 <ul id="house-viewer-panel-advantages" class="house-viewer__advantages"></ul>
+                <a id="house-viewer-panel-link" class="house-viewer__panel-link" href="/Systemy">Dowiedz się więcej →</a>
             </aside>
 
             <svg class="house-viewer__connector" aria-hidden="true" hidden>
@@ -59,9 +60,9 @@ else
 </section>
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/house-viewer.css" />
+    <link rel="stylesheet" href="~/css/house-viewer.css" asp-append-version="true" />
 }
 
 @section Scripts {
-    <script type="module" src="~/dist/house-viewer.js"></script>
+    <script type="module" src="~/dist/house-viewer.js" asp-append-version="true"></script>
 }

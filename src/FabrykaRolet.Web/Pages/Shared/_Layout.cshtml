@@ -5,46 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] – Fabryka Rolet</title>
 
-    <link rel="icon" type="image/png" href="~/images/logo/favicon.png" />
+    <link rel="icon" type="image/png" href="~/images/logo/favicon.png" asp-append-version="true" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="~/css/tokens.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/dist/tailwind.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="font-sans text-ink min-h-screen flex flex-col">
     <a class="skip-link" href="#main-content">Przejdź do treści</a>
 
-    <header class="site-header">
-        <div class="container site-header__inner">
-            <a href="/" class="site-logo" aria-label="Fabryka Rolet – strona główna">
-                <img src="~/images/logo/fr-icon.png" alt="" class="site-logo__mark" />
-                <span class="site-logo__text">Fabryka Rolet</span>
+    <header class="border-b border-stone-200">
+        <div class="container mx-auto max-w-6xl px-4 md:px-8 flex items-center justify-between gap-6 py-4">
+            <a href="/" class="flex items-center gap-2 group" aria-label="Fabryka Rolet – strona główna">
+                <img src="~/images/logo/fr-icon.png" alt="" class="h-9 w-auto transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105" asp-append-version="true" />
+                <span class="font-bold text-lg md:text-xl tracking-tight text-stone-900">Fabryka Rolet</span>
             </a>
-            <nav class="site-nav" aria-label="Nawigacja główna">
-                <a asp-page="/Index">Strona główna</a>
-                <a asp-page="/NaZewnatrz">Na zewnątrz</a>
-                <a asp-page="/Wewnatrz">Wewnątrz</a>
-                <a asp-page="/Kontakt">Kontakt</a>
+            <nav class="flex flex-wrap gap-x-6 gap-y-1" aria-label="Nawigacja główna">
+                <a asp-page="/Index" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Strona główna</a>
+                <a asp-page="/NaZewnatrz" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Na zewnątrz</a>
+                <a asp-page="/Wewnatrz" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Wewnątrz</a>
+                <a asp-page="/Systemy" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Wszystkie systemy</a>
+                <a asp-page="/Kontakt" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Kontakt</a>
             </nav>
         </div>
     </header>
 
-    <main id="main-content">
+    <main id="main-content" class="flex-1">
         @RenderBody()
     </main>
 
-    <footer class="site-footer">
-        <div class="container site-footer__inner">
-            <img src="~/images/logo/fr-icon.png" alt="" class="site-footer__mark" />
+    <footer class="mt-16 border-t border-stone-200 bg-stone-50">
+        <div class="container mx-auto max-w-6xl px-4 md:px-8 py-6 flex items-center gap-3 text-sm text-stone-500">
+            <img src="~/images/logo/fr-icon.png" alt="" class="h-6 w-auto opacity-70" asp-append-version="true" />
             <p>&copy; @DateTime.Now.Year Fabryka Rolet. Wszelkie prawa zastrzeżone.</p>
         </div>
     </footer>
 
     @await RenderSectionAsync("Scripts", required: false)
-    <script type="module" src="~/dist/site.js"></script>
+    <script type="module" src="~/dist/site.js" asp-append-version="true"></script>
 </body>
 </html>
