@@ -104,8 +104,6 @@ function initMobileNav(): void {
   menuLinks.forEach((link) => {
     link.addEventListener("click", handleLinkClick);
   });
-  document.addEventListener("click", handleDocumentClick);
-  document.addEventListener("keydown", handleDocumentKeydown);
   desktopMedia.addEventListener("change", handleViewportChange);
 
   mobileNavCleanup = () => {
