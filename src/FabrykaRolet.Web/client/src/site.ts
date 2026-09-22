@@ -142,6 +142,9 @@ function updateHash(hash: string | null): void {
 }
 
 function initSystemsSelection(page: HTMLElement): void {
+  if (page.dataset.systemsSelectionInitialized === "true") return;
+  page.dataset.systemsSelectionInitialized = "true";
+
   const pills = Array.from(page.querySelectorAll<HTMLElement>(".system-pill[id]"));
   if (!pills.length) return;
 

@@ -137,7 +137,7 @@
                             }
 
                             <p class="sr-only" data-carousel-status aria-live="polite" aria-atomic="true">
-                            @(images.Count > 1 ? $"Zdjęcie 1 z {slideCount}" : "Podgląd bez dodatkowych zdjęć")
+                            @(images.Count > 1 ? $"{system.Name}: zdjęcie 1 z {slideCount}" : $"{system.Name}: podgląd bez dodatkowych zdjęć")
                             </p>
                         </section>
 
