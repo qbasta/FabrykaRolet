@@ -139,7 +139,7 @@ class I {
   }
   buildSystemsPageUrl(e) {
     const t = new URL("/Systemy", window.location.origin);
-    return (this.root.dataset.adminPreview === "true" || document.body.dataset.adminPreview === "true") && t.searchParams.set("adminPreview", "1"), t.hash = e, `${t.pathname}${t.search}${t.hash}`;
+    return (this.root.dataset.adminPreview === "true" || document.body.dataset.adminPreview === "true") && t.searchParams.set("adminPreview", "1"), t.hash = encodeURIComponent(e), `${t.pathname}${t.search}${t.hash}`;
   }
   activateSystem(e, t) {
     const s = this.findHotspot(e);

@@ -258,7 +258,7 @@ export class HouseViewer {
       url.searchParams.set("adminPreview", "1");
     }
 
-    url.hash = systemId;
+    url.hash = encodeURIComponent(systemId);
     return `${url.pathname}${url.search}${url.hash}`;
   }
 
