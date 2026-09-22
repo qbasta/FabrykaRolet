@@ -21,7 +21,11 @@
                 <a asp-page="/Index" class="text-sm font-medium text-accent hover:underline">Strona</a>
             </div>
 
-            <nav class="space-y-1 px-3 pb-6" aria-label="Nawigacja panelu">
+            <div class="mx-6 mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 xl:hidden">
+                Edycja treści, systemów i zdjęć jest dostępna wyłącznie na komputerze. Na telefonie i tablecie panel pozostaje tylko do podglądu.
+            </div>
+
+            <nav class="hidden space-y-1 px-3 pb-6 xl:block" aria-label="Nawigacja panelu" data-admin-desktop-only>
                 <a asp-page="/Admin/Index" class="block rounded-xl px-3 py-2 text-sm font-medium hover:bg-stone-100">Dashboard</a>
                 <a asp-page="/Admin/Systemy/Index" class="block rounded-xl px-3 py-2 text-sm font-medium hover:bg-stone-100">Systemy</a>
                 <a asp-page="/Admin/Tresci/Index" class="block rounded-xl px-3 py-2 text-sm font-medium hover:bg-stone-100">Treści stron</a>
@@ -39,5 +43,29 @@
     </div>
 
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        (() => {
+            const desktopQuery = window.matchMedia("(min-width: 1280px)");
+            const syncDesktopOnlyState = () => {
+                const isDesktop = desktopQuery.matches;
+                document.querySelectorAll("[data-admin-desktop-only]").forEach((element) => {
+                    if (isDesktop) {
+                        element.removeAttribute("inert");
+                        element.removeAttribute("aria-hidden");
+                    } else {
+                        element.setAttribute("inert", "");
+                        element.setAttribute("aria-hidden", "true");
+                    }
+                });
+            };
+
+            syncDesktopOnlyState();
+            if (typeof desktopQuery.addEventListener === "function") {
+                desktopQuery.addEventListener("change", syncDesktopOnlyState);
+            } else if (typeof desktopQuery.addListener === "function") {
+                desktopQuery.addListener(syncDesktopOnlyState);
+            }
+        })();
+    </script>
 </body>
 </html>

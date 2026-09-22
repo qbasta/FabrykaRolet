@@ -16,7 +16,11 @@
         <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">@Model.StatusMessage</div>
     }
 
-    <form method="post" class="space-y-6">
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900 xl:hidden">
+        Edycja treści jest dostępna wyłącznie na komputerze. Na telefonie i tablecie pokazujemy tylko informację, żeby pola formularza nie były używane na zbyt małym ekranie.
+    </div>
+
+    <form method="post" class="hidden space-y-6 xl:block" data-admin-desktop-only>
         <section class="space-y-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
             <h3 class="text-lg font-semibold">Strona główna</h3>
             <div>

@@ -1,10 +1,50 @@
-﻿services:
-  fabrykarolet.web:
-    image: fabrykarolet.web
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fabrykarolet-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${FABRYKAROLET_POSTGRES_DB:-fabrykarolet}
+      POSTGRES_USER: ${FABRYKAROLET_POSTGRES_USER:-fabrykarolet}
+      # Development-only default. Zmień przed jakimkolwiek wdrożeniem.
+      POSTGRES_PASSWORD: ${FABRYKAROLET_POSTGRES_PASSWORD:-fabrykarolet_local_dev_only}
+    ports:
+      - "5432:5432"
+    volumes:
+      - fabrykarolet_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
     build:
       context: .
       dockerfile: src/FabrykaRolet.Web/Dockerfile
-    ports:
-      - "5080:8080"
+    container_name: fabrykarolet-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Database__Host: postgres
+      Database__Port: "5432"
+      Database__Name: ${FABRYKAROLET_POSTGRES_DB:-fabrykarolet}
+      Database__User: ${FABRYKAROLET_POSTGRES_USER:-fabrykarolet}
+      Database__Password: ${FABRYKAROLET_POSTGRES_PASSWORD:-fabrykarolet_local_dev_only}
+      AdminSeed__UserName: ${FABRYKAROLET_ADMIN_USERNAME:-admin}
+      AdminSeed__Email: ${FABRYKAROLET_ADMIN_EMAIL:-admin@fabrykarolet.local}
+      # Development-only default. Zmień przed jakimkolwiek wdrożeniem.
+      AdminSeed__Password: ${FABRYKAROLET_ADMIN_PASSWORD:-DevOnlyChangeMe1234}
+      Persistence__UseInMemoryFallback: "false"
+    ports:
+      - "5080:8080"
+    volumes:
+      - fabrykarolet_uploads:/app/wwwroot/uploads
+
+volumes:
+  fabrykarolet_pgdata:
+  fabrykarolet_uploads:

@@ -11,7 +11,7 @@
         <header class="relative">
             @if (isAdminPreview)
             {
-                <a asp-page="/Admin/Tresci/Index" class="absolute right-0 top-0 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj nagłówek katalogu</a>
+                <a asp-page="/Admin/Tresci/Index" class="absolute right-0 top-0 hidden rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm xl:inline-flex">Edytuj nagłówek katalogu</a>
             }
             <h1 class="text-3xl font-bold text-stone-900 tracking-tight">@Model.PageHeading</h1>
             <p class="text-stone-500 mt-1">@Model.PageLead</p>
@@ -49,7 +49,7 @@
 
                     @if (isAdminPreview)
                     {
-                        <div class="absolute right-6 top-6 z-10 flex flex-wrap gap-2">
+                        <div class="absolute right-6 top-6 z-10 hidden flex-wrap gap-2 xl:flex">
                             <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" class="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj treść</a>
                             <a asp-page="/Admin/Systemy/Zdjecia" asp-route-id="@system.Id" class="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Zdjęcia</a>
                         </div>

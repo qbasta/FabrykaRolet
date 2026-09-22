@@ -30,7 +30,11 @@
         </article>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-2">
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900 xl:hidden">
+        Na telefonie i tablecie możesz sprawdzić podstawowe statystyki, ale edycja treści, systemów i zdjęć została celowo ukryta. Aby wprowadzić zmiany, otwórz panel na komputerze.
+    </div>
+
+    <div class="hidden gap-4 lg:grid-cols-2 xl:grid" data-admin-desktop-only>
         <a asp-page="/Admin/Systemy/Index" class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm hover:border-accent hover:shadow-md transition">
             <h3 class="text-xl font-semibold">Systemy</h3>
             <p class="mt-2 text-sm text-stone-600">Edycja nazw, opisów, zalet, materiałów, widoczności i archiwizacji.</p>
@@ -41,7 +45,7 @@
         </a>
     </div>
 
-    <section class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+    <section class="hidden rounded-3xl border border-stone-200 bg-white p-6 shadow-sm xl:block" data-admin-desktop-only>
         <h3 class="text-xl font-semibold">Podgląd z nakładką edycji</h3>
         <p class="mt-2 text-sm text-stone-600">Otwórz publiczną stronę w trybie admina. Zobaczysz dyskretne przyciski „Edytuj” przy elementach możliwych do zmiany.</p>
         <div class="mt-4 flex flex-wrap gap-3">
