@@ -4,11 +4,11 @@
     ViewData["Title"] = "Systemy";
 }
 
-<section class="mx-auto max-w-7xl space-y-6">
-    <header class="flex flex-col gap-4 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm md:flex-row md:items-end md:justify-between">
-        <div>
+<section class="mx-auto max-w-7xl space-y-5">
+    <header class="flex flex-col gap-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6 md:flex-row md:items-end md:justify-between">
+        <div class="min-w-0">
             <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Zarządzanie</p>
-            <h2 class="mt-2 text-3xl font-semibold">Systemy</h2>
+            <h2 class="mt-2 text-2xl font-semibold text-stone-900">Systemy</h2>
             <p class="mt-2 text-sm text-stone-600">Dodawaj szkice, ukrywaj wybrane systemy i archiwizuj te, które nie powinny być widoczne publicznie.</p>
         </div>
         <a asp-page="/Admin/Systemy/Edytuj" class="inline-flex rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white">Dodaj nowy system</a>
@@ -19,12 +19,12 @@
         <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">@Model.StatusMessage</div>
     }
 
-    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900 xl:hidden">
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 xl:hidden">
         Edycja systemów jest dostępna wyłącznie na komputerze. Na telefonie i tablecie ukrywamy formularze oraz przyciski zmian, żeby nie dało się przypadkowo edytować danych.
     </div>
 
-    <div class="hidden overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm xl:block" data-admin-desktop-only inert>
-        <table class="min-w-full divide-y divide-stone-200 text-sm">
+    <div class="hidden overflow-x-auto rounded-3xl border border-stone-200 bg-white shadow-sm xl:block" data-admin-desktop-only inert>
+        <table class="min-w-[58rem] divide-y divide-stone-200 text-sm">
             <thead class="bg-stone-50 text-left text-stone-500">
                 <tr>
                     <th class="px-4 py-3 font-medium">Nazwa</th>
@@ -38,29 +38,32 @@
             @foreach (var system in Model.Systems)
             {
                 <tr>
-                    <td class="px-4 py-4 align-top">
-                        <div class="font-medium text-stone-900">@system.Name</div>
-                        <div class="mt-1 text-xs text-stone-500">Slug: @system.Id</div>
+                    <td class="min-w-0 px-4 py-4 align-top">
+                        <div class="break-words font-medium text-stone-900">@system.Name</div>
+                        <div class="mt-1 break-all text-xs text-stone-500">Slug: @system.Id</div>
                     </td>
-                    <td class="px-4 py-4 align-top">@(system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "Na zewnątrz" : "Wewnątrz")</td>
+                    <td class="px-4 py-4 align-top text-sm text-stone-700">@(system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "Na zewnątrz" : "Wewnątrz")</td>
                     <td class="px-4 py-4 align-top">
                         <div class="flex flex-wrap gap-2 text-xs font-medium">
-                            <span class="rounded-full px-2.5 py-1 @(system.IsVisible && !system.IsArchived ? "bg-emerald-100 text-emerald-800" : "bg-stone-100 text-stone-700")">@(system.IsVisible && !system.IsArchived ? "Widoczny" : "Ukryty")</span>
+                            <span class="rounded-full px-2.5 py-1 @(system.IsArchived ? "bg-amber-100 text-amber-800" : system.IsVisible ? "bg-emerald-100 text-emerald-800" : "bg-stone-100 text-stone-700")">@(system.IsArchived ? "Archiwum" : system.IsVisible ? "Widoczny" : "Szkic / ukryty")</span>
                             @if (system.IsArchived)
                             {
-                                <span class="rounded-full bg-amber-100 px-2.5 py-1 text-amber-800">Archiwum</span>
+                                <span class="rounded-full bg-stone-100 px-2.5 py-1 text-stone-700">Niewidoczny publicznie</span>
                             }
                         </div>
                     </td>
                     <td class="px-4 py-4 align-top">@system.SortOrder</td>
                     <td class="px-4 py-4 align-top">
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex flex-wrap items-start gap-2">
                             <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" class="rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium">Edytuj</a>
                             <a asp-page="/Admin/Systemy/Zdjecia" asp-route-id="@system.Id" class="rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium">Zdjęcia</a>
-                            <form method="post" asp-page-handler="ToggleVisibility" class="inline-flex">
-                                <input type="hidden" name="id" value="@system.Id" />
-                                <button type="submit" class="rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium">@(system.IsVisible ? "Ukryj" : "Pokaż")</button>
-                            </form>
+                            @if (!system.IsArchived)
+                            {
+                                <form method="post" asp-page-handler="ToggleVisibility" class="inline-flex">
+                                    <input type="hidden" name="id" value="@system.Id" />
+                                    <button type="submit" class="rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium">@(system.IsVisible ? "Ukryj" : "Pokaż")</button>
+                                </form>
+                            }
                             <form method="post" asp-page-handler="ToggleArchive" class="inline-flex">
                                 <input type="hidden" name="id" value="@system.Id" />
                                 <button type="submit" class="rounded-xl border border-stone-300 px-3 py-2 text-xs font-medium">@(system.IsArchived ? "Przywróć" : "Archiwizuj")</button>

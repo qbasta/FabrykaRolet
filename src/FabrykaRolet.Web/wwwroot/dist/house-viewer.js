@@ -137,6 +137,10 @@ class I {
   findSystemSummary(e) {
     return this.data.systems.find((t) => t.systemId === e);
   }
+  buildSystemsPageUrl(e) {
+    const t = new URL("/Systemy", window.location.origin);
+    return (this.root.dataset.adminPreview === "true" || document.body.dataset.adminPreview === "true") && t.searchParams.set("adminPreview", "1"), `${t.pathname}${t.search}#${encodeURIComponent(e)}`;
+  }
   activateSystem(e, t) {
     const s = this.findHotspot(e);
     if (!s) {
@@ -239,7 +243,7 @@ class I {
     this.cancelConnectorRefresh(), this.killOpenCloseTweens(), this.isClosingPanel = !1, this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((r) => {
       const l = document.createElement("li");
       l.textContent = r, this.panelAdvantages.appendChild(l);
-    }), this.panelLink.href = `/Systemy#${encodeURIComponent(s)}`, this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.layout.classList.add("is-panel-open"), this.syncActiveSystemState(), this.syncLayoutMetrics();
+    }), this.panelLink.href = this.buildSystemsPageUrl(s), this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.layout.classList.add("is-panel-open"), this.syncActiveSystemState(), this.syncLayoutMetrics();
     const i = this.markerFor(s);
     i && o.fromTo(i, { scale: 1 }, { scale: 1.14, duration: 0.13, repeat: 1, yoyo: !0, ease: "power1.out", overwrite: !0 }), this.panelTween = o.fromTo(
       this.panel,

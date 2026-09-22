@@ -90,6 +90,15 @@ public sealed class ApplicationDbInitializer(
                 continue;
             }
 
+            var shouldRestoreLegacyViewerDescription =
+                string.Equals(entity.ViewerDescription, LegacyViewerDescriptions.GetValueOrDefault(seed.Id), StringComparison.Ordinal)
+                && string.Equals(entity.ShortDescription, seed.ShortDescription, StringComparison.Ordinal);
+
+            if (string.IsNullOrWhiteSpace(entity.ViewerDescription) || shouldRestoreLegacyViewerDescription)
+            {
+                entity.ViewerDescription = seed.ViewerDescription;
+            }
+
             var seededImages = WindowSystemSeedData.ImagesBySystemId.TryGetValue(seed.Id, out var images)
                 ? images
                 : [];
@@ -230,4 +239,20 @@ public sealed class ApplicationDbInitializer(
             image.IsPrimary = image == primary;
         }
     }
+
+    private static readonly IReadOnlyDictionary<string, string> LegacyViewerDescriptions = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["rolety-zewnetrzne"] = "Zewnętrzna osłona okienna, która pomaga ograniczyć słońce, hałas i straty ciepła.",
+        ["rolety-antywlamaniowe"] = "Wzmocnione rolety zewnętrzne zwiększające ochronę okien i domu.",
+        ["zaluzje-fasadowe"] = "Regulowane lamele zewnętrzne pozwalające wygodnie sterować światłem.",
+        ["markizy"] = "Zewnętrzna osłona przeciwsłoneczna dla tarasu, balkonu lub dużych przeszkleń.",
+        ["screeny-fasadowe"] = "Tkaninowa osłona zewnętrzna, która ogranicza nagrzewanie i olśnienie.",
+        ["moskitiery-zewnetrzne"] = "Zwijana siatka chroniąca przed owadami bez ograniczania wietrzenia.",
+        ["bramy-garazowe"] = "Izolowana brama garażowa z wygodnym, opcjonalnym sterowaniem automatycznym.",
+        ["zaluzje-poziome"] = "Wewnętrzne lamele umożliwiające precyzyjną regulację światła.",
+        ["zaluzje-pionowe"] = "Pionowe pasy do wygodnego przesłaniania dużych okien i drzwi balkonowych.",
+        ["plisy"] = "Składana osłona okienna pozwalająca zasłonić wybraną część szyby.",
+        ["rolety-wewnetrzne"] = "Materiałowe osłony okienne dostępne w wielu tkaninach i stopniach zaciemnienia.",
+        ["moskitiery-wewnetrzne"] = "Lekka siatka w ramce, która chroni wnętrze przed owadami.",
+    };
 }
