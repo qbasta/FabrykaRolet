@@ -11,7 +11,11 @@
         <p class="mt-2 text-sm text-stone-600">Nazwy pól są opisane tak, aby było jasne, gdzie dana treść pojawia się na stronie.</p>
     </header>
 
-    <form method="post" class="space-y-6">
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900 xl:hidden">
+        Edycja systemów jest dostępna wyłącznie na komputerze. Otwórz panel na większym ekranie, aby zmienić opisy, widoczność lub dane techniczne.
+    </div>
+
+    <form method="post" class="hidden space-y-6 xl:block" data-admin-desktop-only inert>
         <div asp-validation-summary="ModelOnly" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
         <section class="grid gap-6 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm md:grid-cols-2">
