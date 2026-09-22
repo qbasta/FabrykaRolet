@@ -1,7 +1,41 @@
 @page
 @model FabrykaRolet.Web.Pages.SystemyModel
+@using System.Collections.Generic
 @{
     ViewData["Title"] = "Wszystkie systemy";
+
+    var systemImages = new Dictionary<string, string[]>
+    {
+        ["rolety-zewnetrzne"] = new[]
+        {
+            "rolety-zewnetrzne-1-drewno.png",
+            "rolety-zewnetrzne-2-biala.png",
+            "rolety-zewnetrzne-3-antracyt.png",
+        },
+        ["rolety-antywlamaniowe"] = new[]
+        {
+            "rolety-antywlamaniowe-2-zamknieta.png",
+            "rolety-antywlamaniowe-1-konstrukcja.png",
+        },
+        ["zaluzje-fasadowe"] = new[]
+        {
+            "zaluzje-fasadowe-1.png",
+            "zaluzje-fasadowe-2.png",
+            "zaluzje-fasadowe-3.png",
+        },
+        ["markizy"] = new[]
+        {
+            "markizy-1-pasy-krem-bordo.png",
+            "markizy-2-terakota.png",
+            "markizy-3-oliwkowa-paski.png",
+        },
+        ["screeny-fasadowe"] = new[]
+        {
+            "screeny-fasadowe-1-szary-ciemny.png",
+            "screeny-fasadowe-2-perlowy.png",
+            "screeny-fasadowe-3-taupe.png",
+        },
+    };
 }
 
 <div class="bg-stone-100 min-h-full">
@@ -34,50 +68,153 @@
             {
                 var sectionSlug = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "exterior" : "interior";
                 var sectionLabel = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "System zewnętrzny" : "System wewnętrzny";
+                var images = systemImages.TryGetValue(system.Id, out var assignedImages) ? assignedImages : Array.Empty<string>();
+                var slideCount = images.Length > 0 ? images.Length : 1;
 
                 <article
                     id="@system.Id"
                     data-section="@sectionSlug"
-                    class="system-pill scroll-mt-24 bg-white rounded-3xl p-6 md:p-8 border border-stone-200/80 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-4
-                           target:ring-2 target:ring-accent target:ring-offset-2 target:ring-offset-stone-100">
+                    class="system-pill scroll-mt-24 bg-white rounded-3xl p-6 md:p-8 border border-stone-200/80 shadow-sm transition-all duration-300 space-y-4">
 
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-accent bg-accent-soft px-3 py-1 rounded-full border border-accent/20">
-                            @sectionLabel
-                        </span>
-                        <h2 class="text-2xl font-bold text-stone-900 mt-2">@system.Name</h2>
-                        <p class="text-stone-600 mt-2 text-sm leading-relaxed">@system.ShortDescription</p>
-                    </div>
+                    <div class="system-pill__layout">
+                        <section
+                            class="system-carousel"
+                            data-system-carousel
+                            data-system-name="@system.Name"
+                            aria-label="Galeria systemu @system.Name">
 
-                    @if (system.Advantages.Count > 0)
-                    {
-                        <ul class="space-y-1.5 py-3 border-y border-stone-100 text-sm text-stone-600">
-                            @foreach (var advantage in system.Advantages)
+                            <div class="system-carousel__frame">
+                                <div
+                                    class="system-carousel__viewport"
+                                    tabindex="@(images.Length > 1 ? "0" : "-1")"
+                                    data-carousel-viewport
+                                    aria-roledescription="karuzela"
+                                    aria-label="@(images.Length > 1 ? $"Karuzela zdjęć systemu {system.Name}" : $"Podgląd systemu {system.Name}")">
+
+                                    @if (images.Length > 0)
+                                    {
+                                        @for (var slideIndex = 0; slideIndex < images.Length; slideIndex++)
+                                        {
+                                            <div
+                                                class="system-carousel__slide @(slideIndex == 0 ? "is-active" : null)"
+                                                data-carousel-slide
+                                                role="group"
+                                                aria-roledescription="slajd"
+                                                aria-label="Zdjęcie @(slideIndex + 1) z @slideCount"
+                                                aria-hidden="@(slideIndex == 0 ? "false" : "true")">
+                                                <img
+                                                    class="system-carousel__image"
+                                                    src="~/images/systems/@images[slideIndex]"
+                                                    alt="@($"{system.Name} – zdjęcie {slideIndex + 1}")"
+                                                    loading="lazy" />
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div
+                                            class="system-carousel__slide system-carousel__slide--placeholder is-active"
+                                            data-carousel-slide
+                                            role="group"
+                                            aria-roledescription="slajd"
+                                            aria-label="Placeholder zdjęć dla systemu @system.Name"
+                                            aria-hidden="false">
+                                            <div class="system-carousel__placeholder" aria-hidden="true">
+                                                <svg class="system-carousel__placeholder-icon" viewBox="0 0 48 48" fill="none">
+                                                    <rect x="7" y="8" width="34" height="28" rx="6" stroke="currentColor" stroke-width="2.5"></rect>
+                                                    <path d="M14 30l7-8 6 6 4-5 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    <circle cx="18" cy="17" r="3" fill="currentColor"></circle>
+                                                </svg>
+                                                <span class="system-carousel__placeholder-title">Zdjęcia w przygotowaniu</span>
+                                                <span class="system-carousel__placeholder-copy">@system.Name</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (images.Length > 1)
+                                {
+                                    <button
+                                        type="button"
+                                        class="system-carousel__nav system-carousel__nav--prev"
+                                        data-carousel-prev
+                                        aria-label="Pokaż poprzednie zdjęcie systemu @system.Name">
+                                        <span aria-hidden="true">‹</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="system-carousel__nav system-carousel__nav--next"
+                                        data-carousel-next
+                                        aria-label="Pokaż następne zdjęcie systemu @system.Name">
+                                        <span aria-hidden="true">›</span>
+                                    </button>
+                                }
+                            </div>
+
+                            @if (images.Length > 1)
                             {
-                                <li class="flex items-start gap-2">
-                                    <svg class="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    <span>@advantage</span>
-                                </li>
+                                <div class="system-carousel__meta">
+                                    <div class="system-carousel__dots" aria-label="Wybór zdjęcia systemu @system.Name">
+                                        @for (var slideIndex = 0; slideIndex < images.Length; slideIndex++)
+                                        {
+                                            <button
+                                                type="button"
+                                                class="system-carousel__dot @(slideIndex == 0 ? "is-active" : null)"
+                                                data-carousel-dot
+                                                data-slide-index="@slideIndex"
+                                                aria-label="Pokaż zdjęcie @(slideIndex + 1) z @slideCount"
+                                                aria-pressed="@(slideIndex == 0 ? "true" : "false")"></button>
+                                        }
+                                    </div>
+                                    <p class="system-carousel__counter" data-carousel-counter aria-hidden="true">1 / @slideCount</p>
+                                </div>
                             }
-                        </ul>
-                    }
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                        <div>
-                            <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Dostępne materiały</span>
-                            <span class="font-semibold text-stone-700">@string.Join(", ", system.Materials)</span>
-                        </div>
-                        <div>
-                            <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Montaż / zastosowanie</span>
-                            <span class="font-semibold text-stone-700">@system.Mounting</span>
-                        </div>
-                        <div>
-                            <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Sterowanie</span>
-                            <span class="font-semibold text-stone-700">@system.Control</span>
-                        </div>
-                        <div>
-                            <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Max. wymiary</span>
-                            <span class="font-semibold text-stone-700">@system.MaxDimensions</span>
+                            <p class="sr-only" data-carousel-status aria-live="polite" aria-atomic="true">
+                                @(images.Length > 1 ? $"Zdjęcie 1 z {slideCount}" : "Podgląd bez dodatkowych zdjęć")
+                            </p>
+                        </section>
+
+                        <div class="space-y-4 min-w-0">
+                            <div>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-accent bg-accent-soft px-3 py-1 rounded-full border border-accent/20">
+                                    @sectionLabel
+                                </span>
+                                <h2 class="text-2xl font-bold text-stone-900 mt-2">@system.Name</h2>
+                                <p class="text-stone-600 mt-2 text-sm leading-relaxed">@system.ShortDescription</p>
+                            </div>
+
+                            @if (system.Advantages.Count > 0)
+                            {
+                                <ul class="space-y-1.5 py-3 border-y border-stone-100 text-sm text-stone-600">
+                                    @foreach (var advantage in system.Advantages)
+                                    {
+                                        <li class="flex items-start gap-2">
+                                            <svg class="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            <span>@advantage</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Dostępne materiały</span>
+                                    <span class="font-semibold text-stone-700">@string.Join(", ", system.Materials)</span>
+                                </div>
+                                <div>
+                                    <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Montaż / zastosowanie</span>
+                                    <span class="font-semibold text-stone-700">@system.Mounting</span>
+                                </div>
+                                <div>
+                                    <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Sterowanie</span>
+                                    <span class="font-semibold text-stone-700">@system.Control</span>
+                                </div>
+                                <div>
+                                    <span class="block text-stone-400 font-medium mb-1 uppercase tracking-wider">Max. wymiary</span>
+                                    <span class="font-semibold text-stone-700">@system.MaxDimensions</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
