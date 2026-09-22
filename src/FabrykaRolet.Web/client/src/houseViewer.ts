@@ -8,7 +8,7 @@ const LAYOUT_TRANSITION_MS = 420;
 const DESKTOP_MEDIA_QUERY = "(min-width: 901px)";
 const CONNECTOR_MARGIN = 10;
 
-type PanelContent = { name: string; description: string; advantages: string[] };
+type PanelContent = { name: string; description: string };
 type HotspotLookup = { viewIndex: number; hotspot: HotspotData };
 
 export class HouseViewer {
@@ -22,7 +22,6 @@ export class HouseViewer {
   private readonly panelClose: HTMLButtonElement;
   private readonly panelTitle: HTMLElement;
   private readonly panelDescription: HTMLElement;
-  private readonly panelAdvantages: HTMLElement;
   private readonly panelLink: HTMLAnchorElement;
   private readonly availability: HTMLElement | null;
   private readonly panelStatus: HTMLElement | null;
@@ -60,7 +59,6 @@ export class HouseViewer {
     this.panelClose = this.require(".house-viewer__panel-close");
     this.panelTitle = this.require("#house-viewer-panel-title");
     this.panelDescription = this.require("#house-viewer-panel-description");
-    this.panelAdvantages = this.require("#house-viewer-panel-advantages");
     this.panelLink = this.require("#house-viewer-panel-link");
     this.availability = root.querySelector("#house-viewer-availability");
     this.panelStatus = root.querySelector("#house-viewer-status");
@@ -416,12 +414,6 @@ export class HouseViewer {
 
     this.panelTitle.textContent = content.name;
     this.panelDescription.textContent = content.description;
-    this.panelAdvantages.replaceChildren();
-    content.advantages.forEach((advantage) => {
-      const item = document.createElement("li");
-      item.textContent = advantage;
-      this.panelAdvantages.appendChild(item);
-    });
     this.panelLink.href = `/Systemy#${encodeURIComponent(systemId)}`;
 
     this.panel.hidden = false;

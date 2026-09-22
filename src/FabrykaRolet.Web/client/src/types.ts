@@ -2,7 +2,6 @@ export interface HotspotData {
   systemId: string;
   name: string;
   description: string;
-  advantages: string[];
   x: number;
   y: number;
 }
@@ -20,7 +19,6 @@ export interface SystemSummary {
   systemId: string;
   name: string;
   description: string;
-  advantages: string[];
 }
 
 export interface HouseViewerData {

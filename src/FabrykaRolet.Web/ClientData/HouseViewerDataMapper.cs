@@ -20,7 +20,7 @@ public static class HouseViewerDataMapper
             .ToList();
 
         var systems = data.Systems
-            .Select(s => new SystemSummaryDto(s.Id, s.Name, s.ShortDescription, s.Advantages))
+            .Select(s => new SystemSummaryDto(s.Id, s.Name, s.ViewerDescription))
             .ToList();
 
         return new HouseViewerDataDto(views, systems);
@@ -33,8 +33,7 @@ public static class HouseViewerDataMapper
         return new HotspotDto(
             hotspot.WindowSystemId,
             system?.Name ?? hotspot.WindowSystemId,
-            system?.ShortDescription ?? string.Empty,
-            system?.Advantages ?? Array.Empty<string>(),
+            system?.ViewerDescription ?? string.Empty,
             hotspot.Position.X,
             hotspot.Position.Y);
     }

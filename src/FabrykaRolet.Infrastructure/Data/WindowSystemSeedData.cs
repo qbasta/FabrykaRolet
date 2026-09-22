@@ -17,6 +17,7 @@ internal static class WindowSystemSeedData
             Id = "rolety-zewnetrzne",
             Name = "Rolety zewnętrzne",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Zewnętrzna osłona okienna, która pomaga ograniczyć słońce, hałas i straty ciepła.",
             ShortDescription = "Rolety montowane na zewnątrz okna, zwijane w skrzynkę nad oknem. Chronią przed słońcem, hałasem i utratą ciepła.",
             Advantages = new[]
             {
@@ -34,6 +35,7 @@ internal static class WindowSystemSeedData
             Id = "rolety-antywlamaniowe",
             Name = "Rolety antywłamaniowe / pancerne",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Wzmocnione rolety zewnętrzne zwiększające ochronę okien i domu.",
             ShortDescription = "Wzmocniona wersja rolety zewnętrznej, wykonana z profili o podwyższonej odporności na włamanie.",
             Advantages = new[]
             {
@@ -51,6 +53,7 @@ internal static class WindowSystemSeedData
             Id = "zaluzje-fasadowe",
             Name = "Żaluzje fasadowe zewnętrzne",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Regulowane lamele zewnętrzne pozwalające wygodnie sterować światłem.",
             ShortDescription = "Żaluzje z regulowanymi lamelami montowane na elewacji, pozwalające płynnie sterować ilością wpadającego światła.",
             Advantages = new[]
             {
@@ -68,6 +71,7 @@ internal static class WindowSystemSeedData
             Id = "markizy",
             Name = "Markizy",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Zewnętrzna osłona przeciwsłoneczna dla tarasu, balkonu lub dużych przeszkleń.",
             ShortDescription = "Wysuwane zadaszenia tkaninowe montowane nad oknem, drzwiami lub tarasem.",
             Advantages = new[]
             {
@@ -85,6 +89,7 @@ internal static class WindowSystemSeedData
             Id = "screeny-fasadowe",
             Name = "Screeny fasadowe",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Tkaninowa osłona zewnętrzna, która ogranicza nagrzewanie i olśnienie.",
             ShortDescription = "Rolety z przepuszczalnej tkaniny technicznej, tłumiące nasłonecznienie przy zachowaniu widoczności na zewnątrz.",
             Advantages = new[]
             {
@@ -102,6 +107,7 @@ internal static class WindowSystemSeedData
             Id = "moskitiery-zewnetrzne",
             Name = "Moskitiery zewnętrzne (rolowane)",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Zwijana siatka chroniąca przed owadami bez ograniczania wietrzenia.",
             ShortDescription = "Zwijane siatki montowane na zewnątrz okna lub drzwi, chroniące przed owadami.",
             Advantages = new[]
             {
@@ -119,6 +125,7 @@ internal static class WindowSystemSeedData
             Id = "bramy-garazowe",
             Name = "Bramy garażowe",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Izolowana brama garażowa z wygodnym, opcjonalnym sterowaniem automatycznym.",
             ShortDescription = "Segmentowe lub rolowane bramy wjazdowe do garażu, zwykle z napędem elektrycznym.",
             Advantages = new[]
             {
@@ -138,6 +145,7 @@ internal static class WindowSystemSeedData
             Id = "zaluzje-poziome",
             Name = "Żaluzje poziome (aluminiowe)",
             Section = HouseSection.Interior,
+            ViewerDescription = "Wewnętrzne lamele umożliwiające precyzyjną regulację światła.",
             ShortDescription = "Klasyczne żaluzje z poziomych lamel aluminiowych montowane wewnątrz, na ramie okna lub nad nim.",
             Advantages = new[]
             {
@@ -155,6 +163,7 @@ internal static class WindowSystemSeedData
             Id = "zaluzje-pionowe",
             Name = "Żaluzje pionowe (wertikalne)",
             Section = HouseSection.Interior,
+            ViewerDescription = "Pionowe pasy do wygodnego przesłaniania dużych okien i drzwi balkonowych.",
             ShortDescription = "Żaluzje z pionowych pasów tkaniny, dobrze sprawdzające się przy dużych i szerokich oknach.",
             Advantages = new[]
             {
@@ -172,6 +181,7 @@ internal static class WindowSystemSeedData
             Id = "plisy",
             Name = "Plisy",
             Section = HouseSection.Interior,
+            ViewerDescription = "Składana osłona okienna pozwalająca zasłonić wybraną część szyby.",
             ShortDescription = "Zaplisowana tkanina rozkładana w harmonijkę, montowana bezpośrednio na skrzydle okna - sprawdza się też przy nietypowych kształtach.",
             Advantages = new[]
             {
@@ -189,6 +199,7 @@ internal static class WindowSystemSeedData
             Id = "rolety-wewnetrzne",
             Name = "Rolety wewnętrzne",
             Section = HouseSection.Interior,
+            ViewerDescription = "Materiałowe osłony okienne dostępne w wielu tkaninach i stopniach zaciemnienia.",
             ShortDescription = "Rolety materiałowe montowane wewnątrz pomieszczenia (m.in. rzymskie, dzień-noc, wolnowiszące, zaciemniające).",
             Advantages = new[]
             {
@@ -206,6 +217,7 @@ internal static class WindowSystemSeedData
             Id = "moskitiery-wewnetrzne",
             Name = "Moskitiery wewnętrzne (ramkowe)",
             Section = HouseSection.Interior,
+            ViewerDescription = "Lekka siatka w ramce, która chroni wnętrze przed owadami.",
             ShortDescription = "Moskitiery w sztywnej ramie montowane od wewnątrz, w futrynie okna lub drzwi.",
             Advantages = new[]
             {
