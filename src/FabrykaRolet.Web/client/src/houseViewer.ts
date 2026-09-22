@@ -23,6 +23,7 @@ export class HouseViewer {
   private readonly panelTitle: HTMLElement;
   private readonly panelDescription: HTMLElement;
   private readonly panelAdvantages: HTMLElement;
+  private readonly panelLink: HTMLAnchorElement;
   private readonly availability: HTMLElement | null;
   private readonly panelStatus: HTMLElement | null;
   private readonly prevBtn: HTMLButtonElement | null;
@@ -60,6 +61,7 @@ export class HouseViewer {
     this.panelTitle = this.require("#house-viewer-panel-title");
     this.panelDescription = this.require("#house-viewer-panel-description");
     this.panelAdvantages = this.require("#house-viewer-panel-advantages");
+    this.panelLink = this.require("#house-viewer-panel-link");
     this.availability = root.querySelector("#house-viewer-availability");
     this.panelStatus = root.querySelector("#house-viewer-status");
     this.prevBtn = root.querySelector(".house-viewer__arrow--prev");
@@ -254,7 +256,7 @@ export class HouseViewer {
     const found = this.findHotspot(systemId);
     if (!found) {
       const summary = this.findSystemSummary(systemId);
-      if (summary) this.openPanel(summary, trigger, null);
+      if (summary) this.openPanel(summary, trigger, systemId);
       return;
     }
 
@@ -405,7 +407,7 @@ export class HouseViewer {
     this.markerFor(systemId)?.classList.toggle("is-hovered", hovered);
   }
 
-  private openPanel(content: PanelContent, trigger: HTMLElement, systemId: string | null): void {
+  private openPanel(content: PanelContent, trigger: HTMLElement, systemId: string): void {
     this.cancelConnectorRefresh();
     this.killOpenCloseTweens();
     this.isClosingPanel = false;
@@ -420,6 +422,7 @@ export class HouseViewer {
       item.textContent = advantage;
       this.panelAdvantages.appendChild(item);
     });
+    this.panelLink.href = `/Systemy#${encodeURIComponent(systemId)}`;
 
     this.panel.hidden = false;
     this.panel.setAttribute("aria-hidden", "false");
@@ -427,7 +430,7 @@ export class HouseViewer {
     this.syncActiveSystemState();
     this.syncLayoutMetrics();
 
-    const marker = systemId ? this.markerFor(systemId) : null;
+    const marker = this.markerFor(systemId);
     if (marker) {
       gsap.fromTo(marker, { scale: 1 }, { scale: 1.14, duration: 0.13, repeat: 1, yoyo: true, ease: "power1.out", overwrite: true });
     }

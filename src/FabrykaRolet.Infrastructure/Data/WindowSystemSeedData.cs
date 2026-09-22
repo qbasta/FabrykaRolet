@@ -3,9 +3,9 @@ using FabrykaRolet.Domain.Entities;
 namespace FabrykaRolet.Infrastructure.Data;
 
 /// <summary>
-/// UWAGA: opisy i zalety poniżej to treść tymczasowa (ogólne informacje o kategorii
-/// produktu), wyłącznie po to, żeby mechanizm miał na czym działać. Do podmiany na
-/// docelowe teksty dostarczone przez klienta.
+/// UWAGA: opisy, zalety i specyfikacja (materiały/montaż/sterowanie/wymiary) poniżej to
+/// treść tymczasowa, wyłącznie po to, żeby mechanizm miał na czym działać. Do podmiany
+/// na docelowe teksty i dane dostarczone przez klienta.
 /// </summary>
 internal static class WindowSystemSeedData
 {
@@ -24,6 +24,10 @@ internal static class WindowSystemSeedData
                 "Dodatkowa izolacja termiczna i akustyczna",
                 "Możliwość pełnego zaciemnienia pomieszczenia",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -37,6 +41,10 @@ internal static class WindowSystemSeedData
                 "Często łączona z czujnikami w systemie alarmowym",
                 "Dodatkowo pełni funkcję standardowej rolety (słońce, izolacja)",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -50,6 +58,10 @@ internal static class WindowSystemSeedData
                 "Nowoczesny, architektoniczny wygląd elewacji",
                 "Skuteczna ochrona przed przegrzewaniem pomieszczeń",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -63,6 +75,10 @@ internal static class WindowSystemSeedData
                 "Możliwość sterowania automatycznego (czujnik słońca/wiatru)",
                 "Szeroki wybór kolorystyki tkaniny",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -76,6 +92,10 @@ internal static class WindowSystemSeedData
                 "Ograniczenie olśnienia (np. przy ekranach, telewizorze)",
                 "Niska waga konstrukcji w porównaniu do rolet pełnych",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -89,6 +109,10 @@ internal static class WindowSystemSeedData
                 "Zwijana - niewidoczna, gdy nieużywana",
                 "Nie ogranicza światła, gdy jest zwinięta",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -102,6 +126,10 @@ internal static class WindowSystemSeedData
                 "Dobra izolacja termiczna garażu",
                 "Integracja z systemem inteligentnego domu",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
 
         // --- Wewnętrzne ---
@@ -117,6 +145,10 @@ internal static class WindowSystemSeedData
                 "Odporność na wilgoć (dobre do kuchni/łazienki)",
                 "Duży wybór kolorów lamel",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -130,6 +162,10 @@ internal static class WindowSystemSeedData
                 "Możliwość przesuwania na bok jak zasłona",
                 "Regulacja kąta ustawienia pasów",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -143,6 +179,10 @@ internal static class WindowSystemSeedData
                 "Możliwość montażu góra-dół (zasłonięcie tylko części okna)",
                 "Kompaktowa forma, mało widoczna przy oknie",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -156,6 +196,10 @@ internal static class WindowSystemSeedData
                 "Duża różnorodność wzorów i tkanin",
                 "Dobre uzupełnienie lub alternatywa dla firan/zasłon",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
         new()
         {
@@ -169,6 +213,10 @@ internal static class WindowSystemSeedData
                 "Łatwy demontaż na okres zimowy",
                 "Niski koszt w porównaniu do wersji rolowanych",
             },
+            Materials = new[] { "Do uzupełnienia" },
+            Mounting = "Do uzupełnienia",
+            Control = "Do uzupełnienia",
+            MaxDimensions = "Do uzupełnienia",
         },
     };
 }

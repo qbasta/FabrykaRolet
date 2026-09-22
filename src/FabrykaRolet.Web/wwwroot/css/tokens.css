@@ -20,8 +20,8 @@
   --color-accent-2: #F2994A;
   --color-accent-2-soft: #FDEEDD;
 
-  --font-body: "Jost", "Segoe UI", system-ui, sans-serif;
-  --font-heading: "Jost", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-heading: "Inter", "Segoe UI", system-ui, sans-serif;
 
   --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
   --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);

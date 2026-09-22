@@ -6,24 +6,63 @@
 
 <section class="section-intro container">
     <h1>Systemy wewnętrzne</h1>
-    <p>Interaktywne widoki okien z systemami wewnętrznymi pojawią się w tym miejscu wkrótce.</p>
+    <p>Kliknij w oznaczony element na widoku wnętrza, aby poznać jego opis i zalety.</p>
 </section>
 
-@if (!Model.HasViews)
+@if (Model.HasViews)
 {
-    <p class="container">
-        Model danych zawiera już wszystkie systemy wewnętrzne poniżej – brakuje jedynie
-        docelowej grafiki i rozmieszczenia hotspotów, żeby działały tak jak w sekcji
-        „Na zewnątrz".
-    </p>
+    <section class="house-viewer container" id="house-viewer" data-system-buttons="#house-viewer-systems">
+        <div class="house-viewer__layout">
+            <div class="house-viewer__stage-shell">
+                <div class="house-viewer__stage">
+                    <img class="house-viewer__image" alt="" />
+                    <div class="house-viewer__markers"></div>
+                </div>
+            </div>
 
-    <section class="system-grid container">
-        @foreach (var system in Model.Systems)
-        {
-            <article class="system-card">
-                <h2>@system.Name</h2>
-                <p>@system.ShortDescription</p>
-            </article>
-        }
+            <aside id="house-viewer-panel" class="house-viewer__panel" aria-labelledby="house-viewer-panel-title" aria-hidden="true" tabindex="-1" hidden>
+                <button type="button" class="house-viewer__panel-close" data-close aria-label="Zamknij okno">&times;</button>
+                <h2 id="house-viewer-panel-title"></h2>
+                <p id="house-viewer-panel-description"></p>
+                <ul id="house-viewer-panel-advantages" class="house-viewer__advantages"></ul>
+                <a id="house-viewer-panel-link" class="house-viewer__panel-link" href="/Systemy">Dowiedz się więcej →</a>
+            </aside>
+
+            <svg class="house-viewer__connector" aria-hidden="true" hidden>
+                <path class="house-viewer__connector-path"></path>
+            </svg>
+        </div>
+
+        <div class="house-viewer__nav">
+            <button type="button" class="house-viewer__arrow house-viewer__arrow--prev" aria-label="Poprzedni widok" hidden>‹</button>
+            <nav class="house-viewer__views" aria-label="Wybierz widok wnętrza"></nav>
+            <button type="button" class="house-viewer__arrow house-viewer__arrow--next" aria-label="Następny widok" hidden>›</button>
+        </div>
+
+        <p class="house-viewer__availability" id="house-viewer-availability" aria-live="polite"></p>
+        <span class="house-viewer__status" id="house-viewer-status" aria-live="polite" aria-atomic="true"></span>
     </section>
+
+    <script id="house-viewer-data" type="application/json">@Html.Raw(Model.ViewerDataJson)</script>
+}
+else
+{
+    <p class="container">Widoki dla tej sekcji są w przygotowaniu.</p>
+}
+
+<section id="house-viewer-systems" class="system-grid container" aria-label="Lista systemów wewnętrznych">
+    @foreach (var system in Model.Systems)
+    {
+        <button type="button" class="system-button" data-system-id="@system.Id">
+            @system.Name
+        </button>
+    }
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/house-viewer.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script type="module" src="~/dist/house-viewer.js" asp-append-version="true"></script>
 }

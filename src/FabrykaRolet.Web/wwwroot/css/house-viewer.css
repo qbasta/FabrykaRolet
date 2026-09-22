@@ -206,6 +206,22 @@
   margin-top: var(--space-1);
 }
 
+.house-viewer__panel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  margin-top: var(--space-2);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  color: var(--color-ink);
+  transition: color 0.18s ease, gap 0.18s ease;
+}
+.house-viewer__panel-link:hover {
+  color: var(--color-accent);
+  gap: 0.55em;
+}
+
 .house-viewer__nav {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

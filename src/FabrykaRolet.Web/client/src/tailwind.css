@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Skanuj też pliki .cshtml (poza folderem client/) pod kątem użytych klas - domyślna
+   automatyczna detekcja Tailwind v4 może nie sięgać poza katalog client/. */
+@source "../../Pages/**/*.cshtml";
+
+@theme {
+  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+
+  --color-ink: #3C3C3C;
+  --color-ink-soft: #787878;
+  --color-ink-faint: #B7B7B7;
+  --color-surface: #F5F6F8;
+  --color-border: #E2E4E8;
+
+  --color-accent: #1D5FBF;
+  --color-accent-dark: #164A96;
+  --color-accent-soft: #E5EEFC;
+
+  --color-accent-2: #F2994A;
+  --color-accent-2-soft: #FDEEDD;
+}
+
+/* Filtr na stronie "Wszystkie systemy" - bez ani jednej linijki JS.
+   #systems-page opina zarówno radiobuttony (w <nav>), jak i listę pigułek (w <main>),
+   więc :has() na wspólnym przodku może warunkować widoczność kart po drugiej stronie
+   drzewa DOM - zwykły kombinator rodzeństwa (~) by tu nie wystarczył, bo radio i .system-pill
+   nie są bezpośrednim rodzeństwem. */
+#systems-page:has(#filter-exterior:checked) .system-pill[data-section="interior"],
+#systems-page:has(#filter-interior:checked) .system-pill[data-section="exterior"] {
+  display: none;
+}

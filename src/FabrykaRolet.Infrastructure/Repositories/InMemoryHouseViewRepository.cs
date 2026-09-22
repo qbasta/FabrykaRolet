@@ -8,7 +8,8 @@ namespace FabrykaRolet.Infrastructure.Repositories;
 /// na rzeczywiste rendery - patrz historia konwersacji z 2026-09-21/22. Współrzędne
 /// screeny-fasadowe (taras) i moskitiery-zewnetrzne (tyl) poprawione po zgłoszeniu
 /// błędnego umiejscowienia - poprzednie wartości lądowały obok właściwych produktów,
-/// nie na nich.
+/// nie na nich. Sekcja Interior (3 widoki: salon, kuchnia, okno z moskitierą) dodana
+/// tą samą metodą weryfikacji.
 ///
 /// Sekcja Interior celowo zwraca pustą listę - widoki wnętrz jeszcze nie istnieją.
 /// </summary>
@@ -79,7 +80,50 @@ public sealed class InMemoryHouseViewRepository : IHouseViewRepository
         },
     };
 
-    private static readonly IReadOnlyList<HouseView> InteriorViews = new List<HouseView>();
+    private static readonly IReadOnlyList<HouseView> InteriorViews = new List<HouseView>
+    {
+        new()
+        {
+            Id = "salon",
+            Section = HouseSection.Interior,
+            Title = "Salon",
+            ImagePath = "/images/house/interior-salon.png",
+            ImageWidth = 1408,
+            ImageHeight = 768,
+            Hotspots = new List<Hotspot>
+            {
+                new() { WindowSystemId = "zaluzje-poziome", Position = new HotspotPoint(24, 33) },
+                new() { WindowSystemId = "zaluzje-pionowe", Position = new HotspotPoint(75, 38) },
+            },
+        },
+        new()
+        {
+            Id = "kuchnia",
+            Section = HouseSection.Interior,
+            Title = "Kuchnia / jadalnia",
+            ImagePath = "/images/house/interior-kuchnia.png",
+            ImageWidth = 1408,
+            ImageHeight = 768,
+            Hotspots = new List<Hotspot>
+            {
+                new() { WindowSystemId = "plisy", Position = new HotspotPoint(29, 32) },
+                new() { WindowSystemId = "rolety-wewnetrzne", Position = new HotspotPoint(77, 31) },
+            },
+        },
+        new()
+        {
+            Id = "okno",
+            Section = HouseSection.Interior,
+            Title = "Okno z moskitierą",
+            ImagePath = "/images/house/interior-okno.png",
+            ImageWidth = 1408,
+            ImageHeight = 768,
+            Hotspots = new List<Hotspot>
+            {
+                new() { WindowSystemId = "moskitiery-wewnetrzne", Position = new HotspotPoint(88, 78) },
+            },
+        },
+    };
 
     public IReadOnlyList<HouseView> GetBySection(HouseSection section) => section switch
     {
