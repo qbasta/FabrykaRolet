@@ -252,6 +252,16 @@ export class HouseViewer {
     return this.data.systems.find((item) => item.systemId === systemId);
   }
 
+  private buildSystemsPageUrl(systemId: string): string {
+    const url = new URL("/Systemy", window.location.origin);
+    if (this.root.dataset.adminPreview === "true" || document.body.dataset.adminPreview === "true") {
+      url.searchParams.set("adminPreview", "1");
+    }
+
+    url.hash = systemId;
+    return `${url.pathname}${url.search}${url.hash}`;
+  }
+
   private activateSystem(systemId: string, trigger: HTMLElement): void {
     const found = this.findHotspot(systemId);
     if (!found) {
@@ -422,7 +432,7 @@ export class HouseViewer {
       item.textContent = advantage;
       this.panelAdvantages.appendChild(item);
     });
-    this.panelLink.href = `/Systemy#${encodeURIComponent(systemId)}`;
+    this.panelLink.href = this.buildSystemsPageUrl(systemId);
 
     this.panel.hidden = false;
     this.panel.setAttribute("aria-hidden", "false");

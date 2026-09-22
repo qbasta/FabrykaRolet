@@ -70,6 +70,7 @@ public sealed class EdytujModel(AppDbContext dbContext) : PageModel
     public async Task<IActionResult> OnPostAsync(string? id)
     {
         IsNew = string.IsNullOrWhiteSpace(id);
+        Input.IsVisible = Input.IsVisible && !Input.IsArchived;
         if (!ModelState.IsValid)
         {
             return Page();
@@ -124,7 +125,7 @@ public sealed class EdytujModel(AppDbContext dbContext) : PageModel
         entity.Mounting = Input.Mounting.Trim();
         entity.Control = Input.Control.Trim();
         entity.MaxDimensions = Input.MaxDimensions.Trim();
-        entity.IsVisible = Input.IsVisible && !Input.IsArchived;
+        entity.IsVisible = Input.IsVisible;
         entity.IsArchived = Input.IsArchived;
         entity.SortOrder = Input.SortOrder;
 

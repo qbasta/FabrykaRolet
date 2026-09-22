@@ -1,4 +1,5 @@
 using FabrykaRolet.Infrastructure.Data;
+using FabrykaRolet.Infrastructure.Data.Entities;
 using FabrykaRolet.Infrastructure.Identity;
 using FabrykaRolet.Infrastructure.Services;
 using Microsoft.Data.Sqlite;
@@ -71,6 +72,48 @@ public sealed class ApplicationDbInitializerTests
         var user = Assert.Single(users);
         Assert.Equal("admin", user.UserName);
         Assert.Equal("admin@fabrykarolet.local", user.Email);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_restores_legacy_seeded_viewer_descriptions_to_public_copy()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var services = CreateServiceProvider(connection);
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager);
+            await initializer.InitializeAsync();
+        }
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var system = await dbContext.WindowSystems.SingleAsync(x => x.Id == "rolety-zewnetrzne");
+            system.ViewerDescription = "Zewnętrzna osłona okienna, która pomaga ograniczyć słońce, hałas i straty ciepła.";
+            system.ShortDescription = WindowSystemSeedData.All.Single(x => x.Id == "rolety-zewnetrzne").ShortDescription;
+            await dbContext.SaveChangesAsync();
+        }
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager);
+            await initializer.InitializeAsync();
+        }
+
+        await using var verificationScope = services.CreateAsyncScope();
+        var verificationDbContext = verificationScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var restoredValue = await verificationDbContext.WindowSystems
+            .Where(x => x.Id == "rolety-zewnetrzne")
+            .Select(x => x.ViewerDescription)
+            .SingleAsync();
+
+        Assert.Equal(WindowSystemSeedData.All.Single(x => x.Id == "rolety-zewnetrzne").ShortDescription, restoredValue);
     }
 
     private static ServiceProvider CreateServiceProvider(SqliteConnection connection)

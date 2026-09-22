@@ -2,6 +2,7 @@
 
 /* Skanuj też pliki .cshtml (poza folderem client/) pod kątem użytych klas - domyślna
    automatyczna detekcja Tailwind v4 może nie sięgać poza katalog client/. */
+@source "../../Pages/Admin/**/*.cshtml";
 @source "../../Pages/**/*.cshtml";
 
 @theme {

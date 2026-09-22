@@ -16,7 +16,7 @@
 
 @if (Model.HasViews)
 {
-    <section class="house-viewer container" id="house-viewer" data-system-buttons="#house-viewer-systems">
+    <section class="house-viewer container" id="house-viewer" data-system-buttons="#house-viewer-systems" data-admin-preview="@(isAdminPreview ? "true" : "false")">
         <div class="house-viewer__layout">
             <div class="house-viewer__stage-shell">
                 <div class="house-viewer__stage">

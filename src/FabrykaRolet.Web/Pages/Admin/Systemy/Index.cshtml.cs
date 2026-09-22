@@ -31,6 +31,11 @@ public sealed class IndexModel(AppDbContext dbContext) : PageModel
             return NotFound();
         }
 
+        if (entity.IsArchived)
+        {
+            return RedirectToPage(new { message = $"Najpierw przywróć system „{entity.Name}” z archiwum." });
+        }
+
         entity.IsVisible = !entity.IsVisible;
         await dbContext.SaveChangesAsync();
         return RedirectToPage(new { message = $"Zmieniono widoczność systemu „{entity.Name}”." });

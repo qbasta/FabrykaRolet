@@ -1,3 +1,9 @@
+@{
+    var isAdminPreview = User.Identity?.IsAuthenticated == true && Context.Request.Query["adminPreview"] == "1";
+    var previewRoute = isAdminPreview
+        ? new System.Collections.Generic.Dictionary<string, string?> { ["adminPreview"] = "1" }
+        : null;
+}
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -24,14 +30,14 @@
     </noscript>
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="font-sans text-ink min-h-screen flex flex-col">
+<body class="font-sans text-ink min-h-screen flex flex-col" data-admin-preview="@(isAdminPreview ? "true" : "false")">
     <a class="skip-link" href="#main-content">Przejdź do treści</a>
 
     <header class="border-b border-stone-200">
         <div class="container mx-auto max-w-6xl px-4 md:px-8 py-4">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
                 <div class="flex items-center justify-between gap-4">
-                    <a href="/" class="flex min-w-0 items-center gap-2 group" aria-label="Fabryka Rolet – strona główna">
+                    <a asp-page="/Index" asp-all-route-data="previewRoute" class="group flex min-w-0 items-center gap-2" aria-label="Fabryka Rolet – strona główna">
                         <img src="~/images/logo/fr-icon.png" alt="" class="h-9 w-auto shrink-0 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105" asp-append-version="true" />
                         <span class="font-bold text-lg md:text-xl tracking-tight text-stone-900">Fabryka Rolet</span>
                     </a>
@@ -59,11 +65,11 @@
 
             <nav aria-label="Nawigacja główna">
                 <div class="hidden md:flex gap-x-6 gap-y-1">
-                    <a asp-page="/Index" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Strona główna</a>
-                    <a asp-page="/NaZewnatrz" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Na zewnątrz</a>
-                    <a asp-page="/Wewnatrz" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Wewnątrz</a>
-                    <a asp-page="/Systemy" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Wszystkie systemy</a>
-                    <a asp-page="/Kontakt" class="relative text-sm font-medium text-stone-600 hover:text-accent transition-colors py-1 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-0.5 after:bg-accent after:scale-x-0 after:origin-left after:transition-transform after:duration-300 hover:after:scale-x-100">Kontakt</a>
+                    <a asp-page="/Index" asp-all-route-data="previewRoute" class="relative py-1 text-sm font-medium text-stone-600 transition-colors hover:text-accent after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:content-[''] hover:after:scale-x-100">Strona główna</a>
+                    <a asp-page="/NaZewnatrz" asp-all-route-data="previewRoute" class="relative py-1 text-sm font-medium text-stone-600 transition-colors hover:text-accent after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:content-[''] hover:after:scale-x-100">Na zewnątrz</a>
+                    <a asp-page="/Wewnatrz" asp-all-route-data="previewRoute" class="relative py-1 text-sm font-medium text-stone-600 transition-colors hover:text-accent after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:content-[''] hover:after:scale-x-100">Wewnątrz</a>
+                    <a asp-page="/Systemy" asp-all-route-data="previewRoute" class="relative py-1 text-sm font-medium text-stone-600 transition-colors hover:text-accent after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:content-[''] hover:after:scale-x-100">Wszystkie systemy</a>
+                    <a asp-page="/Kontakt" asp-all-route-data="previewRoute" class="relative py-1 text-sm font-medium text-stone-600 transition-colors hover:text-accent after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 after:content-[''] hover:after:scale-x-100">Kontakt</a>
                 </div>
 
                 <div
@@ -71,17 +77,17 @@
                     class="mt-4 space-y-1 border-t border-stone-200 pt-4 md:hidden"
                     data-mobile-nav-menu
                     hidden>
-                    <a asp-page="/Index" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Strona główna</a>
-                    <a asp-page="/NaZewnatrz" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Na zewnątrz</a>
-                    <a asp-page="/Wewnatrz" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Wewnątrz</a>
-                    <a asp-page="/Systemy" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Wszystkie systemy</a>
-                    <a asp-page="/Kontakt" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Kontakt</a>
+                    <a asp-page="/Index" asp-all-route-data="previewRoute" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Strona główna</a>
+                    <a asp-page="/NaZewnatrz" asp-all-route-data="previewRoute" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Na zewnątrz</a>
+                    <a asp-page="/Wewnatrz" asp-all-route-data="previewRoute" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Wewnątrz</a>
+                    <a asp-page="/Systemy" asp-all-route-data="previewRoute" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Wszystkie systemy</a>
+                    <a asp-page="/Kontakt" asp-all-route-data="previewRoute" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Kontakt</a>
                 </div>
             </nav>
         </div>
     </header>
 
-    @if (User.Identity?.IsAuthenticated == true && Context.Request.Query["adminPreview"] == "1")
+    @if (isAdminPreview)
     {
         <div class="border-b border-amber-200 bg-amber-50">
             <div class="container mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm md:px-8">
