@@ -7,6 +7,85 @@ const CAROUSEL_INTERACTIVE_SELECTOR =
   ".system-carousel, [data-carousel-prev], [data-carousel-next], [data-carousel-dot], [data-carousel-viewport], a, button, input, label, select, textarea, summary";
 let systemsSelectionHashHandler: (() => void) | null = null;
 
+function initMobileNav(): void {
+  const toggle = document.querySelector<HTMLButtonElement>("[data-mobile-nav-toggle]");
+  const menu = document.querySelector<HTMLElement>("[data-mobile-nav-menu]");
+  if (!toggle || !menu || toggle.dataset.mobileNavInitialized === "true") return;
+
+  toggle.dataset.mobileNavInitialized = "true";
+
+  const openIcon = toggle.querySelector<HTMLElement>("[data-mobile-nav-open-icon]");
+  const closeIcon = toggle.querySelector<HTMLElement>("[data-mobile-nav-close-icon]");
+  const menuLinks = Array.from(menu.querySelectorAll<HTMLAnchorElement>("[data-mobile-nav-link]"));
+  const desktopMedia = window.matchMedia("(min-width: 768px)");
+  let isOpen = false;
+
+  const syncState = (): void => {
+    menu.classList.toggle("hidden", !isOpen);
+    toggle.setAttribute("aria-expanded", String(isOpen));
+    toggle.setAttribute("aria-label", isOpen ? "Zamknij menu główne" : "Otwórz menu główne");
+    openIcon?.classList.toggle("hidden", isOpen);
+    closeIcon?.classList.toggle("hidden", !isOpen);
+  };
+
+  const closeMenu = (restoreFocus = false): void => {
+    if (!isOpen) {
+      syncState();
+      return;
+    }
+
+    isOpen = false;
+    syncState();
+
+    if (restoreFocus) {
+      toggle.focus();
+    }
+  };
+
+  const toggleMenu = (): void => {
+    isOpen = !isOpen;
+    syncState();
+  };
+
+  toggle.addEventListener("click", () => {
+    toggleMenu();
+  });
+
+  menuLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      closeMenu();
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!isOpen || desktopMedia.matches) return;
+
+    const target = event.target as Node | null;
+    if (!target || menu.contains(target) || toggle.contains(target)) return;
+    closeMenu();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !isOpen) return;
+
+    event.preventDefault();
+    closeMenu(true);
+  });
+
+  const handleViewportChange = (): void => {
+    isOpen = false;
+    syncState();
+  };
+
+  if ("addEventListener" in desktopMedia) {
+    desktopMedia.addEventListener("change", handleViewportChange);
+  } else {
+    desktopMedia.addListener(handleViewportChange);
+  }
+
+  syncState();
+}
+
 function animateHero(): void {
   const heading = document.querySelector(".hero h1");
   const lead = document.querySelector(".hero__lead");
@@ -225,6 +304,7 @@ function initSystemsPage(): void {
 }
 
 function init(): void {
+  initMobileNav();
   animateHero();
   animateOnScroll(".section-card");
   animateOnScroll(".system-button");
