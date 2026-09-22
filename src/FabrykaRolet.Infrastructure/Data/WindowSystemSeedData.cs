@@ -28,7 +28,7 @@ internal static class WindowSystemSeedData
         new()
         {
             Id = "rolety-antywlamaniowe",
-            Name = "Rolety antywłamaniowe / pancerne",
+            Name = "Rolety antywłamaniowe",
             Section = HouseSection.Exterior,
             ShortDescription = "Wzmocniona wersja rolety zewnętrznej, wykonana z profili o podwyższonej odporności na włamanie.",
             Advantages = new[]
@@ -121,7 +121,7 @@ internal static class WindowSystemSeedData
         new()
         {
             Id = "zaluzje-pionowe",
-            Name = "Żaluzje pionowe (wertikalne)",
+            Name = "Żaluzje pionowe",
             Section = HouseSection.Interior,
             ShortDescription = "Żaluzje z pionowych pasów tkaniny, dobrze sprawdzające się przy dużych i szerokich oknach.",
             Advantages = new[]
