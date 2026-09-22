@@ -5,7 +5,118 @@ gsap.registerPlugin(ScrollTrigger);
 
 const CAROUSEL_INTERACTIVE_SELECTOR =
   ".system-carousel, [data-carousel-prev], [data-carousel-next], [data-carousel-dot], [data-carousel-viewport], a, button, input, label, select, textarea, summary";
+let mobileNavCleanup: (() => void) | null = null;
 let systemsSelectionHashHandler: (() => void) | null = null;
+
+function initMobileNav(): void {
+  mobileNavCleanup?.();
+  mobileNavCleanup = null;
+
+  const toggle = document.querySelector<HTMLButtonElement>("[data-mobile-nav-toggle]");
+  const menu = document.querySelector<HTMLElement>("[data-mobile-nav-menu]");
+  if (!toggle || !menu) return;
+
+  const openIcon = toggle.querySelector<HTMLElement>("[data-mobile-nav-open-icon]");
+  const closeIcon = toggle.querySelector<HTMLElement>("[data-mobile-nav-close-icon]");
+  const menuLinks = Array.from(menu.querySelectorAll<HTMLAnchorElement>("[data-mobile-nav-link]"));
+  const desktopMedia = window.matchMedia("(min-width: 768px)");
+  let isOpen = false;
+  let dismissListenersActive = false;
+
+  const handleDocumentClick = (event: MouseEvent): void => {
+    if (!isOpen || desktopMedia.matches) return;
+
+    const target = event.target as Node | null;
+    if (!target || menu.contains(target) || toggle.contains(target)) return;
+    closeMenu();
+  };
+
+  const handleDocumentKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== "Escape" || !isOpen) return;
+
+    event.preventDefault();
+    closeMenu(true);
+  };
+
+  const bindDismissListeners = (): void => {
+    if (dismissListenersActive) return;
+
+    document.addEventListener("click", handleDocumentClick);
+    document.addEventListener("keydown", handleDocumentKeydown);
+    dismissListenersActive = true;
+  };
+
+  const unbindDismissListeners = (): void => {
+    if (!dismissListenersActive) return;
+
+    document.removeEventListener("click", handleDocumentClick);
+    document.removeEventListener("keydown", handleDocumentKeydown);
+    dismissListenersActive = false;
+  };
+
+  const syncState = (): void => {
+    menu.hidden = !isOpen;
+    toggle.setAttribute("aria-expanded", String(isOpen));
+    toggle.setAttribute("aria-label", isOpen ? "Zamknij menu główne" : "Otwórz menu główne");
+    openIcon?.classList.toggle("hidden", isOpen);
+    closeIcon?.classList.toggle("hidden", !isOpen);
+
+    if (isOpen) {
+      bindDismissListeners();
+    } else {
+      unbindDismissListeners();
+    }
+  };
+
+  const closeMenu = (restoreFocus = false): void => {
+    if (!isOpen) {
+      syncState();
+      return;
+    }
+
+    isOpen = false;
+    syncState();
+
+    if (restoreFocus) {
+      toggle.focus();
+    }
+  };
+
+  const toggleMenu = (): void => {
+    isOpen = !isOpen;
+    syncState();
+  };
+
+  const handleToggleClick = (): void => {
+    toggleMenu();
+  };
+
+  const handleLinkClick = (): void => {
+    closeMenu();
+  };
+
+  const handleViewportChange = (): void => {
+    isOpen = false;
+    syncState();
+  };
+
+  toggle.addEventListener("click", handleToggleClick);
+  menuLinks.forEach((link) => {
+    link.addEventListener("click", handleLinkClick);
+  });
+  desktopMedia.addEventListener("change", handleViewportChange);
+
+  mobileNavCleanup = () => {
+    toggle.removeEventListener("click", handleToggleClick);
+    menuLinks.forEach((link) => {
+      link.removeEventListener("click", handleLinkClick);
+    });
+    unbindDismissListeners();
+    desktopMedia.removeEventListener("change", handleViewportChange);
+  };
+
+  syncState();
+}
 
 function animateHero(): void {
   const heading = document.querySelector(".hero h1");
@@ -225,6 +336,7 @@ function initSystemsPage(): void {
 }
 
 function init(): void {
+  initMobileNav();
   animateHero();
   animateOnScroll(".section-card");
   animateOnScroll(".system-button");
