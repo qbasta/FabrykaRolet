@@ -5,6 +5,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const CAROUSEL_INTERACTIVE_SELECTOR =
   ".system-carousel, [data-carousel-prev], [data-carousel-next], [data-carousel-dot], [data-carousel-viewport], a, button, input, label, select, textarea, summary";
+let systemsSelectionHashHandler: (() => void) | null = null;
 
 function animateHero(): void {
   const heading = document.querySelector(".hero h1");
@@ -153,7 +154,15 @@ function initSystemsSelection(page: HTMLElement): void {
 
   const setSelected = (pill: HTMLElement | null): void => {
     selectedId = pill?.id ?? null;
-    pills.forEach((item) => item.classList.toggle("is-selected", item === pill));
+    pills.forEach((item) => {
+      const isSelected = item === pill;
+      item.classList.toggle("is-selected", isSelected);
+      if (isSelected) {
+        item.setAttribute("aria-current", "true");
+      } else {
+        item.removeAttribute("aria-current");
+      }
+    });
   };
 
   const applyHashSelection = (): void => {
@@ -194,7 +203,12 @@ function initSystemsSelection(page: HTMLElement): void {
     }
   });
 
-  window.addEventListener("hashchange", applyHashSelection);
+  if (systemsSelectionHashHandler) {
+    window.removeEventListener("hashchange", systemsSelectionHashHandler);
+  }
+
+  systemsSelectionHashHandler = applyHashSelection;
+  window.addEventListener("hashchange", systemsSelectionHashHandler);
   applyHashSelection();
 }
 

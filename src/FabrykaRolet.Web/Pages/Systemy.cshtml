@@ -120,7 +120,7 @@
                             @if (images.Count > 1)
                             {
                                 <div class="system-carousel__meta">
-                                    <div class="system-carousel__dots" aria-label="Wybór zdjęcia systemu @system.Name">
+                                    <div class="system-carousel__dots" role="group" aria-label="Wybór zdjęcia systemu @system.Name">
                                         @for (var slideIndex = 0; slideIndex < images.Count; slideIndex++)
                                         {
                                             <button
