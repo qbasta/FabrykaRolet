@@ -18,7 +18,7 @@
         <style>
             @@media (max-width: 767px) {
                 [data-mobile-nav-toggle] { display: none !important; }
-                [data-mobile-nav-menu] { display: block !important; }
+        [data-mobile-nav-menu][hidden] { display: block !important; }
             }
         </style>
     </noscript>
@@ -68,8 +68,9 @@
 
                 <div
                     id="mobile-nav-menu"
-                    class="hidden mt-4 space-y-1 border-t border-stone-200 pt-4 md:hidden"
-                    data-mobile-nav-menu>
+                    class="mt-4 space-y-1 border-t border-stone-200 pt-4 md:hidden"
+                    data-mobile-nav-menu
+                    hidden>
                     <a asp-page="/Index" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Strona główna</a>
                     <a asp-page="/NaZewnatrz" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Na zewnątrz</a>
                     <a asp-page="/Wewnatrz" data-mobile-nav-link class="block rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none">Wewnątrz</a>

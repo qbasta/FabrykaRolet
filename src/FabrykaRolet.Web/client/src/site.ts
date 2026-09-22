@@ -21,13 +21,51 @@ function initMobileNav(): void {
   const menuLinks = Array.from(menu.querySelectorAll<HTMLAnchorElement>("[data-mobile-nav-link]"));
   const desktopMedia = window.matchMedia("(min-width: 768px)");
   let isOpen = false;
+  let dismissListenersActive = false;
+
+  const handleDocumentClick = (event: MouseEvent): void => {
+    if (!isOpen || desktopMedia.matches) return;
+
+    const target = event.target as Node | null;
+    if (!target || menu.contains(target) || toggle.contains(target)) return;
+    closeMenu();
+  };
+
+  const handleDocumentKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== "Escape" || !isOpen) return;
+
+    event.preventDefault();
+    closeMenu(true);
+  };
+
+  const bindDismissListeners = (): void => {
+    if (dismissListenersActive) return;
+
+    document.addEventListener("click", handleDocumentClick);
+    document.addEventListener("keydown", handleDocumentKeydown);
+    dismissListenersActive = true;
+  };
+
+  const unbindDismissListeners = (): void => {
+    if (!dismissListenersActive) return;
+
+    document.removeEventListener("click", handleDocumentClick);
+    document.removeEventListener("keydown", handleDocumentKeydown);
+    dismissListenersActive = false;
+  };
 
   const syncState = (): void => {
-    menu.classList.toggle("hidden", !isOpen);
+    menu.hidden = !isOpen;
     toggle.setAttribute("aria-expanded", String(isOpen));
     toggle.setAttribute("aria-label", isOpen ? "Zamknij menu główne" : "Otwórz menu główne");
     openIcon?.classList.toggle("hidden", isOpen);
     closeIcon?.classList.toggle("hidden", !isOpen);
+
+    if (isOpen) {
+      bindDismissListeners();
+    } else {
+      unbindDismissListeners();
+    }
   };
 
   const closeMenu = (restoreFocus = false): void => {
@@ -57,21 +95,6 @@ function initMobileNav(): void {
     closeMenu();
   };
 
-  const handleDocumentClick = (event: MouseEvent): void => {
-    if (!isOpen || desktopMedia.matches) return;
-
-    const target = event.target as Node | null;
-    if (!target || menu.contains(target) || toggle.contains(target)) return;
-    closeMenu();
-  };
-
-  const handleDocumentKeydown = (event: KeyboardEvent): void => {
-    if (event.key !== "Escape" || !isOpen) return;
-
-    event.preventDefault();
-    closeMenu(true);
-  };
-
   const handleViewportChange = (): void => {
     isOpen = false;
     syncState();
@@ -90,8 +113,7 @@ function initMobileNav(): void {
     menuLinks.forEach((link) => {
       link.removeEventListener("click", handleLinkClick);
     });
-    document.removeEventListener("click", handleDocumentClick);
-    document.removeEventListener("keydown", handleDocumentKeydown);
+    unbindDismissListeners();
     desktopMedia.removeEventListener("change", handleViewportChange);
   };
 
