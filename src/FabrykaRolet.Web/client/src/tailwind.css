@@ -30,3 +30,201 @@
 #systems-page:has(#filter-interior:checked) .system-pill[data-section="exterior"] {
   display: none;
 }
+
+.system-pill {
+  position: relative;
+}
+
+.system-pill:hover {
+  box-shadow: 0 18px 40px -28px rgb(28 25 23 / 0.38);
+}
+
+.system-pill.is-selected {
+  border-color: color-mix(in srgb, var(--color-accent) 34%, white);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 24%, white),
+    0 0 0 5px color-mix(in srgb, var(--color-accent) 14%, white),
+    0 24px 52px -34px rgb(29 95 191 / 0.5);
+}
+
+.system-pill__layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.system-carousel {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.system-carousel__frame {
+  position: relative;
+}
+
+.system-carousel__viewport {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.9), transparent 40%),
+    linear-gradient(135deg, rgb(244 244 245), rgb(231 229 228));
+  border: 1px solid rgb(231 229 228);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+
+.system-carousel__viewport:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-accent) 65%, white);
+  outline-offset: 4px;
+}
+
+.system-carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.system-carousel__slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.system-carousel__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.system-carousel__slide--placeholder {
+  background:
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.95), transparent 45%),
+    linear-gradient(150deg, rgb(250 250 249), rgb(231 229 228));
+}
+
+.system-carousel__placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: rgb(87 83 78);
+  text-align: center;
+}
+
+.system-carousel__placeholder-icon {
+  width: 3rem;
+  height: 3rem;
+  color: rgb(120 113 108);
+}
+
+.system-carousel__placeholder-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgb(41 37 36);
+}
+
+.system-carousel__placeholder-copy {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(120 113 108);
+}
+
+.system-carousel__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 0;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(255 255 255 / 0.92);
+  color: rgb(28 25 23);
+  box-shadow: 0 10px 30px -18px rgb(28 25 23 / 0.6);
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.system-carousel__nav:hover,
+.system-carousel__nav:focus-visible {
+  background: white;
+  transform: translateY(-50%) scale(1.04);
+  box-shadow: 0 16px 32px -20px rgb(28 25 23 / 0.7);
+}
+
+.system-carousel__nav:focus-visible,
+.system-carousel__dot:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-accent) 55%, white);
+  outline-offset: 3px;
+}
+
+.system-carousel__nav--prev {
+  left: 0.85rem;
+}
+
+.system-carousel__nav--next {
+  right: 0.85rem;
+}
+
+.system-carousel__nav span {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.system-carousel__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.system-carousel__dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.system-carousel__dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: rgb(214 211 209);
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease;
+}
+
+.system-carousel__dot:hover,
+.system-carousel__dot:focus-visible {
+  transform: scale(1.12);
+}
+
+.system-carousel__dot.is-active {
+  background: var(--color-accent);
+}
+
+.system-carousel__counter {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgb(87 83 78);
+}
+
+@media (min-width: 768px) {
+  .system-pill__layout {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+    gap: 2rem;
+  }
+}
