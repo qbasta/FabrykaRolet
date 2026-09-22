@@ -7,7 +7,7 @@ namespace FabrykaRolet.Infrastructure.Data;
 /// treść tymczasowa, wyłącznie po to, żeby mechanizm miał na czym działać. Do podmiany
 /// na docelowe teksty i dane dostarczone przez klienta.
 /// </summary>
-internal static class WindowSystemSeedData
+public static class WindowSystemSeedData
 {
     public static readonly IReadOnlyList<WindowSystem> All = new List<WindowSystem>
     {
@@ -17,6 +17,7 @@ internal static class WindowSystemSeedData
             Id = "rolety-zewnetrzne",
             Name = "Rolety zewnętrzne",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Rolety montowane na zewnątrz okna, zwijane w skrzynkę nad oknem. Chronią przed słońcem, hałasem i utratą ciepła.",
             ShortDescription = "Rolety montowane na zewnątrz okna, zwijane w skrzynkę nad oknem. Chronią przed słońcem, hałasem i utratą ciepła.",
             Advantages = new[]
             {
@@ -34,6 +35,7 @@ internal static class WindowSystemSeedData
             Id = "rolety-antywlamaniowe",
             Name = "Rolety antywłamaniowe / pancerne",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Wzmocniona wersja rolety zewnętrznej, wykonana z profili o podwyższonej odporności na włamanie.",
             ShortDescription = "Wzmocniona wersja rolety zewnętrznej, wykonana z profili o podwyższonej odporności na włamanie.",
             Advantages = new[]
             {
@@ -51,6 +53,7 @@ internal static class WindowSystemSeedData
             Id = "zaluzje-fasadowe",
             Name = "Żaluzje fasadowe zewnętrzne",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Żaluzje z regulowanymi lamelami montowane na elewacji, pozwalające płynnie sterować ilością wpadającego światła.",
             ShortDescription = "Żaluzje z regulowanymi lamelami montowane na elewacji, pozwalające płynnie sterować ilością wpadającego światła.",
             Advantages = new[]
             {
@@ -68,6 +71,7 @@ internal static class WindowSystemSeedData
             Id = "markizy",
             Name = "Markizy",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Wysuwane zadaszenia tkaninowe montowane nad oknem, drzwiami lub tarasem.",
             ShortDescription = "Wysuwane zadaszenia tkaninowe montowane nad oknem, drzwiami lub tarasem.",
             Advantages = new[]
             {
@@ -85,6 +89,7 @@ internal static class WindowSystemSeedData
             Id = "screeny-fasadowe",
             Name = "Screeny fasadowe",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Rolety z przepuszczalnej tkaniny technicznej, tłumiące nasłonecznienie przy zachowaniu widoczności na zewnątrz.",
             ShortDescription = "Rolety z przepuszczalnej tkaniny technicznej, tłumiące nasłonecznienie przy zachowaniu widoczności na zewnątrz.",
             Advantages = new[]
             {
@@ -102,6 +107,7 @@ internal static class WindowSystemSeedData
             Id = "moskitiery-zewnetrzne",
             Name = "Moskitiery zewnętrzne (rolowane)",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Zwijane siatki montowane na zewnątrz okna lub drzwi, chroniące przed owadami.",
             ShortDescription = "Zwijane siatki montowane na zewnątrz okna lub drzwi, chroniące przed owadami.",
             Advantages = new[]
             {
@@ -119,6 +125,7 @@ internal static class WindowSystemSeedData
             Id = "bramy-garazowe",
             Name = "Bramy garażowe",
             Section = HouseSection.Exterior,
+            ViewerDescription = "Segmentowe lub rolowane bramy wjazdowe do garażu, zwykle z napędem elektrycznym.",
             ShortDescription = "Segmentowe lub rolowane bramy wjazdowe do garażu, zwykle z napędem elektrycznym.",
             Advantages = new[]
             {
@@ -138,6 +145,7 @@ internal static class WindowSystemSeedData
             Id = "zaluzje-poziome",
             Name = "Żaluzje poziome (aluminiowe)",
             Section = HouseSection.Interior,
+            ViewerDescription = "Klasyczne żaluzje z poziomych lamel aluminiowych montowane wewnątrz, na ramie okna lub nad nim.",
             ShortDescription = "Klasyczne żaluzje z poziomych lamel aluminiowych montowane wewnątrz, na ramie okna lub nad nim.",
             Advantages = new[]
             {
@@ -155,6 +163,7 @@ internal static class WindowSystemSeedData
             Id = "zaluzje-pionowe",
             Name = "Żaluzje pionowe (wertikalne)",
             Section = HouseSection.Interior,
+            ViewerDescription = "Żaluzje z pionowych pasów tkaniny, dobrze sprawdzające się przy dużych i szerokich oknach.",
             ShortDescription = "Żaluzje z pionowych pasów tkaniny, dobrze sprawdzające się przy dużych i szerokich oknach.",
             Advantages = new[]
             {
@@ -172,6 +181,7 @@ internal static class WindowSystemSeedData
             Id = "plisy",
             Name = "Plisy",
             Section = HouseSection.Interior,
+            ViewerDescription = "Zaplisowana tkanina rozkładana w harmonijkę, montowana bezpośrednio na skrzydle okna - sprawdza się też przy nietypowych kształtach.",
             ShortDescription = "Zaplisowana tkanina rozkładana w harmonijkę, montowana bezpośrednio na skrzydle okna - sprawdza się też przy nietypowych kształtach.",
             Advantages = new[]
             {
@@ -189,6 +199,7 @@ internal static class WindowSystemSeedData
             Id = "rolety-wewnetrzne",
             Name = "Rolety wewnętrzne",
             Section = HouseSection.Interior,
+            ViewerDescription = "Rolety materiałowe montowane wewnątrz pomieszczenia (m.in. rzymskie, dzień-noc, wolnowiszące, zaciemniające).",
             ShortDescription = "Rolety materiałowe montowane wewnątrz pomieszczenia (m.in. rzymskie, dzień-noc, wolnowiszące, zaciemniające).",
             Advantages = new[]
             {
@@ -206,6 +217,7 @@ internal static class WindowSystemSeedData
             Id = "moskitiery-wewnetrzne",
             Name = "Moskitiery wewnętrzne (ramkowe)",
             Section = HouseSection.Interior,
+            ViewerDescription = "Moskitiery w sztywnej ramie montowane od wewnątrz, w futrynie okna lub drzwi.",
             ShortDescription = "Moskitiery w sztywnej ramie montowane od wewnątrz, w futrynie okna lub drzwi.",
             Advantages = new[]
             {
@@ -219,4 +231,39 @@ internal static class WindowSystemSeedData
             MaxDimensions = "Do uzupełnienia",
         },
     };
+
+    public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> ImagesBySystemId =
+        new Dictionary<string, IReadOnlyList<string>>
+        {
+            ["rolety-zewnetrzne"] = new[]
+            {
+                "rolety-zewnetrzne-1-drewno.png",
+                "rolety-zewnetrzne-2-biala.png",
+                "rolety-zewnetrzne-3-antracyt.png",
+            },
+            ["rolety-antywlamaniowe"] = new[]
+            {
+                "rolety-antywlamaniowe-2-zamknieta.png",
+                "rolety-antywlamaniowe-1-konstrukcja.png",
+            },
+            ["zaluzje-fasadowe"] = new[]
+            {
+                "zaluzje-fasadowe-1.png",
+                "zaluzje-fasadowe-2.png",
+                "zaluzje-fasadowe-3.png",
+            },
+            ["markizy"] = new[]
+            {
+                "markizy-1-pasy-krem-bordo.png",
+                "markizy-2-terakota.png",
+                "markizy-3-oliwkowa-paski.png",
+            },
+            ["screeny-fasadowe"] = new[]
+            {
+                "screeny-fasadowe-1-szary-ciemny.png",
+                "screeny-fasadowe-2-perlowy.png",
+                "screeny-fasadowe-3-taupe.png",
+            },
+        };
+
 }

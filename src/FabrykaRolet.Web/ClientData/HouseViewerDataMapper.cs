@@ -33,7 +33,7 @@ public static class HouseViewerDataMapper
         return new HotspotDto(
             hotspot.WindowSystemId,
             system?.Name ?? hotspot.WindowSystemId,
-            system?.ShortDescription ?? string.Empty,
+            system?.ViewerDescription ?? string.Empty,
             system?.Advantages ?? Array.Empty<string>(),
             hotspot.Position.X,
             hotspot.Position.Y);

@@ -2,11 +2,16 @@
 @model FabrykaRolet.Web.Pages.NaZewnatrzModel
 @{
     ViewData["Title"] = "Na zewnątrz";
+    var isAdminPreview = User.Identity?.IsAuthenticated == true && ViewContext.HttpContext.Request.Query["adminPreview"] == "1";
 }
 
-<section class="section-intro container">
-    <h1>Systemy zewnętrzne</h1>
-    <p>Kliknij w oznaczony element na widoku domu, aby poznać jego opis i zalety.</p>
+<section class="section-intro container relative">
+    @if (isAdminPreview)
+    {
+        <a asp-page="/Admin/Tresci/Index" class="absolute right-0 top-0 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj nagłówek sekcji</a>
+    }
+    <h1>@Model.PageHeading</h1>
+    <p>@Model.PageLead</p>
 </section>
 
 @if (Model.HasViews)
@@ -53,9 +58,15 @@ else
 <section id="house-viewer-systems" class="system-grid container" aria-label="Lista systemów zewnętrznych">
     @foreach (var system in Model.Systems)
     {
-        <button type="button" class="system-button" data-system-id="@system.Id">
-            @system.Name
-        </button>
+        <div class="relative">
+            @if (isAdminPreview)
+            {
+                <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" class="absolute -top-3 right-0 z-10 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj popup</a>
+            }
+            <button type="button" class="system-button" data-system-id="@system.Id">
+                @system.Name
+            </button>
+        </div>
     }
 </section>
 

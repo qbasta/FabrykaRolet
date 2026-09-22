@@ -1,25 +1,32 @@
 using System.Text.Json;
 using FabrykaRolet.Application.Sections;
 using FabrykaRolet.Domain.Entities;
+using FabrykaRolet.Infrastructure.Services;
 using FabrykaRolet.Web.ClientData;
+using FabrykaRolet.Web.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace FabrykaRolet.Web.Pages;
 
-public class NaZewnatrzModel(SectionPageService sectionPageService) : PageModel
+public class NaZewnatrzModel(SectionPageService sectionPageService, SiteContentService siteContentService) : PageModel
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     public IReadOnlyList<WindowSystem> Systems { get; private set; } = Array.Empty<WindowSystem>();
     public bool HasViews { get; private set; }
     public string ViewerDataJson { get; private set; } = "null";
+    public string PageHeading { get; private set; } = string.Empty;
+    public string PageLead { get; private set; } = string.Empty;
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
         var data = sectionPageService.GetSectionPage(HouseSection.Exterior);
+        var content = await siteContentService.GetAllAsync();
 
         Systems = data.Systems;
         HasViews = data.Views.Count > 0;
         ViewerDataJson = JsonSerializer.Serialize(HouseViewerDataMapper.ToDto(data), JsonOptions);
+        PageHeading = content[SiteContentDefaults.ExteriorTitle];
+        PageLead = content[SiteContentDefaults.ExteriorLead];
     }
 }

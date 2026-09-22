@@ -12,6 +12,14 @@
     <ProjectReference Include="..\FabrykaRolet.Infrastructure\FabrykaRolet.Infrastructure.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Źródła TypeScript nie są częścią publikowanej aplikacji .NET - buduje je Vite do wwwroot/dist. -->
     <Content Remove="client\**" />

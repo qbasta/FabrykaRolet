@@ -1,0 +1,88 @@
+@page "{id}"
+@model FabrykaRolet.Web.Pages.Admin.Systemy.ZdjeciaModel
+@{
+    ViewData["Title"] = "Zdjęcia systemu";
+}
+
+<section class="mx-auto max-w-6xl space-y-6">
+    <header class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+        <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Galeria systemu</p>
+        <h2 class="mt-2 text-3xl font-semibold">@Model.SystemName</h2>
+        <p class="mt-2 text-sm text-stone-600">Dodaj nowe zdjęcie albo uporządkuj już istniejące. Zdjęcie główne będzie pokazane jako pierwsze w katalogu.</p>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">@Model.StatusMessage</div>
+    }
+
+    <section class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-semibold">Dodaj zdjęcie</h3>
+        <form method="post" enctype="multipart/form-data" asp-page-handler="Upload" class="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_18rem_auto] md:items-end">
+            <input type="hidden" asp-for="SystemId" />
+            <div>
+                <label asp-for="UploadAltText" class="block text-sm font-medium text-stone-700">Opis alternatywny zdjęcia</label>
+                <input asp-for="UploadAltText" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2" />
+                <p class="mt-1 text-xs text-stone-500">To opis dla dostępności i SEO.</p>
+            </div>
+            <div>
+                <label asp-for="UploadFile" class="block text-sm font-medium text-stone-700">Plik JPG / PNG / WEBP</label>
+                <input asp-for="UploadFile" type="file" accept=".jpg,.jpeg,.png,.webp" class="mt-1 block w-full text-sm" />
+            </div>
+            <button type="submit" class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white">Dodaj zdjęcie</button>
+        </form>
+    </section>
+
+    <form method="post" asp-page-handler="Save" class="space-y-6">
+        <input type="hidden" asp-for="SystemId" />
+        <section class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+            <div class="flex items-center justify-between gap-4">
+                <h3 class="text-lg font-semibold">Obecne zdjęcia</h3>
+                <button type="submit" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Zapisz zmiany</button>
+            </div>
+
+            @if (Model.Images.Count == 0)
+            {
+                <p class="mt-4 text-sm text-stone-500">Brak zdjęć dla tego systemu.</p>
+            }
+            else
+            {
+                <div class="mt-4 space-y-4">
+                    @for (var i = 0; i < Model.Images.Count; i++)
+                    {
+                        <article class="grid gap-4 rounded-2xl border border-stone-200 p-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
+                            <div class="overflow-hidden rounded-2xl bg-stone-100">
+                                <img src="@Model.Images[i].PublicPath" alt="" class="h-40 w-full object-cover" />
+                            </div>
+                            <div class="space-y-3">
+                                <input asp-for="Images[i].Id" type="hidden" />
+                                <input asp-for="Images[i].FileName" type="hidden" />
+                                <div class="grid gap-4 md:grid-cols-3">
+                                    <div class="md:col-span-2">
+                                        <label asp-for="Images[i].AltText" class="block text-sm font-medium text-stone-700">Opis alternatywny</label>
+                                        <input asp-for="Images[i].AltText" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2" />
+                                    </div>
+                                    <div>
+                                        <label asp-for="Images[i].SortOrder" class="block text-sm font-medium text-stone-700">Kolejność</label>
+                                        <input asp-for="Images[i].SortOrder" type="number" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2" />
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-4 text-sm">
+                                    <label class="inline-flex items-center gap-2">
+                                        <input asp-for="Images[i].IsPrimary" class="h-4 w-4 rounded border-stone-300" />
+                                        <span>Zdjęcie główne</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 text-red-700">
+                                        <input asp-for="Images[i].Remove" class="h-4 w-4 rounded border-stone-300" />
+                                        <span>Usuń zdjęcie</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-stone-500">Plik: @Model.Images[i].FileName</p>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    </form>
+</section>
