@@ -1,23 +1,26 @@
 @page
+@model FabrykaRolet.Web.Pages.KontaktModel
 @{
     ViewData["Title"] = "Kontakt";
+    var isAdminPreview = User.Identity?.IsAuthenticated == true && ViewContext.HttpContext.Request.Query["adminPreview"] == "1";
 }
 
-<section class="section-intro container">
-    <h1>Kontakt</h1>
-    <p>
-        Strona informacyjna bez formularza (celowo – zgodnie z bieżącym zakresem prac).
-        Dane poniżej to wartości przykładowe do podmiany na docelowe.
-    </p>
+<section class="section-intro container relative">
+    @if (isAdminPreview)
+    {
+        <a asp-page="/Admin/Tresci/Index" class="absolute right-0 top-0 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj kontakt</a>
+    }
+    <h1>@Model.TitleText</h1>
+    <p>@Model.Lead</p>
 </section>
 
 <section class="contact-details container">
     <dl>
         <dt>Telefon</dt>
-        <dd>+48 000 000 000</dd>
+        <dd>@Model.Phone</dd>
         <dt>E-mail</dt>
-        <dd>kontakt@fabrykarolet.pl</dd>
+        <dd>@Model.Email</dd>
         <dt>Adres</dt>
-        <dd>ul. Przykładowa 1, 00-000 Miejscowość</dd>
+        <dd>@Model.Address</dd>
     </dl>
 </section>

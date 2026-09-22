@@ -81,6 +81,19 @@
         </div>
     </header>
 
+    @if (User.Identity?.IsAuthenticated == true && Context.Request.Query["adminPreview"] == "1")
+    {
+        <div class="border-b border-amber-200 bg-amber-50">
+            <div class="container mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm md:px-8">
+                <p class="font-medium text-amber-900">Tryb podglądu administratora — zwykli użytkownicy tego nie widzą.</p>
+                <div class="flex flex-wrap gap-2">
+                    <a asp-page="/Admin/Index" class="rounded-full border border-amber-300 bg-white px-3 py-1 font-medium text-amber-900">Panel</a>
+                    <a href="@Context.Request.Path" class="rounded-full border border-amber-300 bg-white px-3 py-1 font-medium text-amber-900">Wyłącz podgląd</a>
+                </div>
+            </div>
+        </div>
+    }
+
     <main id="main-content" class="flex-1">
         @RenderBody()
     </main>
