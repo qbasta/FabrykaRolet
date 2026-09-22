@@ -258,8 +258,7 @@ export class HouseViewer {
       url.searchParams.set("adminPreview", "1");
     }
 
-    url.hash = encodeURIComponent(systemId);
-    return `${url.pathname}${url.search}${url.hash}`;
+    return `${url.pathname}${url.search}#${encodeURIComponent(systemId)}`;
   }
 
   private activateSystem(systemId: string, trigger: HTMLElement): void {
