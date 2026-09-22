@@ -1,0 +1,10 @@
+﻿services:
+  fabrykarolet.web:
+    image: fabrykarolet.web
+    build:
+      context: .
+      dockerfile: src/FabrykaRolet.Web/Dockerfile
+    ports:
+      - "5080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

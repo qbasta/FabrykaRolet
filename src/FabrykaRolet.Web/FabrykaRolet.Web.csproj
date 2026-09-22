@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,9 @@
   <ItemGroup>
     <!-- Źródła TypeScript nie są częścią publikowanej aplikacji .NET - buduje je Vite do wwwroot/dist. -->
     <Content Remove="client\**" />
+    <Content Include="..\..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
     <None Include="client\**" Exclude="client\node_modules\**;client\dist-check\**" />
   </ItemGroup>
 
