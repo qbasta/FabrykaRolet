@@ -135,11 +135,10 @@ class SystemCarousel {
   }
 }
 
-function updateHash(hash: string | null, replace = false): void {
+function updateHash(hash: string | null): void {
   const url = new URL(window.location.href);
   url.hash = hash ? `#${hash}` : "";
-  const method = replace ? "replaceState" : "pushState";
-  window.history[method](window.history.state, "", url);
+  window.history.replaceState(window.history.state, "", url);
 }
 
 function initSystemsSelection(page: HTMLElement): void {
@@ -162,7 +161,7 @@ function initSystemsSelection(page: HTMLElement): void {
   const clearSelection = (): void => {
     if (!selectedId && !window.location.hash) return;
     setSelected(null);
-    updateHash(null, true);
+    updateHash(null);
   };
 
   page.addEventListener("click", (event) => {
@@ -198,7 +197,8 @@ function initSystemsSelection(page: HTMLElement): void {
 
 function initSystemsPage(): void {
   const page = document.querySelector<HTMLElement>("#systems-page");
-  if (!page) return;
+  if (!page || page.dataset.systemsInitialized === "true") return;
+  page.dataset.systemsInitialized = "true";
 
   page.querySelectorAll<HTMLElement>("[data-system-carousel]").forEach((carouselRoot) => {
     new SystemCarousel(carouselRoot);

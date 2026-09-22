@@ -1159,11 +1159,9 @@ class Ui {
     }), this.counter && (this.counter.textContent = `${this.activeIndex + 1} / ${this.slides.length}`), this.status && (this.status.textContent = `${this.systemName}: zdjęcie ${this.activeIndex + 1} z ${this.slides.length}`);
   }
 }
-function Jn(i, e = !1) {
-  const n = new URL(window.location.href);
-  n.hash = i ? `#${i}` : "";
-  const t = e ? "replaceState" : "pushState";
-  window.history[t](window.history.state, "", n);
+function Jn(i) {
+  const e = new URL(window.location.href);
+  e.hash = i ? `#${i}` : "", window.history.replaceState(window.history.state, "", e);
 }
 function Vi(i) {
   const e = Array.from(i.querySelectorAll(".system-pill[id]"));
@@ -1176,7 +1174,7 @@ function Vi(i) {
     const s = decodeURIComponent(window.location.hash.slice(1));
     r(s ? n.get(s) ?? null : null);
   }, l = () => {
-    !t && !window.location.hash || (r(null), Jn(null, !0));
+    !t && !window.location.hash || (r(null), Jn(null));
   };
   i.addEventListener("click", (s) => {
     const f = s.target;
@@ -1196,7 +1194,7 @@ function Vi(i) {
 }
 function Ki() {
   const i = document.querySelector("#systems-page");
-  i && (i.querySelectorAll("[data-system-carousel]").forEach((e) => {
+  !i || i.dataset.systemsInitialized === "true" || (i.dataset.systemsInitialized = "true", i.querySelectorAll("[data-system-carousel]").forEach((e) => {
     new Ui(e);
   }), Vi(i));
 }

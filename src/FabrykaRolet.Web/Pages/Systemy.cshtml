@@ -1,41 +1,7 @@
 @page
 @model FabrykaRolet.Web.Pages.SystemyModel
-@using System.Collections.Generic
 @{
     ViewData["Title"] = "Wszystkie systemy";
-
-    var systemImages = new Dictionary<string, string[]>
-    {
-        ["rolety-zewnetrzne"] = new[]
-        {
-            "rolety-zewnetrzne-1-drewno.png",
-            "rolety-zewnetrzne-2-biala.png",
-            "rolety-zewnetrzne-3-antracyt.png",
-        },
-        ["rolety-antywlamaniowe"] = new[]
-        {
-            "rolety-antywlamaniowe-2-zamknieta.png",
-            "rolety-antywlamaniowe-1-konstrukcja.png",
-        },
-        ["zaluzje-fasadowe"] = new[]
-        {
-            "zaluzje-fasadowe-1.png",
-            "zaluzje-fasadowe-2.png",
-            "zaluzje-fasadowe-3.png",
-        },
-        ["markizy"] = new[]
-        {
-            "markizy-1-pasy-krem-bordo.png",
-            "markizy-2-terakota.png",
-            "markizy-3-oliwkowa-paski.png",
-        },
-        ["screeny-fasadowe"] = new[]
-        {
-            "screeny-fasadowe-1-szary-ciemny.png",
-            "screeny-fasadowe-2-perlowy.png",
-            "screeny-fasadowe-3-taupe.png",
-        },
-    };
 }
 
 <div class="bg-stone-100 min-h-full">
@@ -68,8 +34,8 @@
             {
                 var sectionSlug = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "exterior" : "interior";
                 var sectionLabel = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "System zewnętrzny" : "System wewnętrzny";
-                var images = systemImages.TryGetValue(system.Id, out var assignedImages) ? assignedImages : Array.Empty<string>();
-                var slideCount = images.Length > 0 ? images.Length : 1;
+                var images = Model.SystemImages.TryGetValue(system.Id, out var assignedImages) ? assignedImages : Array.Empty<string>();
+                var slideCount = images.Count > 0 ? images.Count : 1;
 
                 <article
                     id="@system.Id"
@@ -86,14 +52,14 @@
                             <div class="system-carousel__frame">
                                 <div
                                     class="system-carousel__viewport"
-                                    tabindex="@(images.Length > 1 ? "0" : "-1")"
+                                    tabindex="@(images.Count > 1 ? "0" : "-1")"
                                     data-carousel-viewport
                                     aria-roledescription="karuzela"
-                                    aria-label="@(images.Length > 1 ? $"Karuzela zdjęć systemu {system.Name}" : $"Podgląd systemu {system.Name}")">
+                                    aria-label="@(images.Count > 1 ? $"Karuzela zdjęć systemu {system.Name}" : $"Podgląd systemu {system.Name}")">
 
-                                    @if (images.Length > 0)
+                                    @if (images.Count > 0)
                                     {
-                                        @for (var slideIndex = 0; slideIndex < images.Length; slideIndex++)
+                                        @for (var slideIndex = 0; slideIndex < images.Count; slideIndex++)
                                         {
                                             <div
                                                 class="system-carousel__slide @(slideIndex == 0 ? "is-active" : null)"
@@ -132,7 +98,7 @@
                                     }
                                 </div>
 
-                                @if (images.Length > 1)
+                                @if (images.Count > 1)
                                 {
                                     <button
                                         type="button"
@@ -151,11 +117,11 @@
                                 }
                             </div>
 
-                            @if (images.Length > 1)
+                            @if (images.Count > 1)
                             {
                                 <div class="system-carousel__meta">
                                     <div class="system-carousel__dots" aria-label="Wybór zdjęcia systemu @system.Name">
-                                        @for (var slideIndex = 0; slideIndex < images.Length; slideIndex++)
+                                        @for (var slideIndex = 0; slideIndex < images.Count; slideIndex++)
                                         {
                                             <button
                                                 type="button"
@@ -171,7 +137,7 @@
                             }
 
                             <p class="sr-only" data-carousel-status aria-live="polite" aria-atomic="true">
-                                @(images.Length > 1 ? $"Zdjęcie 1 z {slideCount}" : "Podgląd bez dodatkowych zdjęć")
+                            @(images.Count > 1 ? $"Zdjęcie 1 z {slideCount}" : "Podgląd bez dodatkowych zdjęć")
                             </p>
                         </section>
 
