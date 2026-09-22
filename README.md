@@ -15,6 +15,12 @@ Repozytorium ma jeden kanoniczny plik Compose: `compose.yaml`.
 docker compose up --build
 ```
 
+Jeśli lokalne środowisko Dockera nie wykrywa automatycznie `compose.yaml`, uruchom:
+
+```bash
+docker compose -f compose.yaml up --build
+```
+
 Po starcie:
 
 - strona publiczna: `http://localhost:5080`
