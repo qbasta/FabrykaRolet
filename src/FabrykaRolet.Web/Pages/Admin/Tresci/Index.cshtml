@@ -1,0 +1,108 @@
+@page
+@model FabrykaRolet.Web.Pages.Admin.Tresci.IndexModel
+@{
+    ViewData["Title"] = "Treści stron";
+}
+
+<section class="mx-auto max-w-5xl space-y-5">
+    <header class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+        <p class="text-xs uppercase tracking-[0.3em] text-stone-400">CMS</p>
+        <h2 class="mt-2 text-2xl font-semibold text-stone-900">Treści stron</h2>
+        <p class="mt-2 text-sm text-stone-600">Zmieniaj teksty widoczne dla klientów bez dotykania kodu. Każde pole opisuje, gdzie dana treść pojawia się na stronie.</p>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">@Model.StatusMessage</div>
+    }
+
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 xl:hidden">
+        Edycja treści jest dostępna wyłącznie na komputerze. Na telefonie i tablecie pokazujemy tylko informację, żeby pola formularza nie były używane na zbyt małym ekranie.
+    </div>
+
+    <form method="post" class="hidden space-y-5 xl:block" data-admin-desktop-only inert>
+        <section class="space-y-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+            <h3 class="text-base font-semibold text-stone-900">Strona główna</h3>
+            <div>
+                <label asp-for="Input.HomeTitle" class="block text-sm font-medium text-stone-700">Główny nagłówek</label>
+                <input asp-for="Input.HomeTitle" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label asp-for="Input.HomeLead" class="block text-sm font-medium text-stone-700">Lead pod nagłówkiem</label>
+                <textarea asp-for="Input.HomeLead" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                <div class="space-y-3 rounded-2xl border border-stone-200 p-4">
+                    <h4 class="text-sm font-medium text-stone-900">Karta „Na zewnątrz”</h4>
+                    <input asp-for="Input.HomeExteriorCardTitle" class="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                    <textarea asp-for="Input.HomeExteriorCardBody" rows="3" class="w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                    <input asp-for="Input.HomeExteriorCardCta" class="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                </div>
+                <div class="space-y-3 rounded-2xl border border-stone-200 p-4">
+                    <h4 class="text-sm font-medium text-stone-900">Karta „Wewnątrz”</h4>
+                    <input asp-for="Input.HomeInteriorCardTitle" class="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                    <textarea asp-for="Input.HomeInteriorCardBody" rows="3" class="w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                    <input asp-for="Input.HomeInteriorCardCta" class="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+            <h3 class="text-base font-semibold text-stone-900">Sekcje widoku domu i katalog</h3>
+            <div class="grid gap-4 xl:grid-cols-2">
+                <section class="space-y-3 rounded-2xl border border-stone-200 p-4">
+                    <h4 class="text-sm font-medium text-stone-900">Widok „Na zewnątrz”</h4>
+                    <label asp-for="Input.ExteriorTitle" class="block text-sm font-medium text-stone-700">Nagłówek „Na zewnątrz”</label>
+                    <input asp-for="Input.ExteriorTitle" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                    <label asp-for="Input.ExteriorLead" class="block text-sm font-medium text-stone-700">Opis sekcji „Na zewnątrz”</label>
+                    <textarea asp-for="Input.ExteriorLead" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                </section>
+                <section class="space-y-3 rounded-2xl border border-stone-200 p-4">
+                    <h4 class="text-sm font-medium text-stone-900">Widok „Wewnątrz”</h4>
+                    <label asp-for="Input.InteriorTitle" class="block text-sm font-medium text-stone-700">Nagłówek „Wewnątrz”</label>
+                    <input asp-for="Input.InteriorTitle" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                    <label asp-for="Input.InteriorLead" class="block text-sm font-medium text-stone-700">Opis sekcji „Wewnątrz”</label>
+                    <textarea asp-for="Input.InteriorLead" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                </section>
+                <section class="space-y-3 rounded-2xl border border-stone-200 p-4 xl:col-span-2">
+                    <h4 class="text-sm font-medium text-stone-900">Katalog systemów</h4>
+                    <label asp-for="Input.SystemsTitle" class="block text-sm font-medium text-stone-700">Nagłówek katalogu systemów</label>
+                    <input asp-for="Input.SystemsTitle" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                    <label asp-for="Input.SystemsLead" class="block text-sm font-medium text-stone-700">Opis katalogu systemów</label>
+                    <textarea asp-for="Input.SystemsLead" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                </section>
+            </div>
+        </section>
+
+        <section class="space-y-4 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+            <h3 class="text-base font-semibold text-stone-900">Kontakt</h3>
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label asp-for="Input.ContactTitle" class="block text-sm font-medium text-stone-700">Nagłówek strony kontaktowej</label>
+                    <input asp-for="Input.ContactTitle" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label asp-for="Input.ContactPhone" class="block text-sm font-medium text-stone-700">Telefon</label>
+                    <input asp-for="Input.ContactPhone" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                </div>
+                <div class="md:col-span-2">
+                    <label asp-for="Input.ContactLead" class="block text-sm font-medium text-stone-700">Opis u góry strony kontaktowej</label>
+                    <textarea asp-for="Input.ContactLead" rows="3" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                </div>
+                <div>
+                    <label asp-for="Input.ContactEmail" class="block text-sm font-medium text-stone-700">E-mail</label>
+                    <input asp-for="Input.ContactEmail" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label asp-for="Input.ContactAddress" class="block text-sm font-medium text-stone-700">Adres</label>
+                    <input asp-for="Input.ContactAddress" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                </div>
+            </div>
+        </section>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="submit" class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white">Zapisz treści</button>
+            <a asp-page="/Index" asp-route-adminPreview="1" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Otwórz podgląd z ikonami edycji</a>
+        </div>
+    </form>
+</section>

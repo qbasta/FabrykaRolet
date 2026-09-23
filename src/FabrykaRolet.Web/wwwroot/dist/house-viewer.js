@@ -15,6 +15,7 @@ class I {
     n(this, "panelClose");
     n(this, "panelTitle");
     n(this, "panelDescription");
+    n(this, "panelAdvantages");
     n(this, "panelLink");
     n(this, "availability");
     n(this, "panelStatus");
@@ -36,7 +37,7 @@ class I {
     n(this, "connectorFrame", null);
     n(this, "connectorRefreshUntil", 0);
     n(this, "isClosingPanel", !1);
-    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.markersLayer = this.require(".house-viewer__markers"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelLink = this.require("#house-viewer-panel-link"), this.availability = e.querySelector("#house-viewer-availability"), this.panelStatus = e.querySelector("#house-viewer-status"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.allowedImagePaths = new Map(t.views.map((s) => [s.image, this.normalizeImageUrl(s.image)])), this.indexHotspots(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
+    this.root = e, this.data = t, this.layout = this.require(".house-viewer__layout"), this.stage = this.require(".house-viewer__stage"), this.img = this.require(".house-viewer__image"), this.markersLayer = this.require(".house-viewer__markers"), this.connector = this.require(".house-viewer__connector"), this.connectorPath = this.require(".house-viewer__connector-path"), this.panel = this.require("#house-viewer-panel"), this.panelClose = this.require(".house-viewer__panel-close"), this.panelTitle = this.require("#house-viewer-panel-title"), this.panelDescription = this.require("#house-viewer-panel-description"), this.panelAdvantages = this.require("#house-viewer-panel-advantages"), this.panelLink = this.require("#house-viewer-panel-link"), this.availability = e.querySelector("#house-viewer-availability"), this.panelStatus = e.querySelector("#house-viewer-status"), this.prevBtn = e.querySelector(".house-viewer__arrow--prev"), this.nextBtn = e.querySelector(".house-viewer__arrow--next"), this.viewsNav = e.querySelector(".house-viewer__views"), this.systemButtons = this.collectSystemButtons(), this.allowedImagePaths = new Map(t.views.map((s) => [s.image, this.normalizeImageUrl(s.image)])), this.indexHotspots(), this.bindNav(), this.bindPanelClose(), this.bindSystemButtons(), this.bindGlobalEvents(), this.renderView(0);
   }
   require(e) {
     const t = this.root.querySelector(e);
@@ -135,6 +136,10 @@ class I {
   }
   findSystemSummary(e) {
     return this.data.systems.find((t) => t.systemId === e);
+  }
+  buildSystemsPageUrl(e) {
+    const t = new URL("/Systemy", window.location.origin);
+    return (this.root.dataset.adminPreview === "true" || document.body.dataset.adminPreview === "true") && t.searchParams.set("adminPreview", "1"), `${t.pathname}${t.search}#${encodeURIComponent(e)}`;
   }
   activateSystem(e, t) {
     const s = this.findHotspot(e);
@@ -235,7 +240,10 @@ class I {
     (s = this.markerFor(e)) == null || s.classList.toggle("is-hovered", t);
   }
   openPanel(e, t, s) {
-    this.cancelConnectorRefresh(), this.killOpenCloseTweens(), this.isClosingPanel = !1, this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelLink.href = `/Systemy#${encodeURIComponent(s)}`, this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.layout.classList.add("is-panel-open"), this.syncActiveSystemState(), this.syncLayoutMetrics();
+    this.cancelConnectorRefresh(), this.killOpenCloseTweens(), this.isClosingPanel = !1, this.lastFocused = t, this.activeSystemId = s, this.panelTitle.textContent = e.name, this.panelDescription.textContent = e.description, this.panelAdvantages.replaceChildren(), e.advantages.forEach((r) => {
+      const l = document.createElement("li");
+      l.textContent = r, this.panelAdvantages.appendChild(l);
+    }), this.panelLink.href = this.buildSystemsPageUrl(s), this.panel.hidden = !1, this.panel.setAttribute("aria-hidden", "false"), this.layout.classList.add("is-panel-open"), this.syncActiveSystemState(), this.syncLayoutMetrics();
     const i = this.markerFor(s);
     i && o.fromTo(i, { scale: 1 }, { scale: 1.14, duration: 0.13, repeat: 1, yoyo: !0, ease: "power1.out", overwrite: !0 }), this.panelTween = o.fromTo(
       this.panel,

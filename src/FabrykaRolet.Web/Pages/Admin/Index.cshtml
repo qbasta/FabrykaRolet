@@ -1,0 +1,59 @@
+@page
+@model FabrykaRolet.Web.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<section class="mx-auto max-w-6xl space-y-5">
+    <header class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+        <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Ukryty panel</p>
+        <h2 class="mt-2 text-2xl font-semibold text-stone-900">Szybki start</h2>
+        <p class="mt-2 max-w-3xl text-sm leading-6 text-stone-600">Z tego miejsca możesz zarządzać systemami, zdjęciami i tekstami. Publiczny wygląd strony nie zmienia się dla zwykłych użytkowników.</p>
+    </header>
+
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <article class="min-w-0 rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+            <p class="text-sm text-stone-500">Systemy widoczne</p>
+            <p class="mt-2 text-2xl font-semibold text-stone-900">@Model.VisibleSystemsCount</p>
+        </article>
+        <article class="min-w-0 rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+            <p class="text-sm text-stone-500">Szkice / ukryte</p>
+            <p class="mt-2 text-2xl font-semibold text-stone-900">@Model.HiddenSystemsCount</p>
+        </article>
+        <article class="min-w-0 rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+            <p class="text-sm text-stone-500">Systemy zarchiwizowane</p>
+            <p class="mt-2 text-2xl font-semibold text-stone-900">@Model.ArchivedSystemsCount</p>
+        </article>
+        <article class="min-w-0 rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+            <p class="text-sm text-stone-500">Zdjęcia systemów</p>
+            <p class="mt-2 text-2xl font-semibold text-stone-900">@Model.ImagesCount</p>
+        </article>
+    </div>
+
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 xl:hidden">
+        Na telefonie i tablecie możesz sprawdzić podstawowe statystyki, ale edycja treści, systemów i zdjęć została celowo ukryta. Aby wprowadzić zmiany, otwórz panel na komputerze.
+    </div>
+
+    <div class="grid gap-4 lg:grid-cols-2">
+        <a asp-page="/Admin/Systemy/Index" class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm transition hover:border-accent hover:shadow-md sm:p-6">
+            <h3 class="text-lg font-semibold text-stone-900">Systemy</h3>
+            <p class="mt-2 text-sm text-stone-600">Edycja nazw, opisów, zalet, materiałów, widoczności i archiwizacji.</p>
+        </a>
+        <a asp-page="/Admin/Tresci/Index" class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm transition hover:border-accent hover:shadow-md sm:p-6">
+            <h3 class="text-lg font-semibold text-stone-900">Treści stron</h3>
+            <p class="mt-2 text-sm text-stone-600">Strona główna, kontakt, nagłówki sekcji i katalog systemów.</p>
+        </a>
+    </div>
+
+    <section class="hidden rounded-3xl border border-stone-200 bg-white p-5 shadow-sm xl:block sm:p-6">
+        <h3 class="text-lg font-semibold text-stone-900">Podgląd z nakładką edycji</h3>
+        <p class="mt-2 text-sm text-stone-600">Otwórz publiczną stronę w trybie admina. Zobaczysz dyskretne przyciski „Edytuj” przy elementach możliwych do zmiany.</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a asp-page="/Index" asp-route-adminPreview="1" class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white">Strona główna</a>
+            <a asp-page="/NaZewnatrz" asp-route-adminPreview="1" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Na zewnątrz</a>
+            <a asp-page="/Wewnatrz" asp-route-adminPreview="1" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Wewnątrz</a>
+            <a asp-page="/Systemy" asp-route-adminPreview="1" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Wszystkie systemy</a>
+            <a asp-page="/Kontakt" asp-route-adminPreview="1" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Kontakt</a>
+        </div>
+    </section>
+</section>

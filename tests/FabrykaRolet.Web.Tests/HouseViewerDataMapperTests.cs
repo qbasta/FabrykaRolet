@@ -56,4 +56,48 @@ public class HouseViewerDataMapperTests
         Assert.DoesNotContain(catalogDescription, dto.Systems.Select(item => item.Description));
         Assert.DoesNotContain(catalogDescription, dto.Views.SelectMany(view => view.Hotspots).Select(item => item.Description));
     }
+
+    [Fact]
+    public void ToDto_FiltersOutHotspotsForSystemsHiddenFromPublicData()
+    {
+        var visibleSystem = new WindowSystem
+        {
+            Id = "zaluzje-fasadowe",
+            Name = "Żaluzje fasadowe",
+            Section = HouseSection.Exterior,
+            ViewerDescription = "Krótki opis.",
+            ShortDescription = "Długi opis.",
+            Advantages = new[] { "Zaleta 1" },
+            Materials = new[] { "Aluminium" },
+            Mounting = "Elewacja",
+            Control = "Automatyczne",
+            MaxDimensions = "3x3 m",
+        };
+
+        var data = new SectionPageResult(
+            new[]
+            {
+                new HouseView
+                {
+                    Id = "dom-przod",
+                    Section = HouseSection.Exterior,
+                    Title = "Dom z przodu",
+                    ImagePath = "/images/house/exterior/dom-przod.png",
+                    ImageWidth = 1600,
+                    ImageHeight = 900,
+                    Hotspots = new[]
+                    {
+                        new Hotspot { WindowSystemId = "markizy", Position = new HotspotPoint(25, 40) },
+                        new Hotspot { WindowSystemId = visibleSystem.Id, Position = new HotspotPoint(35, 44) },
+                    },
+                },
+            },
+            new[] { visibleSystem });
+
+        var dto = HouseViewerDataMapper.ToDto(data);
+
+        var hotspots = dto.Views.Single().Hotspots;
+        Assert.Single(hotspots);
+        Assert.Equal(visibleSystem.Id, hotspots[0].SystemId);
+    }
 }

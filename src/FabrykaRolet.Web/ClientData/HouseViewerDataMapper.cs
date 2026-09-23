@@ -16,24 +16,31 @@ public static class HouseViewerDataMapper
                 view.ImagePath,
                 view.ImageWidth,
                 view.ImageHeight,
-                view.Hotspots.Select(hotspot => ToHotspotDto(hotspot, systemsById)).ToList()))
+                view.Hotspots
+                    .Select(hotspot => ToHotspotDto(hotspot, systemsById))
+                    .OfType<HotspotDto>()
+                    .ToList()))
             .ToList();
 
         var systems = data.Systems
-            .Select(s => new SystemSummaryDto(s.Id, s.Name, s.ViewerDescription))
+            .Select(s => new SystemSummaryDto(s.Id, s.Name, s.ViewerDescription, s.Advantages))
             .ToList();
 
         return new HouseViewerDataDto(views, systems);
     }
 
-    private static HotspotDto ToHotspotDto(Hotspot hotspot, IReadOnlyDictionary<string, WindowSystem> systemsById)
+    private static HotspotDto? ToHotspotDto(Hotspot hotspot, IReadOnlyDictionary<string, WindowSystem> systemsById)
     {
-        systemsById.TryGetValue(hotspot.WindowSystemId, out var system);
+        if (!systemsById.TryGetValue(hotspot.WindowSystemId, out var system))
+        {
+            return null;
+        }
 
         return new HotspotDto(
             hotspot.WindowSystemId,
-            system?.Name ?? hotspot.WindowSystemId,
-            system?.ViewerDescription ?? string.Empty,
+            system.Name,
+            system.ViewerDescription,
+            system.Advantages,
             hotspot.Position.X,
             hotspot.Position.Y);
     }

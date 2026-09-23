@@ -1,4 +1,4 @@
-﻿# ---------- 1. Budowanie frontendu Vite / TypeScript ----------
+# ---------- 1. Budowanie frontendu Vite / TypeScript ----------
 FROM node:22-alpine AS frontend
 
 WORKDIR /src/src/FabrykaRolet.Web/client
@@ -20,7 +20,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-
 # ---------- 3. Build aplikacji .NET ----------
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
@@ -36,8 +35,6 @@ RUN dotnet restore "src/FabrykaRolet.Web/FabrykaRolet.Web.csproj"
 
 COPY . .
 
-# Wynik Vite znajduje się tutaj:
-# /src/src/FabrykaRolet.Web/wwwroot/dist
 COPY --from=frontend \
     /src/src/FabrykaRolet.Web/wwwroot/dist \
     ./src/FabrykaRolet.Web/wwwroot/dist
@@ -49,7 +46,6 @@ RUN dotnet publish FabrykaRolet.Web.csproj \
     -o /app/publish \
     /p:UseAppHost=false \
     --no-restore
-
 
 # ---------- 4. Finalny kontener ----------
 FROM base AS final

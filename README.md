@@ -1,36 +1,108 @@
-# Fabryka Rolet — Krok 1
+# Fabryka Rolet — lokalne uruchomienie brancha `admin-panel`
 
-Cel tego kroku: absolutne minimum, które musi zadziałać, zanim dołożymy kolejne
-warstwy (Domain, Application, Infrastructure) i samą infografikę.
-
-Jeden projekt (`FabrykaRolet.Web`), jedna strona Razor Pages, zero zależności
-zewnętrznych poza samym ASP.NET Core.
-
-## Uruchomienie
+## 1. Przełączenie na branch
 
 ```bash
-cd src/FabrykaRolet.Web
-dotnet restore
-dotnet run
+git fetch origin
+git switch admin-panel
 ```
 
-Otwórz adres wypisany w konsoli (domyślnie `http://localhost:5080`) — powinieneś
-zobaczyć stronę z napisem „Fabryka Rolet – Krok 1”.
+## 2. Najprostsze uruchomienie lokalne: Docker Compose
 
-Ten krok został tu faktycznie zbudowany i uruchomiony (`dotnet build` + `dotnet run`
-+ sprawdzenie odpowiedzi HTTP) przed przekazaniem — więc jeśli u Ciebie nie zadziała,
-to raczej różnica środowiska (wersja SDK, port zajęty) niż błąd w kodzie.
+Repozytorium ma jeden kanoniczny plik Compose: `compose.yaml`.
 
-## Konfigurator „Na zewnątrz” — obrazy i hotspoty
+```bash
+docker compose up --build
+```
 
-Widoki domu dla sekcji `/NaZewnatrz` są mapowane na pliki:
+Jeśli lokalne środowisko Dockera nie wykrywa automatycznie `compose.yaml`, uruchom:
 
-- `src/FabrykaRolet.Web/wwwroot/images/house/exterior-front.png`
-- `src/FabrykaRolet.Web/wwwroot/images/house/exterior-taras.png`
-- `src/FabrykaRolet.Web/wwwroot/images/house/exterior-tyl.png`
-- `src/FabrykaRolet.Web/wwwroot/images/house/exterior-garaz.png`
+```bash
+docker compose -f compose.yaml up --build
+```
 
-Współrzędne hotspotów są przechowywane w
-`src/FabrykaRolet.Infrastructure/Repositories/InMemoryHouseViewRepository.cs`
-jako punkty wielokątów w procentach (`X`, `Y` w skali `0-100`), więc po podmianie
-renderów wystarczy skorygować liczby bez zmian w JS.
+Po starcie:
+
+- strona publiczna: `http://localhost:5080`
+- panel administratora: `http://localhost:5080/Admin`
+- logowanie administratora: `http://localhost:5080/Admin/Login`
+
+Compose uruchamia:
+
+- PostgreSQL
+- aplikację ASP.NET Core
+
+## 3. Konto administratora
+
+Nie ma publicznej rejestracji kont administratora ani zwykłych użytkowników.
+Konto admina jest tworzone lub aktualizowane automatycznie przy starcie aplikacji
+na podstawie zmiennych środowiskowych.
+
+Możesz ustawić własne dane logowania lokalnie:
+
+macOS / Linux:
+
+```bash
+export FABRYKAROLET_ADMIN_USERNAME="twoj-login"
+export FABRYKAROLET_ADMIN_EMAIL="twoj@email.pl"
+export FABRYKAROLET_ADMIN_PASSWORD="TwojeSilneHaslo123"
+docker compose up --build
+```
+
+Windows PowerShell:
+
+```powershell
+$env:FABRYKAROLET_ADMIN_USERNAME="twoj-login"
+$env:FABRYKAROLET_ADMIN_EMAIL="twoj@email.pl"
+$env:FABRYKAROLET_ADMIN_PASSWORD="TwojeSilneHaslo123"
+docker compose up --build
+```
+
+Możesz też ustawić własne dane PostgreSQL:
+
+macOS / Linux:
+
+```bash
+export FABRYKAROLET_POSTGRES_DB="fabrykarolet"
+export FABRYKAROLET_POSTGRES_USER="fabrykarolet"
+export FABRYKAROLET_POSTGRES_PASSWORD="lokalne-haslo-dev"
+docker compose up --build
+```
+
+Windows PowerShell:
+
+```powershell
+$env:FABRYKAROLET_POSTGRES_DB="fabrykarolet"
+$env:FABRYKAROLET_POSTGRES_USER="fabrykarolet"
+$env:FABRYKAROLET_POSTGRES_PASSWORD="lokalne-haslo-dev"
+docker compose up --build
+```
+
+## 4. Ważne ostrzeżenie o sekretach
+
+Domyślne hasła z `compose.yaml` są oznaczone jako **development-only** i służą
+wyłącznie do lokalnego uruchomienia.
+
+Przed jakimkolwiek wdrożeniem:
+
+- ustaw własne wartości w zmiennych środowiskowych hostingu,
+- nie zostawiaj domyślnych haseł administratorskich ani bazodanowych,
+- nie commituj prawdziwych sekretów do repozytorium.
+
+## 5. Zdjęcia systemów
+
+Seedowane obrazy systemów są dostępne publicznie po starcie aplikacji.
+
+Upload zdjęć w panelu admina działa lokalnie i zapisuje pliki w katalogu aplikacji.
+To rozwiązanie jest wygodne do developmentu, ale **nie jest docelowym storage
+produkcyjnym**. Pliki zapisane wewnątrz kontenera Rendera lub innego hostingu
+kontenerowego nie powinny być traktowane jako trwałe miejsce przechowywania.
+
+## 6. Uwagi praktyczne
+
+- panel admina jest celowo ukryty przed zwykłą nawigacją publicznej strony,
+- `/Admin/Login` jest dostępne anonimowo,
+- pozostałe `/Admin/*` wymagają zalogowania,
+- na telefonie i tablecie panel nie udostępnia edycji; formularze są dostępne
+  wyłącznie na komputerze,
+- publiczna część strony pozostaje mobilna.

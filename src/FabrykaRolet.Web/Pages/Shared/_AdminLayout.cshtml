@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] – Panel administracyjny</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/dist/tailwind.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="min-h-screen bg-stone-100 text-stone-900 font-sans">
+    <div class="min-h-screen xl:grid xl:grid-cols-[16rem_minmax(0,1fr)]">
+        <aside class="border-b border-stone-200 bg-white xl:min-h-screen xl:border-b-0 xl:border-r">
+            <div class="flex items-center justify-between gap-3 px-4 py-4 xl:px-5">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Fabryka Rolet</p>
+                    <h1 class="text-base font-semibold">Panel administratora</h1>
+                </div>
+                <a asp-page="/Index" class="text-sm font-medium text-accent hover:underline">Strona</a>
+            </div>
+
+            <div class="mx-4 mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 xl:hidden">
+                Edycja treści, systemów i zdjęć jest dostępna wyłącznie na komputerze. Na telefonie i tablecie panel pozostaje tylko do podglądu.
+            </div>
+
+            <nav class="space-y-1 px-3 pb-5 text-sm" aria-label="Nawigacja panelu">
+                <a asp-page="/Admin/Index" class="block rounded-xl px-3 py-2 font-medium hover:bg-stone-100">Dashboard</a>
+                <a asp-page="/Admin/Systemy/Index" class="block rounded-xl px-3 py-2 font-medium hover:bg-stone-100">Systemy</a>
+                <a asp-page="/Admin/Tresci/Index" class="block rounded-xl px-3 py-2 font-medium hover:bg-stone-100">Treści stron</a>
+                <a asp-page="/Index" asp-route-adminPreview="1" class="block rounded-xl px-3 py-2 font-medium hover:bg-stone-100">Podgląd strony</a>
+            </nav>
+
+            <form method="post" asp-page="/Admin/Login" asp-page-handler="Logout" class="px-4 pb-5 xl:px-5">
+                <button type="submit" class="inline-flex rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium hover:bg-stone-50">Wyloguj</button>
+            </form>
+        </aside>
+
+        <main class="min-w-0 px-3 py-4 sm:px-4 lg:px-5 xl:px-6">
+            @RenderBody()
+        </main>
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        (() => {
+            const desktopQuery = window.matchMedia("(min-width: 1280px)");
+            const syncDesktopOnlyState = () => {
+                const isDesktop = desktopQuery.matches;
+                document.querySelectorAll("[data-admin-desktop-only]").forEach((element) => {
+                    if (isDesktop) {
+                        element.removeAttribute("inert");
+                    } else {
+                        element.setAttribute("inert", "");
+                    }
+                });
+            };
+
+            syncDesktopOnlyState();
+            if (typeof desktopQuery.addEventListener === "function") {
+                desktopQuery.addEventListener("change", syncDesktopOnlyState);
+            } else if (typeof desktopQuery.addListener === "function") {
+                desktopQuery.addListener(syncDesktopOnlyState);
+            }
+        })();
+    </script>
+</body>
+</html>

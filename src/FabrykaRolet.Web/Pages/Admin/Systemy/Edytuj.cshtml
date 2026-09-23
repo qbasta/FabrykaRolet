@@ -1,0 +1,168 @@
+@page "{id?}"
+@model FabrykaRolet.Web.Pages.Admin.Systemy.EdytujModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Nowy system" : "Edycja systemu";
+}
+
+<section class="mx-auto max-w-5xl space-y-5">
+    <header class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+        <p class="text-xs uppercase tracking-[0.3em] text-stone-400">Systemy</p>
+        <h2 class="mt-2 text-2xl font-semibold text-stone-900">@(Model.IsNew ? "Dodaj nowy system" : $"Edytuj: {Model.Input.Name}")</h2>
+        <p class="mt-2 text-sm text-stone-600">Nazwy pól są opisane tak, aby było jasne, gdzie dana treść pojawia się na stronie.</p>
+    </header>
+
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 xl:hidden">
+        Edycja systemów jest dostępna wyłącznie na komputerze. Otwórz panel na większym ekranie, aby zmienić opisy, widoczność lub dane techniczne.
+    </div>
+
+    <form method="post" class="hidden space-y-5 xl:block" data-admin-desktop-only inert>
+        <input asp-for="ReturnUrl" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+        <section class="grid gap-5 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6 md:grid-cols-2">
+            <div class="min-w-0">
+                <label asp-for="Input.Id" class="block text-sm font-medium text-stone-700">Stabilny identyfikator / slug</label>
+                <input asp-for="Input.Id" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" readonly="@(Model.IsNew ? null : "readonly")" />
+                <p class="mt-1 text-xs text-stone-500">To techniczny adres systemu używany też przez widoki domu. Po utworzeniu nie zmieniaj go.</p>
+                <span asp-validation-for="Input.Id" class="text-sm text-red-600"></span>
+            </div>
+            <div class="min-w-0">
+                <label asp-for="Input.Name" class="block text-sm font-medium text-stone-700">Nazwa systemu</label>
+                <input asp-for="Input.Name" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                <p class="mt-1 text-xs text-stone-500">To nazwa widoczna dla klienta.</p>
+                <span asp-validation-for="Input.Name" class="text-sm text-red-600"></span>
+            </div>
+            <div class="min-w-0">
+                <label asp-for="Input.Section" class="block text-sm font-medium text-stone-700">Sekcja</label>
+                <select asp-for="Input.Section" asp-items="Model.SectionOptions" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"></select>
+                <p class="mt-1 text-xs text-stone-500">Określa, czy system ma należeć do zakładki „Na zewnątrz” czy „Wewnątrz”.</p>
+            </div>
+            <div class="min-w-0">
+                <label asp-for="Input.SortOrder" class="block text-sm font-medium text-stone-700">Kolejność na liście</label>
+                <input asp-for="Input.SortOrder" type="number" class="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm" />
+                <p class="mt-1 text-xs text-stone-500">Mniejsze liczby pokazują się wcześniej.</p>
+            </div>
+            <fieldset class="space-y-3 md:col-span-2">
+                <legend class="text-sm font-medium text-stone-700">Stan publikacji</legend>
+                <div class="grid gap-3 xl:grid-cols-3">
+                    <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
+                        <p class="font-medium text-stone-900">Szkic / ukryty</p>
+                        <p class="mt-1 text-xs leading-5 text-stone-500">Domyślny stan nowego systemu. System zostaje w panelu, ale nie jest widoczny publicznie.</p>
+                    </div>
+                    <label class="flex min-w-0 items-start gap-3 rounded-2xl border border-stone-200 p-4">
+                        <input asp-for="Input.IsVisible" data-visible-toggle class="mt-1 h-4 w-4 rounded border-stone-300" />
+                        <span class="min-w-0">
+                            <span class="block text-sm font-medium text-stone-700">Widoczny publicznie</span>
+                            <span class="mt-1 block text-xs leading-5 text-stone-500">Po zaznaczeniu system pojawi się na stronie dla klientów.</span>
+                        </span>
+                    </label>
+                    <label class="flex min-w-0 items-start gap-3 rounded-2xl border border-stone-200 p-4">
+                        <input asp-for="Input.IsArchived" data-archive-toggle class="mt-1 h-4 w-4 rounded border-stone-300" />
+                        <span class="min-w-0">
+                            <span class="block text-sm font-medium text-stone-700">Archiwum</span>
+                            <span class="mt-1 block text-xs leading-5 text-stone-500">Archiwum zawsze wyłącza widoczność publiczną i zostawia system tylko w panelu.</span>
+                        </span>
+                    </label>
+                </div>
+                <p id="publication-state-help" class="text-xs text-stone-500" data-publication-state-help></p>
+            </fieldset>
+        </section>
+
+        <section class="space-y-5 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6">
+            <div>
+                <label asp-for="Input.ViewerDescription" class="block text-sm font-medium text-stone-700">Opis w popupie</label>
+                <textarea asp-for="Input.ViewerDescription" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                <p class="mt-1 text-xs text-stone-500">To pokazuje się po kliknięciu punktu na widoku domu.</p>
+            </div>
+            <div>
+                <label asp-for="Input.ShortDescription" class="block text-sm font-medium text-stone-700">Opis na stronie „Wszystkie systemy”</label>
+                <textarea asp-for="Input.ShortDescription" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                <p class="mt-1 text-xs text-stone-500">To pokazuje się w katalogu systemów.</p>
+            </div>
+            <div>
+                <label asp-for="Input.Advantages" class="block text-sm font-medium text-stone-700">Zalety</label>
+                <textarea asp-for="Input.Advantages" rows="6" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                <p class="mt-1 text-xs text-stone-500">Wpisz jedną zaletę w osobnej linii. Kolejność linii = kolejność na stronie.</p>
+            </div>
+            <div>
+                <label asp-for="Input.Materials" class="block text-sm font-medium text-stone-700">Materiały</label>
+                <textarea asp-for="Input.Materials" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                <p class="mt-1 text-xs text-stone-500">Wpisz jeden materiał w osobnej linii.</p>
+            </div>
+            <div class="grid gap-4 xl:grid-cols-3">
+                <div class="min-w-0">
+                    <label asp-for="Input.Mounting" class="block text-sm font-medium text-stone-700">Montaż / zastosowanie</label>
+                    <textarea asp-for="Input.Mounting" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                </div>
+                <div class="min-w-0">
+                    <label asp-for="Input.Control" class="block text-sm font-medium text-stone-700">Sterowanie</label>
+                    <textarea asp-for="Input.Control" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                </div>
+                <div class="min-w-0">
+                    <label asp-for="Input.MaxDimensions" class="block text-sm font-medium text-stone-700">Maksymalne wymiary</label>
+                    <textarea asp-for="Input.MaxDimensions" rows="4" class="mt-1 w-full rounded-2xl border border-stone-300 px-3 py-2 text-sm"></textarea>
+                </div>
+            </div>
+        </section>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="submit" class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white">Zapisz system</button>
+            @if (Url.IsLocalUrl(Model.ReturnUrl))
+            {
+                <a href="@Model.ReturnUrl" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Wróć do poprzedniego widoku</a>
+            }
+            else
+            {
+                <a asp-page="/Admin/Systemy/Index" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Wróć do listy</a>
+            }
+            @if (!Model.IsNew)
+            {
+                <a asp-page="/Admin/Systemy/Zdjecia" asp-route-id="@Model.Input.Id" asp-route-returnUrl="@Model.ReturnUrl" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Zarządzaj zdjęciami</a>
+            }
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const visibleToggle = document.querySelector("[data-visible-toggle]");
+            const archiveToggle = document.querySelector("[data-archive-toggle]");
+            const stateHelp = document.querySelector("[data-publication-state-help]");
+            if (!(visibleToggle instanceof HTMLInputElement) || !(archiveToggle instanceof HTMLInputElement) || !(stateHelp instanceof HTMLElement)) {
+                return;
+            }
+
+            const syncState = (source) => {
+                if (source === archiveToggle && archiveToggle.checked) {
+                    visibleToggle.checked = false;
+                }
+
+                if (source === visibleToggle && visibleToggle.checked) {
+                    archiveToggle.checked = false;
+                }
+
+                if (!source && archiveToggle.checked && visibleToggle.checked) {
+                    visibleToggle.checked = false;
+                }
+
+                if (archiveToggle.checked) {
+                    stateHelp.textContent = "Stan po zapisie: system trafi do archiwum i nie będzie widoczny na stronie publicznej.";
+                    return;
+                }
+
+                if (visibleToggle.checked) {
+                    stateHelp.textContent = "Stan po zapisie: system będzie widoczny publicznie.";
+                    return;
+                }
+
+                stateHelp.textContent = "Stan po zapisie: system pozostanie jako szkic / ukryty i będzie widoczny tylko w panelu.";
+            };
+
+            visibleToggle.addEventListener("change", () => syncState(visibleToggle));
+            archiveToggle.addEventListener("change", () => syncState(archiveToggle));
+            syncState();
+        })();
+    </script>
+}

@@ -2,14 +2,19 @@
 @model FabrykaRolet.Web.Pages.SystemyModel
 @{
     ViewData["Title"] = "Wszystkie systemy";
+    var isAdminPreview = User.Identity?.IsAuthenticated == true && ViewContext.HttpContext.Request.Query["adminPreview"] == "1";
 }
 
 <div class="bg-stone-100 min-h-full">
     <div id="systems-page" class="max-w-6xl mx-auto px-4 md:px-8 py-8 space-y-8">
 
-        <header>
-            <h1 class="text-3xl font-bold text-stone-900 tracking-tight">Wszystkie systemy</h1>
-            <p class="text-stone-500 mt-1">Pełny katalog systemów Fabryki Rolet — przefiltruj po lokalizacji montażu albo przewiń całość.</p>
+        <header class="relative">
+            @if (isAdminPreview)
+            {
+                <a asp-page="/Admin/Tresci/Index" class="absolute right-0 top-0 hidden rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm xl:inline-flex">Edytuj nagłówek katalogu</a>
+            }
+            <h1 class="text-3xl font-bold text-stone-900 tracking-tight">@Model.PageHeading</h1>
+            <p class="text-stone-500 mt-1">@Model.PageLead</p>
         </header>
 
         <nav class="flex flex-wrap gap-2 pb-2 border-b border-stone-200" aria-label="Filtry kategorii">
@@ -34,13 +39,22 @@
             {
                 var sectionSlug = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "exterior" : "interior";
                 var sectionLabel = system.Section == FabrykaRolet.Domain.Entities.HouseSection.Exterior ? "System zewnętrzny" : "System wewnętrzny";
-                var images = Model.SystemImages.TryGetValue(system.Id, out var assignedImages) ? assignedImages : Array.Empty<string>();
+                var images = Model.SystemImages.TryGetValue(system.Id, out var assignedImages) ? assignedImages : Array.Empty<FabrykaRolet.Web.Services.PublicSystemImage>();
                 var slideCount = images.Count > 0 ? images.Count : 1;
+                var returnUrl = $"/Systemy?adminPreview=1#{system.Id}";
 
                 <article
                     id="@system.Id"
                     data-section="@sectionSlug"
-                    class="system-pill scroll-mt-24 bg-white rounded-3xl p-6 md:p-8 border border-stone-200/80 shadow-sm transition-all duration-300 space-y-4">
+                    class="system-pill scroll-mt-24 bg-white rounded-3xl p-6 md:p-8 border border-stone-200/80 shadow-sm transition-all duration-300 space-y-4 relative">
+
+                    @if (isAdminPreview)
+                    {
+                        <div class="absolute right-6 top-6 z-10 hidden flex-wrap gap-2 xl:flex">
+                            <a asp-page="/Admin/Systemy/Edytuj" asp-route-id="@system.Id" asp-route-returnUrl="@returnUrl" class="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Edytuj treść</a>
+                            <a asp-page="/Admin/Systemy/Zdjecia" asp-route-id="@system.Id" class="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-semibold text-stone-700 shadow-sm">Zdjęcia</a>
+                        </div>
+                    }
 
                     <div class="system-pill__layout">
                         <section
@@ -61,6 +75,7 @@
                                     {
                                         @for (var slideIndex = 0; slideIndex < images.Count; slideIndex++)
                                         {
+                                            var image = images[slideIndex];
                                             <div
                                                 class="system-carousel__slide @(slideIndex == 0 ? "is-active" : null)"
                                                 data-carousel-slide
@@ -70,8 +85,8 @@
                                                 aria-hidden="@(slideIndex == 0 ? "false" : "true")">
                                                 <img
                                                     class="system-carousel__image"
-                                                    src="~/images/systems/@images[slideIndex]"
-                                                    alt="@($"{system.Name} – zdjęcie {slideIndex + 1}")"
+                                                    src="@image.Path"
+                                                    alt="@image.AltText"
                                                     loading="lazy" />
                                             </div>
                                         }

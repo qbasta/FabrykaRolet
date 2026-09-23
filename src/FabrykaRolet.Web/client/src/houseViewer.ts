@@ -8,7 +8,7 @@ const LAYOUT_TRANSITION_MS = 420;
 const DESKTOP_MEDIA_QUERY = "(min-width: 901px)";
 const CONNECTOR_MARGIN = 10;
 
-type PanelContent = { name: string; description: string };
+type PanelContent = { name: string; description: string; advantages: string[] };
 type HotspotLookup = { viewIndex: number; hotspot: HotspotData };
 
 export class HouseViewer {
@@ -22,6 +22,7 @@ export class HouseViewer {
   private readonly panelClose: HTMLButtonElement;
   private readonly panelTitle: HTMLElement;
   private readonly panelDescription: HTMLElement;
+  private readonly panelAdvantages: HTMLElement;
   private readonly panelLink: HTMLAnchorElement;
   private readonly availability: HTMLElement | null;
   private readonly panelStatus: HTMLElement | null;
@@ -59,6 +60,7 @@ export class HouseViewer {
     this.panelClose = this.require(".house-viewer__panel-close");
     this.panelTitle = this.require("#house-viewer-panel-title");
     this.panelDescription = this.require("#house-viewer-panel-description");
+    this.panelAdvantages = this.require("#house-viewer-panel-advantages");
     this.panelLink = this.require("#house-viewer-panel-link");
     this.availability = root.querySelector("#house-viewer-availability");
     this.panelStatus = root.querySelector("#house-viewer-status");
@@ -250,6 +252,15 @@ export class HouseViewer {
     return this.data.systems.find((item) => item.systemId === systemId);
   }
 
+  private buildSystemsPageUrl(systemId: string): string {
+    const url = new URL("/Systemy", window.location.origin);
+    if (this.root.dataset.adminPreview === "true" || document.body.dataset.adminPreview === "true") {
+      url.searchParams.set("adminPreview", "1");
+    }
+
+    return `${url.pathname}${url.search}#${encodeURIComponent(systemId)}`;
+  }
+
   private activateSystem(systemId: string, trigger: HTMLElement): void {
     const found = this.findHotspot(systemId);
     if (!found) {
@@ -414,7 +425,13 @@ export class HouseViewer {
 
     this.panelTitle.textContent = content.name;
     this.panelDescription.textContent = content.description;
-    this.panelLink.href = `/Systemy#${encodeURIComponent(systemId)}`;
+    this.panelAdvantages.replaceChildren();
+    content.advantages.forEach((advantage) => {
+      const item = document.createElement("li");
+      item.textContent = advantage;
+      this.panelAdvantages.appendChild(item);
+    });
+    this.panelLink.href = this.buildSystemsPageUrl(systemId);
 
     this.panel.hidden = false;
     this.panel.setAttribute("aria-hidden", "false");
