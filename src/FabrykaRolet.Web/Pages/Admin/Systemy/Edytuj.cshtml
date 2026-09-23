@@ -16,6 +16,7 @@
     </div>
 
     <form method="post" class="hidden space-y-5 xl:block" data-admin-desktop-only inert>
+        <input asp-for="ReturnUrl" type="hidden" />
         <div asp-validation-summary="ModelOnly" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
         <section class="grid gap-5 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-6 md:grid-cols-2">
@@ -106,10 +107,17 @@
 
         <div class="flex flex-wrap gap-3">
             <button type="submit" class="rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white">Zapisz system</button>
-            <a asp-page="/Admin/Systemy/Index" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Wróć do listy</a>
+            @if (Url.IsLocalUrl(Model.ReturnUrl))
+            {
+                <a href="@Model.ReturnUrl" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Wróć do poprzedniego widoku</a>
+            }
+            else
+            {
+                <a asp-page="/Admin/Systemy/Index" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Wróć do listy</a>
+            }
             @if (!Model.IsNew)
             {
-                <a asp-page="/Admin/Systemy/Zdjecia" asp-route-id="@Model.Input.Id" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Zarządzaj zdjęciami</a>
+                <a asp-page="/Admin/Systemy/Zdjecia" asp-route-id="@Model.Input.Id" asp-route-returnUrl="@Model.ReturnUrl" class="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium">Zarządzaj zdjęciami</a>
             }
         </div>
     </form>
@@ -133,6 +141,10 @@
 
                 if (source === visibleToggle && visibleToggle.checked) {
                     archiveToggle.checked = false;
+                }
+
+                if (!source && archiveToggle.checked && visibleToggle.checked) {
+                    visibleToggle.checked = false;
                 }
 
                 if (archiveToggle.checked) {

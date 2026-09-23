@@ -12,7 +12,7 @@ public class SystemyModel(
     SiteContentService siteContentService) : PageModel
 {
     public IReadOnlyList<WindowSystem> Systems { get; private set; } = Array.Empty<WindowSystem>();
-    public IReadOnlyDictionary<string, IReadOnlyList<string>> SystemImages { get; private set; } = new Dictionary<string, IReadOnlyList<string>>();
+    public IReadOnlyDictionary<string, IReadOnlyList<PublicSystemImage>> SystemImages { get; private set; } = new Dictionary<string, IReadOnlyList<PublicSystemImage>>();
     public int ExteriorCount { get; private set; }
     public int InteriorCount { get; private set; }
     public string PageHeading { get; private set; } = string.Empty;

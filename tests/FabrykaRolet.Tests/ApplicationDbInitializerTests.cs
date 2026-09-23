@@ -75,7 +75,7 @@ public sealed class ApplicationDbInitializerTests
     }
 
     [Fact]
-    public async Task InitializeAsync_restores_legacy_seeded_viewer_descriptions_to_public_copy()
+    public async Task InitializeAsync_restores_obsolete_expanded_viewer_descriptions_to_short_popup_copy()
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");
         await connection.OpenAsync();
@@ -93,7 +93,7 @@ public sealed class ApplicationDbInitializerTests
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var system = await dbContext.WindowSystems.SingleAsync(x => x.Id == "rolety-zewnetrzne");
-            system.ViewerDescription = "Zewnętrzna osłona okienna, która pomaga ograniczyć słońce, hałas i straty ciepła.";
+            system.ViewerDescription = "Rolety montowane na zewnątrz okna, zwijane w skrzynkę nad oknem. Chronią przed słońcem, hałasem i utratą ciepła.";
             system.ShortDescription = WindowSystemSeedData.All.Single(x => x.Id == "rolety-zewnetrzne").ShortDescription;
             await dbContext.SaveChangesAsync();
         }
@@ -113,7 +113,93 @@ public sealed class ApplicationDbInitializerTests
             .Select(x => x.ViewerDescription)
             .SingleAsync();
 
-        Assert.Equal(WindowSystemSeedData.All.Single(x => x.Id == "rolety-zewnetrzne").ShortDescription, restoredValue);
+        Assert.Equal(WindowSystemSeedData.All.Single(x => x.Id == "rolety-zewnetrzne").ViewerDescription, restoredValue);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_does_not_reset_existing_admin_password_on_subsequent_starts()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var services = CreateServiceProvider(connection);
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager, new AdminSeedOptions
+            {
+                UserName = "admin",
+                Email = "admin@fabrykarolet.local",
+                Password = "Stabilizacja123!"
+            });
+            await initializer.InitializeAsync();
+        }
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager, new AdminSeedOptions
+            {
+                UserName = "admin",
+                Email = "admin@fabrykarolet.local",
+                Password = "NoweHaslo456!"
+            });
+            await initializer.InitializeAsync();
+        }
+
+        await using var verificationScope = services.CreateAsyncScope();
+        var verificationUserManager = verificationScope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+        var verificationDbContext = verificationScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var user = await verificationDbContext.Users.SingleAsync();
+
+        Assert.True(await verificationUserManager.CheckPasswordAsync(user, "Stabilizacja123!"));
+        Assert.False(await verificationUserManager.CheckPasswordAsync(user, "NoweHaslo456!"));
+    }
+
+    [Fact]
+    public async Task InitializeAsync_updates_single_existing_admin_identity_without_creating_duplicate()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var services = CreateServiceProvider(connection);
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager, new AdminSeedOptions
+            {
+                UserName = "admin",
+                Email = "admin@fabrykarolet.local",
+                Password = "Stabilizacja123!"
+            });
+            await initializer.InitializeAsync();
+        }
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+            var initializer = CreateInitializer(dbContext, userManager, new AdminSeedOptions
+            {
+                UserName = "panel",
+                Email = "panel@fabrykarolet.local",
+                Password = "NoweHaslo456!"
+            });
+            await initializer.InitializeAsync();
+        }
+
+        await using var verificationScope = services.CreateAsyncScope();
+        var verificationDbContext = verificationScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var verificationUserManager = verificationScope.ServiceProvider.GetRequiredService<UserManager<AdminUser>>();
+        var user = await verificationDbContext.Users.SingleAsync();
+
+        Assert.Equal("panel", user.UserName);
+        Assert.Equal("panel@fabrykarolet.local", user.Email);
+        Assert.True(await verificationUserManager.CheckPasswordAsync(user, "Stabilizacja123!"));
+        Assert.False(await verificationUserManager.CheckPasswordAsync(user, "NoweHaslo456!"));
     }
 
     private static ServiceProvider CreateServiceProvider(SqliteConnection connection)
@@ -132,12 +218,15 @@ public sealed class ApplicationDbInitializerTests
         return services.BuildServiceProvider();
     }
 
-    private static ApplicationDbInitializer CreateInitializer(AppDbContext dbContext, UserManager<AdminUser> userManager)
+    private static ApplicationDbInitializer CreateInitializer(
+        AppDbContext dbContext,
+        UserManager<AdminUser> userManager,
+        AdminSeedOptions? options = null)
     {
         return new ApplicationDbInitializer(
             dbContext,
             userManager,
-            Options.Create(new AdminSeedOptions
+            Options.Create(options ?? new AdminSeedOptions
             {
                 UserName = "admin",
                 Email = "admin@fabrykarolet.local",
